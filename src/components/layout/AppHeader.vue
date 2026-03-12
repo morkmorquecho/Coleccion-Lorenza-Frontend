@@ -1,10 +1,10 @@
 <template>
   <header :class="['app-header', { 'header--hidden': isHidden, 'header--scrolled': isScrolled }]">
     <div class="header-inner">
+
       <!-- Logo -->
       <a href="/" class="header-logo" aria-label="Inicio">
-        <span class="logo-mark">&#9632;</span>
-        <span class="logo-text">studio</span>
+        <img src="../../assets/logo.svg" alt="Logo" class="logo-img" />
       </a>
 
       <!-- Nav Desktop -->
@@ -17,55 +17,158 @@
           @click.prevent="setActive(item.href)"
         >
           {{ item.label }}
-          <span class="nav-link-dot"></span>
+          <span class="nav-link-line"></span>
         </a>
       </nav>
 
-      <!-- CTA Desktop -->
+      <!-- Icons Desktop -->
       <div class="header-actions">
-        <a href="#contact" class="cta-btn">
-          Contacto
-          <span class="cta-arrow">&#8594;</span>
+        <button class="icon-btn lang-btn" @click="toggleLang" :aria-label="`Idioma: ${currentLang}`">
+          <span class="lang-text">{{ currentLang }}</span>
+        </button>
+
+        <button class="icon-btn" @click="toggleMute" :aria-label="muted ? 'Activar sonido' : 'Silenciar'">
+          <svg v-if="!muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
+
+        <a href="/perfil" class="icon-btn" aria-label="Mi perfil">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </a>
+
+        <a href="/favoritos" class="icon-btn" aria-label="Favoritos">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </a>
+
+        <a href="/carrito" class="icon-btn cart-btn" aria-label="Carrito de compras">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
         </a>
       </div>
 
-      <!-- Hamburger Mobile -->
-      <button
-        class="hamburger"
-        :class="{ 'hamburger--open': menuOpen }"
-        @click="toggleMenu"
-        aria-label="Abrir menú"
-        :aria-expanded="menuOpen"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      <!-- Tablet: cart visible + hamburger -->
+      <div class="header-actions-tablet">
+        <a href="/carrito" class="icon-btn cart-btn" aria-label="Carrito de compras">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+        </a>
+
+        <button
+          class="hamburger"
+          :class="{ 'hamburger--open': menuOpen }"
+          @click="toggleMenu"
+          aria-label="Abrir menú"
+          :aria-expanded="menuOpen"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
     </div>
 
-    <!-- Mobile Menu Overlay -->
-    <Transition name="menu-slide">
-      <div v-if="menuOpen" class="mobile-menu" role="dialog" aria-modal="true">
-        <nav class="mobile-nav" aria-label="Menú móvil">
+    <!-- Backdrop -->
+    <Transition name="backdrop-fade">
+      <div
+        v-if="menuOpen"
+        class="drawer-backdrop"
+        @click="closeMenu"
+        aria-hidden="true"
+      />
+    </Transition>
+
+    <!-- Drawer -->
+    <Transition name="drawer-slide">
+      <aside v-if="menuOpen" class="drawer" role="dialog" aria-modal="true" aria-label="Menú">
+
+        <!-- Drawer Header -->
+        <div class="drawer-header">
+          <span class="drawer-label">Menú</span>
+          <button class="drawer-close" @click="closeMenu" aria-label="Cerrar menú">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Drawer Nav -->
+        <nav class="drawer-nav" aria-label="Menú móvil">
           <a
             v-for="(item, i) in navItems"
             :key="item.href"
             :href="item.href"
-            class="mobile-nav-link"
-            :style="{ transitionDelay: `${i * 60}ms` }"
-            :class="{ 'mobile-nav-link--visible': menuOpen }"
+            class="drawer-link"
+            :class="{ 'drawer-link--active': activeLink === item.href }"
+            :style="{ transitionDelay: menuOpen ? `${i * 45 + 40}ms` : '0ms' }"
             @click.prevent="handleMobileNav(item.href)"
           >
-            <span class="mobile-link-number">0{{ i + 1 }}</span>
-            {{ item.label }}
+            <span class="drawer-link-index">{{ String(i + 1).padStart(2, '0') }}</span>
+            <span class="drawer-link-label">{{ item.label }}</span>
+            <svg class="drawer-link-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
           </a>
         </nav>
-        <div class="mobile-footer">
-          <a href="#contact" class="cta-btn cta-btn--mobile" @click="toggleMenu">
-            Contacto <span class="cta-arrow">&#8594;</span>
-          </a>
+
+        <!-- Drawer Footer -->
+        <div class="drawer-footer">
+          <div class="drawer-footer-actions">
+            <button class="drawer-icon-btn lang-btn" @click="toggleLang" :aria-label="`Idioma: ${currentLang}`">
+              <span class="lang-text">{{ currentLang }}</span>
+            </button>
+
+            <button class="drawer-icon-btn" @click="toggleMute" :aria-label="muted ? 'Activar sonido' : 'Silenciar'">
+              <svg v-if="!muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+              </svg>
+            </button>
+
+            <a href="/perfil" class="drawer-icon-btn" aria-label="Mi perfil" @click="closeMenu">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </a>
+
+            <a href="/favoritos" class="drawer-icon-btn" aria-label="Favoritos" @click="closeMenu">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </a>
+          </div>
         </div>
-      </div>
+
+      </aside>
     </Transition>
   </header>
 </template>
@@ -73,20 +176,24 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 
-// --- State ---
-const isHidden  = ref(false)
-const isScrolled = ref(false)
-const menuOpen  = ref(false)
-const activeLink = ref('#home')
+const isHidden    = ref(false)
+const isScrolled  = ref(false)
+const menuOpen    = ref(false)
+const activeLink  = ref('#inicio')
+const muted       = ref(false)
+const currentLang = ref('ES')
+const cartCount   = ref(2)
 
 const navItems = [
-  { label: 'Inicio',    href: '#home' },
-  { label: 'Trabajo',   href: '#work' },
-  { label: 'Servicios', href: '#services' },
-  { label: 'Nosotros',  href: '#about' },
+  { label: 'Inicio',    href: '#inicio' },
+  { label: 'Colección', href: '#coleccion' },
+  { label: 'Tienda',    href: '#tienda' },
+  { label: 'Blog',      href: '#blog' },
+  { label: 'Contactos', href: '#contactos' },
 ]
 
-// --- Scroll logic ---
+const langs = ['ES', 'EN', 'FR']
+
 let lastScrollY = 0
 let ticking = false
 
@@ -95,16 +202,12 @@ function onScroll() {
     requestAnimationFrame(() => {
       const currentY = window.scrollY
       isScrolled.value = currentY > 20
-
       if (currentY > lastScrollY && currentY > 80) {
-        // Scrolling down
         isHidden.value = true
-        if (menuOpen.value) menuOpen.value = false
+        if (menuOpen.value) closeMenu()
       } else {
-        // Scrolling up
         isHidden.value = false
       }
-
       lastScrollY = currentY <= 0 ? 0 : currentY
       ticking = false
     })
@@ -112,23 +215,25 @@ function onScroll() {
   }
 }
 
-// --- Mobile menu ---
+function toggleMute()  { muted.value = !muted.value }
+function toggleLang()  { const i = langs.indexOf(currentLang.value); currentLang.value = langs[(i + 1) % langs.length] }
+function setActive(href) { activeLink.value = href }
+
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
   document.body.style.overflow = menuOpen.value ? 'hidden' : ''
 }
 
-function handleMobileNav(href) {
-  setActive(href)
+function closeMenu() {
   menuOpen.value = false
   document.body.style.overflow = ''
 }
 
-function setActive(href) {
-  activeLink.value = href
+function handleMobileNav(href) {
+  setActive(href)
+  closeMenu()
 }
 
-// --- Lifecycle ---
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   lastScrollY = window.scrollY
@@ -142,24 +247,37 @@ onUnmounted(() => {
 
 <style scoped>
 /* ===========================
-   TOKENS / VARIABLES
+   FONT
    =========================== */
-.app-header {
-  --color-bg:      rgba(8, 8, 10, 0.72);
-  --color-border:  rgba(255, 255, 255, 0.08);
-  --color-text:    #e8e8e8;
-  --color-muted:   rgba(232, 232, 232, 0.45);
-  --color-accent:  #e2e2e2;
-  --color-cta-bg:  #ffffff;
-  --color-cta-txt: #0a0a0a;
-  --radius:        999px;
-  --blur:          18px;
-  --height:        60px;
-  --transition:    0.38s cubic-bezier(0.4, 0, 0.2, 1);
+@font-face {
+  font-family: 'COM4DL__';
+  src: url('/fonts/COM4DL__.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 /* ===========================
-   BASE
+   TOKENS
+   =========================== */
+.app-header {
+  --orange:      #ff6a1a;
+  --orange-dim:  rgba(255, 106, 26, 0.55);
+  --bg-glass:    rgba(6, 4, 2, 0.18);
+  --bg-scrolled: rgba(6, 4, 2, 0.52);
+  --border:      rgba(255, 106, 26, 0.12);
+  --blur:        20px;
+  --height:      64px;
+  --ease:        cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Drawer */
+  --drawer-width:   300px;
+  --drawer-bg:      #0c0704;
+  --drawer-border:  rgba(255, 106, 26, 0.1);
+}
+
+/* ===========================
+   BASE HEADER
    =========================== */
 .app-header {
   position: fixed;
@@ -167,22 +285,24 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: 12px 24px;
+  padding: 0 28px;
+  background: var(--bg-glass);
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(0px) saturate(100%);
+  -webkit-backdrop-filter: blur(0px) saturate(100%);
   transform: translateY(0);
   transition:
-    transform var(--transition),
-    background var(--transition),
-    backdrop-filter var(--transition),
-    border-color var(--transition);
-  background: transparent;
-  border-bottom: 1px solid transparent;
+    transform 0.4s var(--ease),
+    background 0.36s var(--ease),
+    backdrop-filter 0.36s var(--ease),
+    border-color 0.36s var(--ease);
 }
 
 .app-header.header--scrolled {
-  background: var(--color-bg);
-  backdrop-filter: blur(var(--blur)) saturate(160%);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(160%);
-  border-bottom-color: var(--color-border);
+  background: var(--bg-scrolled);
+  backdrop-filter: blur(var(--blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+  border-bottom-color: var(--border);
 }
 
 .app-header.header--hidden {
@@ -196,10 +316,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1200px;
+  max-width: 1320px;
   margin: 0 auto;
   height: var(--height);
-  gap: 24px;
+  gap: 16px;
 }
 
 /* ===========================
@@ -208,31 +328,21 @@ onUnmounted(() => {
 .header-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  color: var(--color-text);
   flex-shrink: 0;
+  text-decoration: none;
 }
 
-.logo-mark {
-  font-size: 14px;
-  color: var(--color-accent);
-  transform: rotate(45deg);
-  display: inline-block;
-  transition: transform 0.5s ease;
+.logo-img {
+  height: 36px;
+  width: auto;
+  display: block;
+  filter: brightness(0) saturate(100%) invert(52%) sepia(95%) saturate(1200%) hue-rotate(1deg) brightness(105%);
+  transition: filter 0.28s ease, transform 0.36s var(--ease);
 }
 
-.header-logo:hover .logo-mark {
-  transform: rotate(225deg);
-}
-
-.logo-text {
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text);
+.header-logo:hover .logo-img {
+  filter: brightness(0) saturate(100%) invert(52%) sepia(95%) saturate(1200%) hue-rotate(1deg) brightness(130%);
+  transform: scale(1.05);
 }
 
 /* ===========================
@@ -241,108 +351,148 @@ onUnmounted(() => {
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
+  flex: 1;
+  justify-content: center;
 }
 
 .nav-link {
   position: relative;
-  padding: 6px 14px;
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  color: var(--color-muted);
+  padding: 6px 13px;
+  font-family: 'COM4DL__', sans-serif;
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange-dim);
   text-decoration: none;
-  border-radius: var(--radius);
-  transition: color 0.22s ease, background 0.22s ease;
-  overflow: hidden;
+  transition: color 0.22s ease;
+  white-space: nowrap;
 }
 
 .nav-link::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius);
+  border-radius: 6px;
+  background: rgba(255, 106, 26, 0.07);
   opacity: 0;
   transition: opacity 0.22s ease;
 }
 
-.nav-link:hover {
-  color: var(--color-text);
+.nav-link:hover,
+.nav-link--active {
+  color: var(--orange);
 }
 
 .nav-link:hover::before {
   opacity: 1;
 }
 
-.nav-link--active {
-  color: var(--color-text);
-}
-
-.nav-link-dot {
+.nav-link-line {
   position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%) scale(0);
-  width: 3px;
-  height: 3px;
-  background: var(--color-accent);
-  border-radius: 50%;
-  transition: transform 0.22s ease;
+  bottom: 1px;
+  left: 13px;
+  right: 13px;
+  height: 1px;
+  background: var(--orange);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s var(--ease);
+  border-radius: 1px;
 }
 
-.nav-link--active .nav-link-dot,
-.nav-link:hover .nav-link-dot {
-  transform: translateX(-50%) scale(1);
+.nav-link--active .nav-link-line,
+.nav-link:hover .nav-link-line {
+  transform: scaleX(1);
 }
 
 /* ===========================
-   CTA BUTTON
+   ACTIONS DESKTOP
    =========================== */
 .header-actions {
   display: flex;
   align-items: center;
+  gap: 4px;
   flex-shrink: 0;
 }
 
-.cta-btn {
-  display: inline-flex;
+/* Tablet strip: cart + hamburger only */
+.header-actions-tablet {
+  display: none;
   align-items: center;
   gap: 6px;
-  padding: 8px 20px;
-  background: var(--color-cta-bg);
-  color: var(--color-cta-txt);
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  border-radius: var(--radius);
+}
+
+/* ===========================
+   ICON BTN (shared)
+   =========================== */
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--orange-dim);
   text-decoration: none;
-  transition: background 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
-  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  transition: color 0.22s ease, background 0.22s ease;
+  padding: 0;
 }
 
-.cta-btn:hover {
-  background: #f0f0f0;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(255, 255, 255, 0.15);
+.icon-btn svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
 }
 
-.cta-arrow {
-  display: inline-block;
-  transition: transform 0.22s ease;
+.icon-btn:hover {
+  color: var(--orange);
+  background: rgba(255, 106, 26, 0.09);
 }
 
-.cta-btn:hover .cta-arrow {
-  transform: translateX(3px);
+.lang-btn {
+  width: auto;
+  padding: 0 10px;
+}
+
+.lang-text {
+  font-family: 'COM4DL__', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: inherit;
+}
+
+.cart-btn { position: relative; }
+
+.cart-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  background: var(--orange);
+  color: #0a0a0a;
+  font-family: 'COM4DL__', sans-serif;
+  font-size: 9px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-weight: 700;
+  line-height: 1;
 }
 
 /* ===========================
    HAMBURGER
    =========================== */
 .hamburger {
-  display: none;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -350,142 +500,316 @@ onUnmounted(() => {
   width: 40px;
   height: 40px;
   background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  transition: border-color 0.22s ease;
+  transition: border-color 0.22s ease, background 0.22s ease;
 }
 
 .hamburger:hover {
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 106, 26, 0.35);
+  background: rgba(255, 106, 26, 0.05);
 }
 
 .hamburger span {
   display: block;
-  width: 18px;
   height: 1.5px;
-  background: var(--color-text);
+  background: var(--orange);
   border-radius: 2px;
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.22s ease;
+  transition: transform 0.32s var(--ease), opacity 0.22s ease, width 0.22s ease;
   transform-origin: center;
 }
 
-.hamburger--open span:nth-child(1) {
-  transform: translateY(6.5px) rotate(45deg);
+.hamburger span:nth-child(1) { width: 18px; }
+.hamburger span:nth-child(2) { width: 12px; }
+.hamburger span:nth-child(3) { width: 18px; }
+
+.hamburger--open span:nth-child(1) { width: 18px; transform: translateY(6.5px) rotate(45deg); }
+.hamburger--open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger--open span:nth-child(3) { width: 18px; transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ===========================
+   BACKDROP
+   =========================== */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 2, 1, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1100;
+  cursor: pointer;
 }
 
-.hamburger--open span:nth-child(2) {
+.backdrop-fade-enter-active,
+.backdrop-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.backdrop-fade-enter-from,
+.backdrop-fade-leave-to {
   opacity: 0;
-  transform: scaleX(0);
-}
-
-.hamburger--open span:nth-child(3) {
-  transform: translateY(-6.5px) rotate(-45deg);
 }
 
 /* ===========================
-   MOBILE MENU
+   DRAWER
    =========================== */
-.mobile-menu {
+.drawer {
   position: fixed;
-  inset: 0;
-  background: rgba(6, 6, 8, 0.97);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--drawer-width);
+  max-width: 88vw;
+  background: var(--drawer-bg);
+  border-left: 1px solid var(--drawer-border);
+  z-index: 1200;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 80px 32px 48px;
-  z-index: 999;
+  overflow: hidden;
 }
 
-.mobile-nav {
+/* Subtle grain texture on drawer */
+.drawer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.drawer-slide-enter-active {
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.drawer-slide-leave-active {
+  transition: transform 0.28s cubic-bezier(0.4, 0, 1, 1);
+}
+.drawer-slide-enter-from,
+.drawer-slide-leave-to {
+  transform: translateX(100%);
+}
+
+/* --- Drawer Header --- */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: var(--height);
+  border-bottom: 1px solid var(--drawer-border);
+  flex-shrink: 0;
+}
+
+.drawer-label {
+  font-family: 'COM4DL__', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 106, 26, 0.35);
+}
+
+.drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid var(--drawer-border);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--orange-dim);
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  padding: 0;
+}
+
+.drawer-close svg {
+  width: 15px;
+  height: 15px;
+}
+
+.drawer-close:hover {
+  color: var(--orange);
+  border-color: rgba(255, 106, 26, 0.35);
+  background: rgba(255, 106, 26, 0.06);
+}
+
+/* --- Drawer Nav --- */
+.drawer-nav {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  padding: 12px 0;
+  overflow-y: auto;
+}
+
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  text-decoration: none;
+  color: rgba(255, 106, 26, 0.4);
+  border-bottom: 1px solid rgba(255, 106, 26, 0.05);
+  transition:
+    color 0.22s ease,
+    background 0.22s ease,
+    padding-left 0.22s var(--ease),
+    opacity 0.4s ease,
+    transform 0.4s var(--ease);
+  transform: translateX(16px);
+  opacity: 0;
+}
+
+/* Links animate in when drawer opens */
+.drawer-link {
+  animation: drawerLinkIn 0.4s var(--ease) forwards;
+}
+
+@keyframes drawerLinkIn {
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.drawer-link:hover,
+.drawer-link--active {
+  color: var(--orange);
+  background: rgba(255, 106, 26, 0.05);
+  padding-left: 26px;
+}
+
+.drawer-link-index {
+  font-family: 'COM4DL__', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 106, 26, 0.2);
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.drawer-link--active .drawer-link-index {
+  color: rgba(255, 106, 26, 0.5);
+}
+
+.drawer-link-label {
+  font-family: 'COM4DL__', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex: 1;
+}
+
+.drawer-link-arrow {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.2s ease, transform 0.2s var(--ease);
+}
+
+.drawer-link:hover .drawer-link-arrow,
+.drawer-link--active .drawer-link-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* --- Drawer Footer --- */
+.drawer-footer {
+  flex-shrink: 0;
+  padding: 20px;
+  border-top: 1px solid var(--drawer-border);
+}
+
+.drawer-footer-actions {
+  display: flex;
+  align-items: center;
   gap: 4px;
 }
 
-.mobile-nav-link {
-  display: flex;
+.drawer-icon-btn {
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 20px;
-  padding: 18px 0;
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
-  font-size: clamp(28px, 7vw, 42px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: rgba(232, 232, 232, 0.35);
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  background: rgba(255, 106, 26, 0.04);
+  border: 1px solid rgba(255, 106, 26, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--orange-dim);
   text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  transform: translateY(20px);
-  opacity: 0;
-  transition:
-    color 0.22s ease,
-    transform 0.42s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.42s ease;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  padding: 0 10px;
 }
 
-.mobile-nav-link--visible {
-  transform: translateY(0);
-  opacity: 1;
+.drawer-icon-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
-.mobile-nav-link:hover {
-  color: var(--color-text);
-}
-
-.mobile-link-number {
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  color: rgba(232, 232, 232, 0.25);
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-
-.mobile-footer {
-  margin-top: 48px;
-}
-
-.cta-btn--mobile {
-  font-size: 15px;
-  padding: 14px 32px;
+.drawer-icon-btn:hover {
+  color: var(--orange);
+  background: rgba(255, 106, 26, 0.1);
+  border-color: rgba(255, 106, 26, 0.25);
 }
 
 /* ===========================
-   TRANSITIONS (Vue)
+   RESPONSIVE — 3 NIVELES
    =========================== */
-.menu-slide-enter-active,
-.menu-slide-leave-active {
-  transition: opacity 0.32s ease, transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+
+/*
+  ┌─────────────────────────────────────────────────┐
+  │  NIVEL 1 — Desktop (≥1024px)                    │
+  │  Logo | Nav centrado | Todos los iconos          │
+  └─────────────────────────────────────────────────┘
+*/
+@media (min-width: 1024px) {
+  .header-actions-tablet { display: none; }
+  .header-actions        { display: flex; }
+  .header-nav            { display: flex; }
 }
 
-.menu-slide-enter-from,
-.menu-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
+/*
+  ┌─────────────────────────────────────────────────┐
+  │  NIVEL 2 — Tablet (600px – 1023px)              │
+  │  Logo | Nav (solo primeros 3 ítems) | Cart + ☰  │
+  └─────────────────────────────────────────────────┘
+*/
+@media (min-width: 600px) and (max-width: 1023px) {
+  .header-actions        { display: none; }
+  .header-actions-tablet { display: flex; }
+  .header-nav            { display: flex; flex: 1; justify-content: center; }
 
-/* ===========================
-   RESPONSIVE
-   =========================== */
-@media (max-width: 768px) {
-  .header-nav,
-  .header-actions {
+  /* Ocultar ítems 4 y 5 en tablet */
+  .header-nav .nav-link:nth-child(n+4) {
     display: none;
   }
 
-  .hamburger {
-    display: flex;
+  .app-header { padding: 0 20px; }
+}
+
+/*
+  ┌─────────────────────────────────────────────────┐
+  │  NIVEL 3 — Mobile (<600px)                      │
+  │  Logo | Cart + ☰  (nav oculta completamente)   │
+  └─────────────────────────────────────────────────┘
+*/
+@media (max-width: 599px) {
+  .header-actions        { display: none; }
+  .header-actions-tablet { display: flex; }
+  .header-nav            { display: none; }
+  .app-header            { padding: 0 14px; }
+
+  .drawer {
+    width: 92vw;
   }
 }
 
-@media (max-width: 480px) {
-  .app-header {
-    padding: 10px 16px;
-  }
+/* Drawer más ancho en pantallas pequeñas */
+@media (max-width: 400px) {
+  .drawer { max-width: 100vw; border-left: none; }
 }
 </style>
