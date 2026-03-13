@@ -372,21 +372,19 @@ export default {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--clr-muted);
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-family: 'Principal', 'Helvetica Neue', sans-serif;
 }
 
 /* -- Título: clip-reveal por palabra -- */
 .slide__title {
-  margin: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 0 0.28em;
-  font-size: clamp(34px, 7vw, 74px);
-  font-weight: 700;
+  font-size: clamp(34px, 4.3vw, 74px);
+  font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.03em;
   color: var(--clr-text);
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
 }
 
 /* Cada palabra está envuelta en un mask que oculta el overflow */
@@ -412,12 +410,11 @@ export default {
 
 /* -- Descripción -- */
 .slide__desc {
-  margin: 0;
   font-size: clamp(13px, 1.7vw, 15px);
   line-height: 1.65;
   color: var(--clr-muted);
   max-width: 420px;
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-family: 'Principal', 'Helvetica Neue', sans-serif;
   opacity: 0;
   transform: translateY(12px);
   transition:
@@ -445,7 +442,7 @@ export default {
   text-decoration: none;
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(10px);
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-family: 'Principal', 'Helvetica Neue', sans-serif;
   opacity: 0;
   transform: translateY(12px);
   transition:
@@ -611,7 +608,7 @@ export default {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-family: 'Principal', 'Helvetica Neue', sans-serif;
 }
 
 .idx-wrap {

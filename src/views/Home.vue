@@ -6,16 +6,17 @@
       <div class="sep sep--1" aria-hidden="true"></div>
       <div class="sep sep--2" aria-hidden="true"></div>
 
-      <!-- Los 3 carruseles, cada uno con sus slides y delay distinto
-           para que no avancen al mismo tiempo                        -->
-      <VerticalCarousel :slides="carousels[0]" :delay="0"    phrase="ARTE"     />
+      <VerticalCarousel :slides="carousels[0]" :delay="0"    phrase="ARTE"  />
       <VerticalCarousel :slides="carousels[1]" :delay="1500" phrase="MEXICANO" class="hide-mobile" />
       <VerticalCarousel :slides="carousels[2]" :delay="3000" phrase="EN PAPEL" class="hide-mobile" />
 
-      
     </div>
-    
-    <div class="phrase">
+
+    <div class="btn-explorer flex justify-center">
+      <DiscoverButton/>
+    </div>
+
+    <div data-aos="zoom-in" class="phrase ">
       <PhraseComponent
         quote="El arte popular es la raíz más profunda de la identidad cultural de un pueblo"
         author="DIEGO RIVERA"
@@ -27,21 +28,20 @@
 
 <script>
 import VerticalCarousel from '@/components/ui/VerticalCarousel.vue'
-import PhraseComponent from '@/components/PhraseComponent.vue';
+import PhraseComponent from '@/components/ui/PhraseComponent.vue';
+import DiscoverButton from '@/components/ui/DiscoverButton.vue';
+
 export default {
   name: 'HomeView',
 
   components: {
     VerticalCarousel,
     PhraseComponent,
+    DiscoverButton,
   },
 
   data() {
     return {
-      // Cada slide es un objeto con "image".
-      // Cuando tengas las fotos pon la ruta aquí:
-      // { image: '/<img/alebrijes/alebrije-1.jpg' }
-      // Con image vacío muestra fondo oscuro placeholder.
       carousels: [
         [
           { image: '/img/alebrijes/img-1.jpg' },
@@ -66,16 +66,34 @@ export default {
 </script>
 
 <style scoped>
+/* ✅ box-sizing para que padding/border no expandan el ancho */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 .home {
   width: 100%;
-  overflow: hidden;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .carousels-wrap {
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  height: 100vh;
+  margin-top: 3rem;
+}
+
+.btn-explorer {
+  margin-top: 3rem;
+  margin-bottom: 5rem;
+}
+
+/* ✅ Contenedor de la frase: ancla el componente al ancho real de la página */
+.phrase {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .sep {
@@ -101,8 +119,7 @@ export default {
     grid-template-columns: 1fr;
     height: 100vh;
   }
-  .sep        { display: none; }
+  .sep         { display: none; }
   .hide-mobile { display: none; }
 }
-
 </style>

@@ -238,21 +238,18 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const token = localStorage.getItem('access_token')
   const estaLogueado = !!token
 
   if (to.meta.requiresAuth && !estaLogueado) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-    return
+    return { name: 'Login', query: { redirect: to.fullPath } }
   }
 
   if (to.meta.guestOnly && estaLogueado) {
-    next({ name: 'Home' })
-    return
+    return { name: 'Home' }
   }
 
-  next()
 })
 
 export default router

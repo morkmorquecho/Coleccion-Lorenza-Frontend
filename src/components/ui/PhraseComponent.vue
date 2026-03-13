@@ -44,12 +44,6 @@ export default {
 </script>
 
 <style scoped>
-@font-face {
-  font-family: 'arial';
-  src: url('/fonts/COM4DL__.TTF') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
 
 /* ── Sección contenedora ── */
 .phrase-section {
@@ -58,11 +52,9 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 480px;
-  padding: 80px 40px;
-  background-color: #faf5ee;
+  min-height: 680px;
   overflow: hidden;
-  font-family: 'COM4DL__', Georgia, serif;
+  font-family: 'Principal', Georgia, serif;
 }
 
 /* ── Círculos decorativos de fondo ── */
@@ -116,7 +108,7 @@ export default {
 /* ── Texto de la frase ── */
 .phrase-text {
   margin: 0 0 48px 0;
-  font-family: 'COM4DL__', Georgia, serif;
+  font-family: 'Principal', Georgia, serif;
   font-size: clamp(1.6rem, 4vw, 3rem);
   line-height: 1.55;
   color: #c94f2c;
@@ -142,7 +134,7 @@ export default {
 }
 
 .phrase-author {
-  font-family: 'COM4DL__', Georgia, serif;
+  font-family: 'Principal', Georgia, serif;
   font-style: normal;
   font-size: clamp(0.65rem, 1.2vw, 0.8rem);
   letter-spacing: 0.28em;

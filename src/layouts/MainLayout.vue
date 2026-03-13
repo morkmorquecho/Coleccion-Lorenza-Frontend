@@ -20,7 +20,18 @@
 </template>
 
 <script>
+import { onMounted } from "vue"
 import AppHeader from '@/components/layout/AppHeader.vue'
+import AOS from "aos"
+import "aos/dist/aos.css"
+
+onMounted(() => {
+  AOS.init({
+    duration:3000,
+    delay: 600,
+    once: true
+  })
+})
 
 export default {
   name: 'MainLayout',
@@ -64,7 +75,7 @@ html {
 body {
   background-color: var(--white);
   color: var(--orange);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'Principal','Georgia', 'Times New Roman', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
