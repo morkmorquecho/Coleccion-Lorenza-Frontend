@@ -43,7 +43,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   <Transition name="fullscreen-menu">
     <div
       v-if="isMenuOpen"
-      class="fixed inset-0 z-[60] lg:hidden fullscreen-overlay flex flex-col"
+      class="fixed inset-0 z-60 lg:hidden fullscreen-overlay flex flex-col"
     >
 
       <!-- Barra superior: logo + cerrar -->
@@ -79,7 +79,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
           <span class="menu-link-text text-white font-bold uppercase tracking-tight leading-none transition-all duration-300 group-active:translate-x-2">
             {{ link.name }}
           </span>
-          <div class="menu-link-arrow w-9 h-9 rounded-full border border-white/25 flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:bg-white/15 group-hover:border-white/50">
+          <div class="menu-link-arrow w-9 h-9 rounded-full border border-white/25 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-white/15 group-hover:border-white/50">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>

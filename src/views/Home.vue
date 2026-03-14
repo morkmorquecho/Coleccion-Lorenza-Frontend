@@ -16,7 +16,13 @@
       <DiscoverButton/>
     </div>
 
-    <div data-aos="zoom-in" class="phrase ">
+    <div
+     data-aos="fade-down"
+     data-aos-easing="linear"
+     data-aos-duration="1300"
+     data-aos-delay="200"
+      class="phrase ">
+
       <PhraseComponent
         quote="El arte popular es la raíz más profunda de la identidad cultural de un pueblo"
         author="DIEGO RIVERA"
