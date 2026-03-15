@@ -6,3 +6,11 @@
   font-weight: normal;
   font-style: normal;
 }
+
+:root {
+  --color-background: #fffbf7;
+  --color-primary: #dd4b24;
+  /*--color-accent: #22c55e;
+  --color-text: #1f2937;
+  --color-bg: #ffffff; */
+}

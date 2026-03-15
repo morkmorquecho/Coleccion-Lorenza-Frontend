@@ -17,11 +17,12 @@
     </div>
 
     <div
-     data-aos="fade-down"
-     data-aos-easing="linear"
-     data-aos-duration="1300"
-     data-aos-delay="200"
-      class="phrase ">
+      data-aos="fade-down"
+      data-aos-easing="linear"
+      data-aos-duration="1300"
+      data-aos-delay="200"
+      class="phrase "
+    >
 
       <PhraseComponent
         quote="El arte popular es la raíz más profunda de la identidad cultural de un pueblo"
@@ -29,13 +30,18 @@
       />
     </div>
 
+    <div class="highlithed">
+          <HighlightedComponent/>
+    </div>
+
   </div>
 </template>
 
 <script>
-import VerticalCarousel from '@/components/ui/VerticalCarousel.vue'
-import PhraseComponent from '@/components/ui/PhraseComponent.vue';
-import DiscoverButton from '@/components/ui/DiscoverButton.vue';
+import VerticalCarousel from '@/components/layout/VerticalCarousel.vue'
+import PhraseComponent from '@/components/layout/PhraseComponent.vue';
+import DiscoverButton from '@/components/layout/DiscoverButton.vue';
+import HighlightedComponent from '@/components/layout/HighlightedComponent.vue';
 
 export default {
   name: 'HomeView',
@@ -44,6 +50,7 @@ export default {
     VerticalCarousel,
     PhraseComponent,
     DiscoverButton,
+    HighlightedComponent 
   },
 
   data() {
@@ -100,6 +107,10 @@ export default {
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+}
+
+.highlithed {
+  margin-top: 4rem;
 }
 
 .sep {

@@ -24,6 +24,8 @@ import { onMounted } from "vue"
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AOS from "aos"
 import "aos/dist/aos.css"
+import '../assets/main.css'
+
 
 export default {
   name: 'MainLayout',
@@ -65,7 +67,7 @@ html {
 }
 
 body {
-  background-color: var(--white);
+  background-color: var(--color-background);
   color: var(--orange);
   font-family: 'Principal','Georgia', 'Times New Roman', serif;
   -webkit-font-smoothing: antialiased;
@@ -80,7 +82,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--white);
+  background: var(--color-background);
 }
 
 /* ── Área de contenido ─────────────────────── */
