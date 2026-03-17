@@ -21,7 +21,7 @@
 
 <script>
 import { onMounted } from "vue"
-import AppHeader from '@/components/layout/AppHeader.vue'
+import AppHeader from '@/components/home/AppHeader.vue'
 import AOS from "aos"
 import "aos/dist/aos.css"
 import '../assets/main.css'

@@ -21,7 +21,7 @@
       data-aos-easing="linear"
       data-aos-duration="1300"
       data-aos-delay="200"
-      class="phrase "
+      class="phrase"
     >
 
       <PhraseComponent
@@ -30,18 +30,49 @@
       />
     </div>
 
-    <div class="highlithed">
+    <div class="highlithed"
+      data-aos="fade-right"
+      data-aos-easing="linear"
+      data-aos-duration="700"
+      data-aos-delay="50"
+      data-aos-once="true">
           <HighlightedComponent/>
     </div>
 
+    <div class=""
+      data-aos="fade-left"
+      data-aos-easing="linear"
+      data-aos-duration="700"
+      data-aos-delay="50"
+      data-aos-once="true">
+      <ColecctionComponent/>
+    </div>
+
+    <!-- <BlogCard
+      image="/img/alebrijes/img-1.jpg"
+      section="Día de Muertos"
+      title="El arte popular es la raíz de la identidad cultural"
+      excerpt="Cuando el arte y la tradición se fusionan, nace algo que trasciende generaciones..."
+    /> -->
+
+    <BlogCarousel/>
+
+    <div class="">
+      <AppFooter/>
+    </div>
   </div>
 </template>
 
 <script>
-import VerticalCarousel from '@/components/layout/VerticalCarousel.vue'
-import PhraseComponent from '@/components/layout/PhraseComponent.vue';
-import DiscoverButton from '@/components/layout/DiscoverButton.vue';
-import HighlightedComponent from '@/components/layout/HighlightedComponent.vue';
+import VerticalCarousel from '@/components/home/VerticalCarousel.vue'
+import PhraseComponent from '@/components/home/PhraseComponent.vue';
+import DiscoverButton from '@/components/home/DiscoverButton.vue';
+import HighlightedComponent from '@/components/home/HighlightedComponent.vue';
+import ProductsComponent from '@/components/products/ProductsComponent.vue';
+import AppFooter from '@/components/home/AppFooter.vue';
+import ColecctionComponent from '@/components/home/ColecctionComponent.vue';
+import BlogCarousel from '@/components/home/BlogCarousel.vue';
+import BlogCard from '@/components/shared/BlogCard.vue';
 
 export default {
   name: 'HomeView',
@@ -50,7 +81,12 @@ export default {
     VerticalCarousel,
     PhraseComponent,
     DiscoverButton,
-    HighlightedComponent 
+    HighlightedComponent,
+    ProductsComponent,
+    AppFooter,
+    ColecctionComponent,
+    BlogCarousel,
+    BlogCard,
   },
 
   data() {
@@ -74,7 +110,9 @@ export default {
         ],
       ]
     }
-  }
+  },
+
+  
 }
 </script>
 
@@ -111,7 +149,9 @@ export default {
 
 .highlithed {
   margin-top: 4rem;
+  margin-bottom: 2rem;
 }
+
 
 .sep {
   position: absolute;

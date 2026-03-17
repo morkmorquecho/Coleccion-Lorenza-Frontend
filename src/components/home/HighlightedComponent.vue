@@ -260,7 +260,7 @@ export default {
   display: grid;
   grid-template-columns: 1fr 0.72fr;
   gap: 16px;
-  max-width: 1400px;
+  max-width: 1500px;
   margin: 0 auto;
 }
 
