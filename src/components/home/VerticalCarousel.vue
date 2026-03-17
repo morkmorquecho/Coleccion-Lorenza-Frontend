@@ -25,11 +25,7 @@
 
         <!-- Contenido animado -->
         <div class="slide__content">
-          <!-- Eyebrow -->
-          <div class="slide__eyebrow" :class="{ 'is-visible': i === current }">
-            <span class="eyebrow__line"></span>
-            <span class="eyebrow__label">{{ pad(i + 1) }} / {{ pad(slides.length) }}</span>
-          </div>
+
 
           <!-- Título — clip reveal palabra por palabra -->
           <h2 class="slide__title" :class="{ 'is-visible': i === current }">

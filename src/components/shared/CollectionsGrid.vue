@@ -7,6 +7,8 @@
         class="col-card"
         @mouseenter="hovered = i"
         @mouseleave="hovered = null"
+        @touchstart="hovered = i"
+        @touchend="hovered = null"
       >
         <div class="col-card__media">
           <img
@@ -30,7 +32,6 @@
 
         <div class="col-card__bottom">
           <h2 class="col-card__name">{{ col.name }}</h2>
-
           <button
             class="col-card__btn"
             :class="{ 'col-card__btn--hover': hovered === i }"
@@ -47,14 +48,8 @@
 import { ref } from "vue"
 
 const props = defineProps({
-  items: {
-    type: Array,
-    required: true
-  },
-  buttonText: {
-    type: String,
-    default: "Explorar"
-  }
+  items: { type: Array, required: true },
+  buttonText: { type: String, default: "Explorar" }
 })
 
 const hovered = ref(null)
@@ -62,7 +57,7 @@ const hovered = ref(null)
 
 <style scoped>
 
-/* Section */
+/* ─── Section ─────────────────────────────────── */
 .collections {
   width: 100%;
   padding: 48px 24px;
@@ -70,7 +65,7 @@ const hovered = ref(null)
   box-sizing: border-box;
 }
 
-/* Grid siempre 3 columnas */
+/* ─── Grid ────────────────────────────────────── */
 .collections__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -79,7 +74,7 @@ const hovered = ref(null)
   margin: 0 auto;
 }
 
-/* Card */
+/* ─── Card ────────────────────────────────────── */
 .col-card {
   position: relative;
   border-radius: 18px;
@@ -89,7 +84,7 @@ const hovered = ref(null)
   background: #111;
 }
 
-/* Media */
+/* ─── Media ───────────────────────────────────── */
 .col-card__media {
   position: absolute;
   inset: 0;
@@ -101,14 +96,14 @@ const hovered = ref(null)
   height: 100%;
   object-fit: cover;
   transform: scale(1);
-  transition: transform 0.75s cubic-bezier(0.25,0.46,0.45,0.94);
+  transition: transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .col-card__img--zoom {
   transform: scale(1.08);
 }
 
-/* Overlay */
+/* ─── Overlay ─────────────────────────────────── */
 .col-card__overlay {
   position: absolute;
   inset: 0;
@@ -130,7 +125,7 @@ const hovered = ref(null)
   );
 }
 
-/* Description */
+/* ─── Description ─────────────────────────────── */
 .col-card__desc {
   position: absolute;
   inset: 0;
@@ -149,12 +144,12 @@ const hovered = ref(null)
 }
 
 .col-card__desc p {
-  font-size: clamp(.82rem,1.1vw,1rem);
+  font-size: clamp(.82rem, 1.1vw, 1rem);
   color: rgba(255,255,255,.9);
   text-align: center;
 }
 
-/* Bottom */
+/* ─── Bottom ──────────────────────────────────── */
 .col-card__bottom {
   position: absolute;
   bottom: 0;
@@ -167,13 +162,14 @@ const hovered = ref(null)
 }
 
 .col-card__name {
-  font-size: clamp(1.4rem,2.2vw,2rem);
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
   color: #fff;
   margin: 0;
 }
 
-/* Button */
+/* ─── Button ──────────────────────────────────── */
 .col-card__btn {
+  align-self: flex-start;
   font-size: .78rem;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -186,11 +182,6 @@ const hovered = ref(null)
   transition: all .3s ease;
 }
 
-.col-card__btn {
-  align-self: flex-start;
-  width: auto;
-}
-
 .col-card__btn:hover,
 .col-card__btn--hover {
   background: #c94f2c;
@@ -198,4 +189,74 @@ const hovered = ref(null)
   transform: translateY(-2px);
 }
 
+
+/* ════════════════════════════════════════════════
+   MOBILE  ≤ 768 px
+   Cada card ocupa 100dvh — scroll-snap entre ellas
+   ════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Sección sin padding lateral — el scroll snap vive aquí */
+  .collections {
+    padding: 0;
+    height: 100dvh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Una sola columna, sin gap */
+  .collections__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* Cada card = pantalla completa */
+  .col-card {
+    aspect-ratio: unset;
+    height: 100dvh;
+    border-radius: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* Descripción siempre visible en mobile (sin hover) */
+  .col-card__desc {
+    opacity: 1;
+    transform: translateY(0);
+    padding: 40px 28px 160px;
+  }
+
+  .col-card__desc p {
+    font-size: 1rem;
+  }
+
+  /* Overlay siempre en estado "activo" */
+  .col-card__overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.82) 0%,
+      rgba(0,0,0,0.48) 50%,
+      rgba(0,0,0,0.15) 100%
+    );
+  }
+
+  /* Bottom con más espacio para safe-area (notch, home bar) */
+  .col-card__bottom {
+    padding: 0 28px calc(40px + env(safe-area-inset-bottom));
+    gap: 14px;
+  }
+
+  .col-card__name {
+    font-size: clamp(1.8rem, 7vw, 2.4rem);
+  }
+
+  /* Botón ancho completo en mobile */
+  .col-card__btn {
+    align-self: stretch;
+    text-align: center;
+    padding: 14px 28px;
+    font-size: .85rem;
+  }
+}
 </style>
