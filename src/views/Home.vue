@@ -6,9 +6,9 @@
       <div class="sep sep--1" aria-hidden="true"></div>
       <div class="sep sep--2" aria-hidden="true"></div>
 
-      <VerticalCarousel :slides="carousels[0]" :delay="0"    phrase="ARTE"  />
-      <VerticalCarousel :slides="carousels[1]" :delay="1500" phrase="MEXICANO" class="hide-mobile" />
-      <VerticalCarousel :slides="carousels[2]" :delay="3000" phrase="EN PAPEL" class="hide-mobile" />
+      <VerticalCarousel :slides=carrusel1 :delay="0"    phrase="ARTE"  />
+      <VerticalCarousel :slides=carrusel2 :delay="1500" phrase="MEXICANO" class="hide-mobile" />
+      <VerticalCarousel :slides=carrusel3 :delay="3000" phrase="EN PAPEL" class="hide-mobile" />
 
     </div>
 
@@ -63,58 +63,29 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import VerticalCarousel from '@/components/home/VerticalCarousel.vue'
-import PhraseComponent from '@/components/home/PhraseComponent.vue';
-import DiscoverButton from '@/components/home/DiscoverButton.vue';
-import HighlightedComponent from '@/components/home/HighlightedComponent.vue';
-import ProductsComponent from '@/components/products/ProductsComponent.vue';
-import AppFooter from '@/components/home/AppFooter.vue';
-import ColecctionComponent from '@/components/home/ColecctionComponent.vue';
-import BlogCarousel from '@/components/home/BlogCarousel.vue';
-import BlogCard from '@/components/shared/BlogCard.vue';
+import PhraseComponent from '@/components/home/PhraseComponent.vue'
+import DiscoverButton from '@/components/home/DiscoverButton.vue'
+import HighlightedComponent from '@/components/home/HighlightedComponent.vue'
+import AppFooter from '@/components/home/AppFooter.vue'
+import ColecctionComponent from '@/components/home/ColecctionComponent.vue'
+import BlogCarousel from '@/components/home/BlogCarousel.vue'
 
-export default {
-  name: 'HomeView',
+const BASE = import.meta.env.VITE_R2_URL
 
-  components: {
-    VerticalCarousel,
-    PhraseComponent,
-    DiscoverButton,
-    HighlightedComponent,
-    ProductsComponent,
-    AppFooter,
-    ColecctionComponent,
-    BlogCarousel,
-    BlogCard,
-  },
-
-  data() {
-    return {
-      carousels: [
-        [
-          { image: '/img/alebrijes/img-1.jpg' },
-          { image: '/img/alebrijes/img-2.jpg' },
-          { image: '/img/alebrijes/img-3.jpg' },
-        ],
-        [
-          { image: '/img/alebrijes/img-4.jpg' },
-          { image: '/img/alebrijes/img-5.JPG' },
-          { image: '/img/alebrijes/img-6.JPG' },
-          { image: '/img/alebrijes/img-7.JPG' },
-        ],
-        [
-          { image: '/img/alebrijes/img-8.jpg' },
-          { image: '/img/alebrijes/img-9.JPG' },
-          { image: '/img/alebrijes/img-10.JPG' },
-        ],
-      ]
-    }
-  },
-
-  
-}
+const carrusel1 = Array.from({ length: 2 }, (_, i) => ({
+  image: `${BASE}/carrusel/1/img-${i + 1}.jpg`
+}))
+const carrusel2 = Array.from({ length: 2 }, (_, i) => ({
+  image: `${BASE}/carrusel/2/img-${i + 1}.jpg`
+}))
+const carrusel3 = Array.from({ length: 2 }, (_, i) => ({
+  image: `${BASE}/carrusel/3/img-${i + 1}.jpg`
+}))
 </script>
+
 
 <style scoped>
 /* ✅ box-sizing para que padding/border no expandan el ancho */

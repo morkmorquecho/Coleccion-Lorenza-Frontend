@@ -46,8 +46,15 @@ function processQueue(error, token = null) {
 }
 
 api.interceptors.response.use(
-  // Si la respuesta es exitosa, la deja pasar sin tocarla
-  (response) => response,
+  (response) => {
+    const { success, data, errors, message } = response.data
+
+    if (!success) {
+      return Promise.reject(errors || message)
+    }
+
+    return data  // ← ya retorna directo { count, next, results... }
+  },
 
   // Si hay error...
   async (error) => {

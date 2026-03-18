@@ -8,7 +8,7 @@
       </div>
       <div class="header-right">
         <p class="header-desc">
-          Descubre artículos, crónicas y reflexiones de nuestros colaboradores.
+          Descubre artículos, crónicas y reflexiones relacionadas al arte y cultura mexicana.
         </p>
         <div class="nav-buttons">
           <button class="nav-btn" @click="scrollBy(-1)" aria-label="Anterior">

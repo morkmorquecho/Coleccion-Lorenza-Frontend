@@ -14,7 +14,7 @@
           @touchend="onTouchEnd"
         >
           <article
-            v-for="(product, i) in products"
+            v-for="(piece, i) in pieces"
             :key="i"
             class="card"
             @mouseenter="onCardEnter(i)"
@@ -25,14 +25,14 @@
             <!-- media wrapper: image + video -->
             <div class="card-media">
               <img
-                :src="product.image"
-                :alt="product.name"
+                :src="piece.thumbnail_path"
+                :alt="piece.title"
                 class="card-img"
                 :class="{ 'img-hidden': hoveredIndex === i }"
               />
               <video
                 :ref="el => { if(el) videoRefs[i] = el }"
-                :src="product.video"
+                :src="piece.intro_video"
                 class="card-video"
                 :class="{ 'video-visible': hoveredIndex === i }"
                 muted
@@ -44,13 +44,13 @@
 
             <div class="card-info">
               <div class="card-prices">
-                <span class="price-old">{{ product.priceOld }}</span>
-                <span class="price-new">{{ product.price }}</span>
+                <span class="price-old">{{ piece.original_price_base }}</span>
+                <span class="price-new">{{ piece.final_price_base }}</span>
               </div>
               <div class="card-bottom">
                 <div class="card-texts">
-                  <p class="card-name">{{ product.name }}</p>
-                  <p class="card-color">{{ product.section }}</p>
+                  <p class="card-name">{{ piece.title }}</p>
+                  <p class="card-color">{{ piece.section }}</p>
                 </div>
                 <button class="btn-add">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -68,7 +68,7 @@
         <!-- Mobile dots -->
         <div class="carousel-dots">
           <button
-            v-for="(_, i) in products"
+            v-for="(_, i) in pieces"
             :key="i"
             class="dot"
             :class="{ active: currentSlide === i }"
@@ -89,154 +89,110 @@
   </section>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import '../../assets/main.css'
+import piecesService from '@/services/piecesService'
 
-export default {
-  name: 'HighlightedComponent',
+const pieces = ref([])
 
-  setup() {
-    const products = [
-      {
-        name: 'Pieza 1',
-        section: 'Dia de muertos',
-        priceOld: '$105',
-        price: '$84',
-        image: '/img/alebrijes/img-2.jpg',
-        video: '/video/1.mp4',
-      },
-      {
-        name: 'Pieza 2',
-        section: 'Dia de muertos',
-        priceOld: '$100',
-        price: '$80',
-        image: '/img/alebrijes/img-1.jpg',
-        video: '/video/2.mp4',
-      },
-      {
-        name: 'Pieza 2',
-        section: 'Dia de muertos',
-        priceOld: '$100',
-        price: '$70',
-        image: '/img/alebrijes/img-3.jpg',
-        video: '/video/3.mp4',
-      },
-      {
-        name: 'Pieza 2',
-        section: 'Dia de muertos',
-        priceOld: '$140',
-        price: '$98',
-        image: '/img/alebrijes/img-4.jpg',
-        video: '/video/4.mp4',
-      },
-    ]
+onMounted(async () => {
+  console.log('API URL:', import.meta.env.VITE_API_URL)  // ← verificar
+  const res = await piecesService.getPieces({ featured: true })
+  pieces.value = res.results
+})
 
-    const videoRefs = ref([])
-    const hoveredIndex = ref(null)
-    const isMobile = ref(false)
+const videoRefs = ref([])
+const hoveredIndex = ref(null)
+const isMobile = ref(false)
 
-    // ── Desktop hover video ──────────────────────────────────────────────────
-    function onCardEnter(i) {
-      if (isMobile.value) return
-      hoveredIndex.value = i
-      const vid = videoRefs.value[i]
-      if (vid && vid.src) {
-        vid.currentTime = 0
-        vid.play().catch(() => {})
-      }
-    }
-
-    function onCardLeave(i) {
-      if (isMobile.value) return
-      hoveredIndex.value = null
-      const vid = videoRefs.value[i]
-      if (vid) {
-        vid.pause()
-        vid.currentTime = 0
-      }
-    }
-
-    // ── Mobile carousel ──────────────────────────────────────────────────────
-    const track = ref(null)
-    const currentSlide = ref(0)
-    let touchStartX = 0
-    let touchDeltaX = 0
-    let cardWidth = 0
-
-    function getCardWidth() {
-      if (!track.value) return 0
-      const card = track.value.querySelector('.card')
-      return card ? card.offsetWidth + 16 : 0 // gap 16
-    }
-
-    function goTo(index) {
-      currentSlide.value = Math.max(0, Math.min(index, products.length - 1))
-      if (track.value) {
-        cardWidth = getCardWidth()
-        track.value.style.transform = `translateX(-${currentSlide.value * cardWidth}px)`
-      }
-    }
-
-    function onTouchStart(e) {
-      if (!isMobile.value) return
-      touchStartX = e.touches[0].clientX
-      touchDeltaX = 0
-      cardWidth = getCardWidth()
-    }
-
-    function onTouchMove(e) {
-      if (!isMobile.value) return
-      touchDeltaX = e.touches[0].clientX - touchStartX
-      const base = -currentSlide.value * cardWidth
-      if (track.value) {
-        track.value.style.transform = `translateX(${base + touchDeltaX}px)`
-      }
-    }
-
-    function onTouchEnd() {
-      if (!isMobile.value) return
-      if (touchDeltaX < -50) goTo(currentSlide.value + 1)
-      else if (touchDeltaX > 50) goTo(currentSlide.value - 1)
-      else goTo(currentSlide.value)
-    }
-
-    // ── Resize observer ──────────────────────────────────────────────────────
-    let ro = null
-
-    onMounted(() => {
-      const check = () => {
-        isMobile.value = window.innerWidth < 768
-        if (!isMobile.value && track.value) {
-          track.value.style.transform = ''
-        }
-      }
-      check()
-      ro = new ResizeObserver(check)
-      ro.observe(document.body)
-    })
-
-    onBeforeUnmount(() => {
-      if (ro) ro.disconnect()
-    })
-
-    return {
-      products,
-      videoRefs,
-      hoveredIndex,
-      currentSlide,
-      track,
-      isMobile,
-      onCardEnter,
-      onCardLeave,
-      onTouchStart,
-      onTouchMove,
-      onTouchEnd,
-      goTo,
-    }
-  },
+// ── Desktop hover video ─────────────────────────────────────────────────────
+function onCardEnter(i) {
+  if (isMobile.value) return
+  hoveredIndex.value = i
+  const vid = videoRefs.value[i]
+  if (vid && vid.src) {
+    vid.currentTime = 0
+    vid.play().catch(() => {})
+  }
 }
+
+function onCardLeave(i) {
+  if (isMobile.value) return
+  hoveredIndex.value = null
+  const vid = videoRefs.value[i]
+  if (vid) {
+    vid.pause()
+    vid.currentTime = 0
+  }
+}
+
+// ── Mobile carousel ─────────────────────────────────────────────────────────
+const track = ref(null)
+const currentSlide = ref(0)
+
+let touchStartX = 0
+let touchDeltaX = 0
+let cardWidth = 0
+
+function getCardWidth() {
+  if (!track.value) return 0
+  const card = track.value.querySelector('.card')
+  return card ? card.offsetWidth + 16 : 0
+}
+
+function goTo(index) {
+  currentSlide.value = Math.max(0, Math.min(index, pieces.length - 1))
+  if (track.value) {
+    cardWidth = getCardWidth()
+    track.value.style.transform = `translateX(-${currentSlide.value * cardWidth}px)`
+  }
+}
+
+function onTouchStart(e) {
+  if (!isMobile.value) return
+  touchStartX = e.touches[0].clientX
+  touchDeltaX = 0
+  cardWidth = getCardWidth()
+}
+
+function onTouchMove(e) {
+  if (!isMobile.value) return
+  touchDeltaX = e.touches[0].clientX - touchStartX
+  const base = -currentSlide.value * cardWidth
+  if (track.value) {
+    track.value.style.transform = `translateX(${base + touchDeltaX}px)`
+  }
+}
+
+function onTouchEnd() {
+  if (!isMobile.value) return
+  if (touchDeltaX < -50) goTo(currentSlide.value + 1)
+  else if (touchDeltaX > 50) goTo(currentSlide.value - 1)
+  else goTo(currentSlide.value)
+}
+
+// ── Resize observer ─────────────────────────────────────────────────────────
+let ro = null
+
+onMounted(() => {
+  const check = () => {
+    isMobile.value = window.innerWidth < 768
+    if (!isMobile.value && track.value) {
+      track.value.style.transform = ''
+    }
+  }
+
+  check()
+  ro = new ResizeObserver(check)
+  ro.observe(document.body)
+})
+
+onBeforeUnmount(() => {
+  if (ro) ro.disconnect()
+})
 </script>
+
 
 <style scoped>
 @font-face {
