@@ -5,27 +5,17 @@
 </template>
 
 <script setup>
+import { ref, onMounted  } from 'vue'
 import CollectionsGrid from '../shared/CollectionsGrid.vue';
-const collections = [
-  {
-    name: "Colección Dasher",
-    image: "/img/alebrijes/img-10.JPG",
-    description:
-      "Ligereza y estilo para el día a día. La Colección Dasher combina materiales naturales con una silueta urbana."
-  },
-  {
-    name: "Colección Varsity",
-    image: "/img/alebrijes/img-11.jpg",
-    description:
-      "Inspirada en el ritmo de la ciudad. La Colección Varsity redefine el calzado casual."
-  },
-  {
-    name: "Colección Terralux",
-    image: "/img/alebrijes/img-9.JPG",
-    description:
-      "Para quienes van más allá del asfalto. La Colección Terralux ofrece tracción y durabilidad."
-  }
-]
+import cmsService from '@/services/cmsService';
+
+const collections = ref([])
+
+onMounted(async () => {
+  const res = await cmsService.getCollections({ featured: true })
+  collections.value = res.results
+})
+
 </script>
 
 <style scoped>

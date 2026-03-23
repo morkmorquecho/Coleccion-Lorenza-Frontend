@@ -46,13 +46,13 @@
             @mouseleave="card._hovered = false"
           >
             <div class="card-image-wrap">
-              <img :src="card.image" :alt="card.title" class="card-image" />
+              <img :src="card.cover_image" :alt="card.title" class="card-image" />
               <div class="image-overlay" />
             </div>
             <div class="card-body">
               <span class="card-section">{{ card.section }}</span>
               <h2 class="card-title">{{ card.title }}</h2>
-              <p class="card-excerpt">{{ card.excerpt }}</p>
+              <p class="card-excerpt">{{ card.content.length > 30 ? card.content.slice(0, 30) + '...' : card.content }}</p>
             </div>
           </article>
         </div>
@@ -71,66 +71,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+// ✅ FIX #4: eliminado `reactive` (no se usaba), agregado `nextTick`
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import blogService from '@/services/blogService'
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const cards = reactive([
-  {
-    image: '/img/alebrijes/img-1.jpg',
-    section: 'Viajes',
-    title: 'Las rutas olvidadas del Camino Real',
-    excerpt: 'A lo largo de siglos, comerciantes y peregrinos trazaron senderos que hoy duermen bajo la maleza.',
-    _hovered: false,
-  },
-  {
-    image: '/img/alebrijes/img-1.jpg',
-    section: 'Cultura',
-    title: 'El café como ritual: entre la prisa y la pausa',
-    excerpt: 'En ciudades que nunca detienen su marcha, una nueva generación de baristas defiende la lentitud.',
-    _hovered: false,
-  },
-  {
-    image: '/img/alebrijes/img-1.jpg',
-    section: 'Arte',
-    title: 'Murales que hablan cuando la ciudad calla',
-    excerpt: 'Pintores anónimos transforman fachadas grises en manifiestos de color. Un recorrido por los barrios.',
-    _hovered: false,
-  },
-  {
-    image: '/img/alebrijes/img-1.jpg',
-    section: 'Naturaleza',
-    title: 'Bioluminiscencia: el mar que se enciende de noche',
-    excerpt: 'Cada verano, las costas del Pacífico se convierten en un espectáculo de luces azules.',
-    _hovered: false,
-  },
-  {
-    image: '/img/alebrijes/img-1.jpg',
-    section: 'Arquitectura',
-    title: 'Casas que respiran: diseño bioclimático en el trópico',
-    excerpt: 'Arquitectos locales recuperan técnicas ancestrales de ventilación para construir hogares frescos.',
-    _hovered: false,
-  },
-  {
-    image: '/img/alebrijes/img-1.jpg',
-    section: 'Gastronomía',
-    title: 'Fermentación: la revolución silenciosa en la cocina',
-    excerpt: 'Chefs y cocineras de mercado redescubren el poder de los fermentos para crear sabores únicos.',
-    _hovered: false,
-  },
-  {
-    image: '/img/alebrijes/img-1.jpg',
-    section: 'Sociedad',
-    title: 'Generación Z: los hijos de la incertidumbre',
-    excerpt: 'Crecieron entre crisis, redes sociales y promesas rotas. Ahora construyen un futuro distinto.',
-    _hovered: false,
-  },
-])
+const cards = ref([])
 
 // ── Infinite loop: triplicamos el array ───────────────────────────────────────
-// Layout: [ clon ] [ original ] [ clon ]
-// Arrancamos en el bloque del medio. Cuando el scroll se acerca al borde
-// de cualquier extremo, hacemos un salto silencioso al equivalente del centro.
-const infiniteCards = computed(() => [...cards, ...cards, ...cards])
+// ✅ FIX #1: cards → cards.value en todos los accesos dentro de la lógica JS
+const infiniteCards = computed(() => [
+  ...cards.value,
+  ...cards.value,
+  ...cards.value,
+])
 
 // ── Refs ──────────────────────────────────────────────────────────────────────
 const trackRef   = ref(null)
@@ -144,21 +97,22 @@ function getItemWidth() {
 }
 
 function getBlockWidth() {
-  // ancho de un bloque completo (N cards)
-  return cards.length * (getItemWidth() + 24)
+  // ✅ FIX #1: cards → cards.value
+  return cards.value.length * (getItemWidth() + 24)
 }
 
 // ── Computed para el UI ───────────────────────────────────────────────────────
 const currentVisible = computed(() => {
   const itemW = getItemWidth()
-  // el scroll real menos el bloque izquierdo de clones
   const relativeScroll = scrollLeft.value - getBlockWidth()
   const idx = Math.round(Math.max(0, relativeScroll) / (itemW + 24))
-  return (idx % cards.length) + 1
+  // ✅ FIX #1: cards → cards.value
+  return (idx % cards.value.length) + 1
 })
 
 const progressPercent = computed(() =>
-  ((currentVisible.value - 1) / cards.length) * 100
+  // ✅ FIX #1: cards → cards.value
+  ((currentVisible.value - 1) / cards.value.length) * 100
 )
 
 // ── Scroll handler con teleport silencioso ────────────────────────────────────
@@ -169,12 +123,10 @@ function onScroll() {
   const block = getBlockWidth()
   if (!block) return
 
-  // Llegamos al clon derecho → teleport al original
   if (el.scrollLeft >= block * 2) {
     el.scrollLeft -= block
     scrollLeft.value = el.scrollLeft
   }
-  // Llegamos al clon izquierdo → teleport al original
   if (el.scrollLeft <= 0) {
     el.scrollLeft += block
     scrollLeft.value = el.scrollLeft
@@ -193,6 +145,7 @@ let startX          = 0
 let startScrollLeft = 0
 
 function onMouseDown(e) {
+  e.preventDefault()
   isDragging = true
   startX = e.pageX
   startScrollLeft = trackRef.value.scrollLeft
@@ -208,7 +161,16 @@ function onMouseUp() {
 }
 
 // ── Lifecycle ─────────────────────────────────────────────────────────────────
-onMounted(() => {
+// ✅ FIX #2: Un solo onMounted async. Inicializamos el scroll DESPUÉS de cargar
+//            los datos y esperar a que Vue renderice las cards con nextTick.
+// ✅ FIX #3: Mapeamos los resultados agregando `_hovered: false` como propiedad
+//            propia del objeto para que Vue 3 lo haga reactivo correctamente.
+onMounted(async () => {
+  const res = await blogService.getPosts({ recent: true })
+  cards.value = res.results.map(card => ({ ...card, _hovered: false }))
+
+  await nextTick() // esperar a que Vue renderice las cards antes de leer el DOM
+
   const el = trackRef.value
   if (!el) return
 
@@ -216,7 +178,7 @@ onMounted(() => {
   el.scrollLeft = getBlockWidth()
   scrollLeft.value = el.scrollLeft
 
-  el.addEventListener('mousedown', onMouseDown)
+  el.addEventListener('mousedown', onMouseDown, { passive: false })
   window.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
 })
@@ -324,7 +286,6 @@ onUnmounted(() => {
   cursor: grab;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  /* sin scroll-snap para que el teleport silencioso no cause glitch */
 }
 .carousel-track::-webkit-scrollbar { display: none; }
 .carousel-track:active { cursor: grabbing; }

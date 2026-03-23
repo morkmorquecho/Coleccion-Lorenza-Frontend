@@ -44,8 +44,8 @@
 
             <div class="card-info">
               <div class="card-prices">
-                <span class="price-old">{{ piece.original_price_base }}</span>
-                <span class="price-new">{{ piece.final_price_base }}</span>
+                <span class="price-old">${{ piece.original_price_base }}</span>
+                <span class="price-new">${{ piece.final_price_base }}</span>
               </div>
               <div class="card-bottom">
                 <div class="card-texts">
@@ -97,7 +97,6 @@ import piecesService from '@/services/piecesService'
 const pieces = ref([])
 
 onMounted(async () => {
-  console.log('API URL:', import.meta.env.VITE_API_URL)  // ← verificar
   const res = await piecesService.getPieces({ featured: true })
   pieces.value = res.results
 })

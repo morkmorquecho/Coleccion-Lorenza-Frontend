@@ -75,20 +75,19 @@ import BlogCarousel from '@/components/home/BlogCarousel.vue'
 
 const BASE = import.meta.env.VITE_R2_URL
 
-const carrusel1 = Array.from({ length: 2 }, (_, i) => ({
+const carrusel1 = Array.from({ length: 5 }, (_, i) => ({
   image: `${BASE}/carrusel/1/img-${i + 1}.jpg`
 }))
-const carrusel2 = Array.from({ length: 2 }, (_, i) => ({
+const carrusel2 = Array.from({ length: 5 }, (_, i) => ({
   image: `${BASE}/carrusel/2/img-${i + 1}.jpg`
 }))
-const carrusel3 = Array.from({ length: 2 }, (_, i) => ({
+const carrusel3 = Array.from({ length: 5 }, (_, i) => ({
   image: `${BASE}/carrusel/3/img-${i + 1}.jpg`
 }))
 </script>
 
 
 <style scoped>
-/* ✅ box-sizing para que padding/border no expandan el ancho */
 *, *::before, *::after {
   box-sizing: border-box;
 }

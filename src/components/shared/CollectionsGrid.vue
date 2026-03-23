@@ -12,7 +12,7 @@
       >
         <div class="col-card__media">
           <img
-            :src="col.image"
+            :src="col.thumbnail_path"
             :alt="col.name"
             class="col-card__img"
             :class="{ 'col-card__img--zoom': hovered === i }"
