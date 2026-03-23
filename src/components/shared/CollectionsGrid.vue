@@ -165,6 +165,7 @@ const hovered = ref(null)
   font-size: clamp(1.4rem, 2.2vw, 2rem);
   color: #fff;
   margin: 0;
+  font-family: 'Principal';
 }
 
 /* ─── Button ──────────────────────────────────── */

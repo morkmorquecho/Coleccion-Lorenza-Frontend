@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="carousel-header">
       <div class="header-left">
-        <h1 class="header-title">Últimas<br /><em>Historias</em></h1>
+        <h1 class="header-title">Ultimas<br /><em>Historias</em></h1>
       </div>
       <div class="header-right">
         <p class="header-desc">
@@ -226,7 +226,7 @@ onUnmounted(() => {
 }
 
 .header-title {
-  font-family: 'COM4DL', Georgia, serif;
+  font-family: 'Cormorant Garamond', Georgia, serif; 
   font-size: clamp(32px, 5vw, 56px);
   font-weight: 700;
   line-height: 1.1;
@@ -247,7 +247,7 @@ onUnmounted(() => {
 }
 
 .header-desc {
-  font-family: 'COM4DL', Georgia, serif;
+  font-family: Georgia, serif;
   font-size: 13px;
   line-height: 1.7;
   color: var(--muted);
@@ -348,12 +348,18 @@ onUnmounted(() => {
   padding: 20px 0 8px;
   display: flex; flex-direction: column; gap: 10px;
 }
+
 .card-section {
-  font-size: 11px; letter-spacing: 0.18em;
-  text-transform: uppercase; color: var(--accent); line-height: 1;
+  font-family: 'Georgia', sans-serif; /* ← antes: COM4DL */
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1;
 }
+
 .card-title {
-  font-size: clamp(16px, 1.8vw, 20px);
+  font-size: clamp(18px, 2.2vw, 26px);
   font-weight: 700; line-height: 1.3;
   color: var(--ink); margin: 0;
   transition: color 0.4s ease;
@@ -362,8 +368,11 @@ onUnmounted(() => {
 .blog-card.is-hovered .card-title { color: var(--accent); }
 
 .card-excerpt {
-  font-size: 13px; line-height: 1.65;
-  color: var(--muted); margin: 0;
+  font-family: 'Georgia', sans-serif; 
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;

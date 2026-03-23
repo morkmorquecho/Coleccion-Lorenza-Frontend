@@ -44,7 +44,10 @@
 
             <div class="card-info">
               <div class="card-prices">
-                <span class="price-old">${{ piece.original_price_base }}</span>
+                <span
+                  v-if="piece.original_price_base != piece.final_price_base"                
+                  class="price-old">${{ piece.original_price_base }}
+                </span>
                 <span class="price-new">${{ piece.final_price_base }}</span>
               </div>
               <div class="card-bottom">
@@ -194,20 +197,13 @@ onBeforeUnmount(() => {
 
 
 <style scoped>
-@font-face {
-  font-family: 'COM4DL';
-  src: url('/fonts/COM4DL__.TTF') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 /* ── Section ──────────────────────────────────────────────────────────────── */
 .highlighted {
   width: 100%;
   background: var(--color-background);
   padding: 24px;
   box-sizing: border-box;
-  font-family: 'COM4DL', serif;
+  font-family:   serif;
 }
 
 /* ── Desktop grid ─────────────────────────────────────────────────────────── */
@@ -264,7 +260,7 @@ onBeforeUnmount(() => {
   padding: 4px 10px;
   border-radius: 999px;
   z-index: 2;
-  font-family: 'COM4DL', serif;
+  font-family: 'COM4DL';
 }
 
 /* Media */
@@ -322,14 +318,14 @@ onBeforeUnmount(() => {
   font-size: 13px;
   color: #999;
   text-decoration: line-through;
-  font-family: 'COM4DL', serif;
+  font-family: serif;
 }
 
 .price-new {
   font-size: 15px;
   color: #c94f2c;
   font-weight: 700;
-  font-family: 'COM4DL', serif;
+  font-family:   serif;
 }
 
 .card-bottom {
@@ -351,13 +347,14 @@ onBeforeUnmount(() => {
   color: #1c1a17;
   letter-spacing: 0.04em;
   margin: 0;
+  font-family:Georgia, 'Times New Roman', Times, serif;
 }
 
 .card-color {
   font-size: 12px;
   color: #888;
   margin: 0;
-  font-family: 'COM4DL', serif;
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 /* Add button */
@@ -375,7 +372,7 @@ onBeforeUnmount(() => {
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
-  font-family: 'COM4DL', serif;
+  font-family: serif;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   flex-shrink: 0;
 }
@@ -413,7 +410,7 @@ onBeforeUnmount(() => {
 }
 
 .hero-title {
-  font-family: 'COM4DL', serif;
+  font-family: COM4DL;
   font-size: clamp(28px, 3vw, 44px);
   color: #fff;
   font-weight: 400;
@@ -422,7 +419,7 @@ onBeforeUnmount(() => {
 }
 
 .hero-sub {
-  font-family: 'COM4DL', serif;
+  font-family: Georgia, 'Times New Roman', Times, serif;
   font-size: clamp(13px, 1.2vw, 16px);
   color: rgba(255,255,255,0.82);
   max-width: 340px;

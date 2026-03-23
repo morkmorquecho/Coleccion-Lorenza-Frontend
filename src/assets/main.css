@@ -1,8 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
 @font-face {
   font-family: "Principal";
-  src: url("/assets/fonts/COM4DL__.ttf") format("truetype");
+  src: local("Inter");
+}
+
+@font-face {
+  font-family: 'COM4DL';
+  src: url('/fonts/COM4DL__.TTF') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -10,7 +16,14 @@
 :root {
   --color-background: #fffbf7;
   --color-primary: #dd4b24;
-  /*--color-accent: #22c55e;
-  --color-text: #1f2937;
-  --color-bg: #ffffff; */
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
 }

@@ -70,7 +70,6 @@ onBeforeUnmount(() => {
         <span
           class="block text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-[0.15em] uppercase text-foreground"
           :style="{
-            fontFamily: 'Principal',
             lineHeight: 1.2,
             transform: wordActive ? 'translateY(-115%)' : 'translateY(0%)',
             opacity:   wordActive ? 0 : 1,

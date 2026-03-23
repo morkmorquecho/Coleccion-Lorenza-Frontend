@@ -200,6 +200,7 @@ export default defineComponent({
   color: rgba(250, 245, 238, 0.55);
   margin: 0;
   max-width: 26ch;
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 /* ─── Headings de columna ────────────────────────────────── */
@@ -231,6 +232,7 @@ export default defineComponent({
   align-items: center;
   gap: 0.5rem;
   transition: color 0.25s ease;
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .footer__link:hover {
@@ -316,6 +318,8 @@ export default defineComponent({
   color: rgba(250, 245, 238, 0.45);
   margin: 0 0 1.5rem;
   line-height: 1.5;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+
 }
 
 .footer__socials {
@@ -366,11 +370,13 @@ export default defineComponent({
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   color: rgba(250, 245, 238, 0.35);
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .footer__dev {
   font-size: 0.75rem;
   color: rgba(250, 245, 238, 0.25);
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .footer__dev-link {
