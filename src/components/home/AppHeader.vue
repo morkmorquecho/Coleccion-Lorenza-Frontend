@@ -8,8 +8,8 @@ const isVisible = ref(true)
 const lastScrollY = ref(0)
 
 const navLinks = [
-  { name: 'Inicio',     href: '#inicio' },
-  { name: 'Colección',  href: '#coleccion' },
+  { name: 'Inicio',     href: '/' },
+  { name: 'Colección',  href: '/colecciones' },
   { name: 'Tienda',     href: '#tienda' },
   { name: 'Blog',       href: '#blog' },
   { name: 'Contactos',  href: '#contactos' }
@@ -68,10 +68,10 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 
       <!-- Links de navegación (área central) -->
       <nav class="flex-1 flex flex-col justify-center px-7 gap-0">
-        <a
+        <RouterLink 
           v-for="(link, i) in navLinks"
           :key="link.name"
-          :href="link.href"
+          :to="link.href"
           class="menu-link group flex items-center justify-between py-5 border-b border-white/15 last:border-b-0"
           :style="{ '--delay': `${i * 70}ms` }"
           @click="closeMenu"
@@ -84,7 +84,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
           </div>
-        </a>
+        </RouterLink>
       </nav>
 
       <!-- Footer: utilidades -->
@@ -153,12 +153,12 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       <!-- Nav links (desktop) -->
       <ul class="nav-links hidden lg:flex items-center gap-5 xl:gap-7 2xl:gap-9">
         <li v-for="link in navLinks" :key="link.name">
-          <a
-            :href="link.href"
+          <RouterLink 
+            :to="link.href"
             class="font-principal nav-link text-[#dd4b24] text-xs lg:text-sm xl:text-base 2xl:text-lg font-medium tracking-wide transition-all duration-300 relative"
           >
             {{ link.name }}
-          </a>
+          </RouterLink>
         </li>
       </ul>
 

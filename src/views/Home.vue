@@ -73,6 +73,7 @@ import AppFooter from '@/components/home/AppFooter.vue'
 import ColecctionComponent from '@/components/home/ColecctionComponent.vue'
 import BlogCarousel from '@/components/home/BlogCarousel.vue'
 
+
 const BASE = import.meta.env.VITE_R2_URL
 
 const carrusel1 = Array.from({ length: 5 }, (_, i) => ({

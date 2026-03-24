@@ -18,6 +18,14 @@ const routes = [
         meta: { requiresAuth: false }
       },
 
+      // ── COLECCIONES ──
+      {
+        path: 'colecciones',
+        name: 'Collection',
+        component: () => import('@/views/collection/collection.vue'),
+        meta: {requiresAuth:false}
+      }
+
       // ── PIEZAS ──
       // {
       //   path: 'piezas',
@@ -54,7 +62,7 @@ const routes = [
       //   // Si authStore.isAdmin → muestra botones editar/eliminar
       // },
 
-      // // ── CARRITO ──
+      // ── CARRITO ──
       // {
       //   path: 'carrito',
       //   name: 'Cart',
