@@ -1,13 +1,15 @@
 <template>
-  <section class="collections-section">
+  <!-- <section class="collections-section">
     <CollectionsGrid :items="collections" />
-  </section>
+  </section> -->
+    <Gallery/>
 </template>
 
 <script setup>
 import { ref, onMounted  } from 'vue'
 import cmsService from '@/services/cmsService';
 import CollectionsGrid from '@/components/shared/CollectionsGrid.vue';
+import Gallery from '@/components/ui/gallery.vue';
 
 const collections = ref([])
 
