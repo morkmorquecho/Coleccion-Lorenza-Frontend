@@ -2,16 +2,15 @@
   <!-- <section class="collections-section">
     <CollectionsGrid :items="collections" />
   </section> -->
-  <PhotoPortfolio/>
-  
+    <Gallery/>
 </template>
 
 <script setup>
 import { ref, onMounted  } from 'vue'
 import cmsService from '@/services/cmsService';
 import CollectionsGrid from '@/components/shared/CollectionsGrid.vue';
-import photoPortfolio from '@/components/ui/photoPortfolio.vue';
 import PhotoPortfolio from '@/components/ui/photoPortfolio.vue';
+import Gallery from '@/components/ui/gallery.vue';
 
 const collections = ref([])
 
