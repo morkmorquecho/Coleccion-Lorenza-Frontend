@@ -24,6 +24,13 @@ const routes = [
         name: 'Collection',
         component: () => import('@/views/collection/collection.vue'),
         meta: {requiresAuth:false}
+      },
+
+      {
+        path: 'colecciones/:name',
+        name: 'Detail Collection',
+        component: () => import('@/views/collection/detailCollection.vue'),
+        meta: {requiresAuth:false}
       }
 
       // ── PIEZAS ──

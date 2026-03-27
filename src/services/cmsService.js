@@ -4,7 +4,7 @@ const cmsService = {
 
     getCollections(params = {}){
         //Paramas: {featured}
-        return api.get('/collections/')
+        return api.get('/collections/',{params})
     },
 
     getCollection(id) {

@@ -5,6 +5,7 @@
         v-for="(col, i) in items"
         :key="i"
         class="col-card"
+        @click="goToDetail(col.name)"
         @mouseenter="hovered = i"
         @mouseleave="hovered = null"
         @touchstart="hovered = i"
@@ -46,6 +47,9 @@
 
 <script setup>
 import { ref } from "vue"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
 
 const props = defineProps({
   items: { type: Array, required: true },
@@ -53,6 +57,13 @@ const props = defineProps({
 })
 
 const hovered = ref(null)
+
+const goToDetail = (name) => {
+  router.push({
+    name: "Detail Collection",
+    params: { name }
+  })
+}
 </script>
 
 <style scoped>

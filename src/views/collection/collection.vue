@@ -1,16 +1,13 @@
 <template>
-  <!-- <section class="collections-section">
+  <section class="collections-section">
     <CollectionsGrid :items="collections" />
-  </section> -->
-    <Gallery/>
+  </section>
 </template>
 
 <script setup>
 import { ref, onMounted  } from 'vue'
 import cmsService from '@/services/cmsService';
 import CollectionsGrid from '@/components/shared/CollectionsGrid.vue';
-import PhotoPortfolio from '@/components/ui/photoPortfolio.vue';
-import Gallery from '@/components/ui/gallery.vue';
 
 const collections = ref([])
 
@@ -18,6 +15,7 @@ onMounted(async () => {
   const res = await cmsService.getCollections()
   collections.value = res.results
 })
+
 
 </script>
 
