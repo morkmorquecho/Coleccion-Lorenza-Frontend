@@ -4,7 +4,6 @@
     <!-- ① Header fijo — siempre arriba -->
     <AppHeader />
 
-    <!-- ② Contenido de la página actual (Vue Router inyecta aquí) -->
     <main class="main-layout__content">
       <RouterView v-slot="{ Component }">
         <Transition name="page" mode="out-in">
@@ -13,18 +12,17 @@
       </RouterView>
     </main>
 
-    <!-- ③ Footer — siempre abajo (lo construimos después) -->
-    <!-- <AppFooter /> -->
-
+    <AppFooter />
   </div>
 </template>
 
 <script>
 import { onMounted } from "vue"
-import AppHeader from '@/components/home/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import AOS from "aos"
 import "aos/dist/aos.css"
 import '../assets/main.css'
+import AppFooter from "@/components/AppFooter.vue"
 
 
 export default {

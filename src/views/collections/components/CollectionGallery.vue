@@ -136,7 +136,7 @@ onMounted(async () => {
   setTimeout(() => {
     animationsAllowed = true
     setupImageObserver()
-  }, 1500)
+  }, 1950)
 })
 
 onUnmounted(() => {

@@ -6,14 +6,14 @@
       <div class="sep sep--1" aria-hidden="true"></div>
       <div class="sep sep--2" aria-hidden="true"></div>
 
-      <VerticalCarousel :slides=carrusel1 :delay="0"    phrase="ARTE"  />
-      <VerticalCarousel :slides=carrusel2 :delay="1500" phrase="MEXICANO" class="hide-mobile" />
-      <VerticalCarousel :slides=carrusel3 :delay="3000" phrase="EN PAPEL" class="hide-mobile" />
+      <HomeVerticalCarousel :slides=carrusel1 :delay="0"    phrase="ARTE"  />
+      <HomeVerticalCarousel :slides=carrusel2 :delay="1500" phrase="MEXICANO" class="hide-mobile" />
+      <HomeVerticalCarousel :slides=carrusel3 :delay="3000" phrase="EN PAPEL" class="hide-mobile" />
 
     </div>
 
     <div class="btn-explorer flex justify-center">
-      <DiscoverButton/>
+      <HomeDiscoverButton/>
     </div>
 
     <div
@@ -24,7 +24,7 @@
       class="phrase"
     >
 
-      <PhraseComponent
+      <HomePhrase
         quote="El arte popular es la raíz más profunda de la identidad cultural de un pueblo"
         author="DIEGO RIVERA"
       />
@@ -36,16 +36,16 @@
       data-aos-duration="700"
       data-aos-delay="50"
       data-aos-once="true">
-          <HighlightedComponent/>
+          <HomeFeaturedPieces/>
     </div>
 
     <div class=""
       data-aos="fade-left"
       data-aos-easing="linear"
-      data-aos-duration="700"
+      data-aos-duration="900"
       data-aos-delay="50"
       data-aos-once="true">
-      <ColecctionComponent/>
+      <CollectionsGrid :items="collections" />
     </div>
 
     <!-- <BlogCard
@@ -55,7 +55,16 @@
       excerpt="Cuando el arte y la tradición se fusionan, nace algo que trasciende generaciones..."
     /> -->
 
-    <BlogCarousel/>
+  <div
+    data-aos="fade-down"
+    data-aos-easing="linear"
+    data-aos-offset="600"
+    data-aos-duration="1500"
+    data-aos-delay="800"
+    data-aos-once="true"
+  >
+      <HomeBlogPreview/>
+    </div>
 
     <div class="">
       <AppFooter/>
@@ -65,14 +74,22 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import VerticalCarousel from '@/components/home/VerticalCarousel.vue'
-import PhraseComponent from '@/components/home/PhraseComponent.vue'
-import DiscoverButton from '@/components/home/DiscoverButton.vue'
-import HighlightedComponent from '@/components/home/HighlightedComponent.vue'
-import AppFooter from '@/components/home/AppFooter.vue'
-import ColecctionComponent from '@/components/home/ColecctionComponent.vue'
-import BlogCarousel from '@/components/home/BlogCarousel.vue'
+import cmsService from '@/services/cmsService'
+import HomeVerticalCarousel from './components/HomeVerticalCarousel.vue'
+import HomePhrase from './components/HomePhrase.vue'
+import HomeDiscoverButton from './components/HomeDiscoverButton.vue'
+import HomeFeaturedPieces from './components/HomeFeaturedPieces.vue'
 
+import AppFooter from '@/components/AppFooter.vue'
+import CollectionsGrid from '@/components/collection/CollectionsGrid.vue'
+import HomeBlogPreview from './components/HomeBlogPreview.vue'
+
+const collections = ref([])
+
+onMounted(async () => {
+  const res = await cmsService.getCollections({ featured: true})
+  collections.value = res.results
+})
 
 const BASE = import.meta.env.VITE_R2_URL
 
@@ -111,7 +128,6 @@ const carrusel3 = Array.from({ length: 5 }, (_, i) => ({
   margin-bottom: 5rem;
 }
 
-/* ✅ Contenedor de la frase: ancla el componente al ancho real de la página */
 .phrase {
   width: 100%;
   max-width: 100%;

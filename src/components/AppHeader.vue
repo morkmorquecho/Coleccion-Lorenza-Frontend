@@ -50,7 +50,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       <div class="flex items-center justify-between px-7 pt-8 pb-6">
         <a href="/" @click="closeMenu">
           <img
-            src="../../assets/logo.svg"
+            src="../assets/logo.svg"
             alt="Logo"
             class="h-10 w-auto brightness-0 invert"
           />
@@ -166,7 +166,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       <div class="nav-logo justify-self-center">
         <a href="/" class="block logo-link">
           <img
-            src="../../assets/logo.svg"
+            src="../assets/logo.svg"
             alt="Logo"
             class="h-8 sm:h-10 lg:h-12 xl:h-14 2xl:h-16 w-auto filter drop-shadow-lg transition-transform duration-500 ease-out"
           />

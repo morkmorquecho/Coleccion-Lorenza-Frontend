@@ -1,11 +1,11 @@
 <template>
-  <Gallery :title="title" :photos="photos" />
+  <CollectionGallery :title="title" :photos="photos" />
 </template>
 
 <script setup>
 import { ref, onMounted  } from 'vue'
 import cmsService from '@/services/cmsService';
-import Gallery from '@/components/ui/gallery.vue';
+import CollectionGallery from './components/CollectionGallery.vue';
 import { useRoute } from 'vue-router'
 
 const route = useRoute()

@@ -35,7 +35,7 @@
 
 <script>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import ProductCard from '../shared/ProductCard.vue'
+import ProductCard from '../products/ProductCard.vue'
 
 export default {
   name: 'ProductGrid',

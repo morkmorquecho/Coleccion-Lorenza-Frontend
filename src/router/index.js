@@ -14,7 +14,7 @@ const routes = [
       {
         path: '',
         name: 'Home',
-        component: () => import('@/views/Home.vue'),
+        component: () => import('@/views/home/HomeView.vue'),
         meta: { requiresAuth: false }
       },
 
@@ -22,14 +22,14 @@ const routes = [
       {
         path: 'colecciones',
         name: 'Collection',
-        component: () => import('@/views/collection/collection.vue'),
+        component: () => import('@/views/collections/CollectionsView.vue'),
         meta: {requiresAuth:false}
       },
 
       {
         path: 'colecciones/:name',
         name: 'Detail Collection',
-        component: () => import('@/views/collection/detailCollection.vue'),
+        component: () => import('@/views/collections/CollectionDetailView.vue'),
         meta: {requiresAuth:false}
       }
 

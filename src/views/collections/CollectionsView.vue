@@ -6,15 +6,16 @@
 
 <script setup>
 import { ref, onMounted  } from 'vue'
-import CollectionsGrid from '../shared/CollectionsGrid.vue';
 import cmsService from '@/services/cmsService';
+import CollectionsGrid from '@/components/collection/CollectionsGrid.vue';
 
 const collections = ref([])
 
 onMounted(async () => {
-  const res = await cmsService.getCollections({ featured: true })
+  const res = await cmsService.getCollections()
   collections.value = res.results
 })
+
 
 </script>
 
@@ -22,6 +23,7 @@ onMounted(async () => {
 
 .collections-section{
   width:100%;
+  margin-top: 2.5em;
 }
 
 /* título */

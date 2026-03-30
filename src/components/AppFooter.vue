@@ -4,7 +4,7 @@
 
       <!-- Columna 1: Marca -->
       <div class="footer__col footer__col--brand">
-        <img src="../../assets/logo.svg" alt="Colección Lorenza" class="footer__logo" />
+        <img src="../assets/logo.svg" alt="Colección Lorenza" class="footer__logo" />
         <p class="footer__tagline">Arte mexicano en papel</p>
         <p class="footer__about">
           Proyecto artesanal dedicado a preservar y celebrar el arte popular mexicano

@@ -94,7 +94,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import '../../assets/main.css'
+import '../../../assets/main.css'
 import piecesService from '@/services/piecesService'
 
 const pieces = ref([])
