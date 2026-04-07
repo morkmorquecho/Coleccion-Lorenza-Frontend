@@ -70,6 +70,8 @@ onBeforeUnmount(() => {
         <span
           class="block text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-[0.15em] uppercase text-foreground"
           :style="{
+            fontFamily:'Cormorant Garamond',
+            color: 'var(--color-primary, #e05c2a)',
             lineHeight: 1.2,
             transform: wordActive ? 'translateY(-115%)' : 'translateY(0%)',
             opacity:   wordActive ? 0 : 1,
@@ -83,7 +85,7 @@ onBeforeUnmount(() => {
           v-if="canHover"
           class="absolute inset-0 flex items-center justify-center text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-[0.15em] uppercase"
           :style="{
-            fontFamily: 'Principal',
+            fontFamily:'Cormorant Garamond',
             lineHeight: 1.2,
             color: 'var(--color-primary, #e05c2a)',
             transform: wordActive ? 'translateY(0%)' : 'translateY(115%)',

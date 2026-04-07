@@ -176,7 +176,7 @@ const goToDetail = (name) => {
   font-size: clamp(1.4rem, 2.2vw, 2rem);
   color: #fff;
   margin: 0;
-  font-family: 'Principal';
+  font-family: 'COM4DL';
 }
 
 /* ─── Button ──────────────────────────────────── */
@@ -192,6 +192,8 @@ const goToDetail = (name) => {
   padding: 9px 28px;
   cursor: pointer;
   transition: all .3s ease;
+  font-family: 'Cormorant Garamond';
+ 
 }
 
 .col-card__btn:hover,

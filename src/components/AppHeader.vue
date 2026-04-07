@@ -91,13 +91,16 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       <div class="menu-footer px-7 pb-10 pt-6">
         <div class="flex items-center gap-8">
 
-          <!-- Perfil -->
-          <button class="footer-util flex flex-col items-center gap-2 text-white transition-colors duration-200 hover:opacity-70" aria-label="Perfil">
+          <RouterLink
+            :to="{ name: 'Login' }"
+            class="footer-util flex flex-col items-center gap-2 text-white transition-colors duration-200 hover:opacity-70"
+            aria-label="Perfil"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
             <span class="text-[10px] font-semibold uppercase tracking-widest">Perfil</span>
-          </button>
+          </RouterLink>
 
           <!-- Sonido -->
           <button @click="toggleSound" class="footer-util flex flex-col items-center gap-2 text-white transition-colors duration-200 hover:opacity-70" aria-label="Sonido">
@@ -155,7 +158,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
         <li v-for="link in navLinks" :key="link.name">
           <RouterLink 
             :to="link.href"
-            class="font-principal nav-link text-[#dd4b24] text-xs lg:text-sm xl:text-base 2xl:text-lg font-medium tracking-wide transition-all duration-300 relative"
+            class="nav-link text-[#dd4b24] text-sm lg:text-base xl:text-lg 2xl:text-xl font-medium italic tracking-wide transition-all duration-300 relative"
           >
             {{ link.name }}
           </RouterLink>
@@ -175,11 +178,13 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 
       <!-- Iconos (desktop) -->
       <div class="nav-icons hidden lg:flex items-center justify-end gap-5 xl:gap-7 2xl:gap-9">
-        <button class="icon-btn text-[#dd4b24]" aria-label="Perfil">
+
+        <RouterLink :to='{name: "Login"}' class="icon-btn text-[#dd4b24]" aria-label="Perfil">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
-        </button>
+        </RouterLink >
+        
         <button @click="toggleSound" class="icon-btn text-[#dd4b24]" aria-label="Sonido">
           <svg v-if="isSoundOn" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
@@ -336,4 +341,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 
 /* ─── LOGO ────────────────────────────────────────────────────────────────── */
 .logo-link:hover img { transform: scale(1.05); }
+
+
+
 </style>

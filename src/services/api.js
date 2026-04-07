@@ -50,10 +50,14 @@ api.interceptors.response.use(
     const { success, data, errors, message } = response.data
 
     if (!success) {
-      return Promise.reject(errors || message)
+      const error = new Error(message || 'Error en la respuesta')
+      error.errors = errors
+      error.context = errors?.context || {}
+      error.code_error = errors?.code_error || null
+      return Promise.reject(error)
     }
 
-    return data  // ← ya retorna directo { count, next, results... }
+    return data 
   },
 
   // Si hay error...
@@ -63,6 +67,15 @@ api.interceptors.response.use(
 
     // ¿Es un 401 y no es el endpoint de refresh (para evitar loop infinito)?
     // _retry: marca que ya intentamos renovar este request una vez
+    const responseData = error.response?.data
+    if (responseData && responseData.success === false) {
+      const apiError = new Error(responseData.message || 'Error en la respuesta')
+      apiError.errors = responseData.errors
+      apiError.context = responseData.errors?.context || {}
+      apiError.code_error = responseData.errors?.code_error || null
+      return Promise.reject(apiError)  // 👈 sale aquí, ya con context armado
+    }
+    
     if (error.response?.status === 401 && !originalRequest._retry) {
 
       // Si ya hay un refresh en progreso, mete este request en la cola

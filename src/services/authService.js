@@ -9,7 +9,7 @@ const authService = {
   },
 
   register(data) {
-    // data: { username, email, password, password2 }
+    // data: { username, email, password, confirm_password }
     return api.post('/auth/register/', data)
   },
 
@@ -43,6 +43,30 @@ const authService = {
   loginWithFacebook(accessToken) {
     return api.post('/auth/oauth/facebook/', { access_token: accessToken })
   },
+
+  /**
+   * Procesa los errores específicos del registro
+   * Transforma el formato de error del API al formato del frontend
+   * @param {Error} error - Error del API con estructura { context, code_error }
+   * @returns {Object} - { fieldErrors: {...}, generalError: '...' }
+   */
+  processRegisterError(error) {
+    const fieldErrors = {}
+    let generalError = error?.message || 'Error en el registro'
+
+    // Si vienen errores en context (errores de campo)
+    if (error?.context) {
+      Object.entries(error.context).forEach(([field, messages]) => {
+        fieldErrors[field] = Array.isArray(messages) ? messages : [messages]
+      })
+    }
+
+    return {
+      fieldErrors,
+      generalError,
+      codeError: error?.code_error || null
+    }
+  }
 
 }
 

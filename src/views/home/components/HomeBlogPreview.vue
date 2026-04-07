@@ -304,7 +304,6 @@ onUnmounted(() => {
 
 /* ── BlogCard ────────────────────────────────────────────────────────────── */
 .blog-card {
-  font-family: 'COM4DL', Georgia, serif;
   display: flex;
   flex-direction: column;
   background: var(--color-background);

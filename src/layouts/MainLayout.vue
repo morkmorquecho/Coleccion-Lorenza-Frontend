@@ -19,60 +19,19 @@
 <script>
 import { onMounted } from "vue"
 import AppHeader from '@/components/AppHeader.vue'
-import AOS from "aos"
 import "aos/dist/aos.css"
 import '../assets/main.css'
 import AppFooter from "@/components/AppFooter.vue"
-
 
 export default {
   name: 'MainLayout',
   components: {
     AppHeader,
-    // AppFooter,
+    AppFooter,
   }
 }
 </script>
 
-<style>
-/* ── Variables globales del proyecto ───────
-   Pon estas aquí o en tu archivo main.css/index.css
-   para que toda la app las use                    */
-:root {
-  --orange:      #dd4b24;
-  --orange-mid:  #e8612f;
-  --orange-light:#f07a50;
-  --orange-pale: #fdf2ee;
-  --orange-soft: #fce8e0;
-  --ink:         #1a0e09;
-  --ink-soft:    #5a3020;
-  --white:       #ffffff;
-  --off-white:   #fdfaf8;
-
-  --header-h:    72px;        /* altura del header */
-  --expo:        cubic-bezier(0.16,1,0.3,1);
-}
-
-/* ── Reset mínimo ──────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background-color: var(--color-background);
-  color: var(--orange);
-  font-family: 'Principal','Georgia', 'Times New Roman', serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
-</style>
 
 <style scoped>
 /* ── Layout shell ──────────────────────────── */

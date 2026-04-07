@@ -347,7 +347,7 @@ onBeforeUnmount(() => {
   color: #1c1a17;
   letter-spacing: 0.04em;
   margin: 0;
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family:'Georgia', 'Times New Roman', Times, serif;
 }
 
 .card-color {
@@ -355,6 +355,7 @@ onBeforeUnmount(() => {
   color: #888;
   margin: 0;
   font-family: Georgia, 'Times New Roman', Times, serif;
+  font-style: italic;
 }
 
 /* Add button */

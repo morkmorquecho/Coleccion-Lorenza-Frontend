@@ -25,8 +25,6 @@
 
         <!-- Contenido animado -->
         <div class="slide__content">
-
-
           <!-- Título — clip reveal palabra por palabra -->
           <h2 class="slide__title" :class="{ 'is-visible': i === current }">
             <span
@@ -129,7 +127,7 @@
 const INTERVAL     = 4500
 const SLIDE_EASE   = 'cubic-bezier(0.77, 0, 0.18, 1)'
 const ARC_R        = 11
-const ARC_CIRC     = 2 * Math.PI * ARC_R   // ≈ 69.115
+const ARC_CIRC     = 2 * Math.PI * ARC_R
 
 export default {
   name: 'VerticalCarousel',
@@ -144,7 +142,7 @@ export default {
     return {
       current:     0,
       paused:      false,
-      progress:    0,     // 0 → 1
+      progress:    0,
       rafId:       null,
       startTime:   null,
       touchStartY: 0,
@@ -160,12 +158,10 @@ export default {
       }
     },
 
-    // Barra: no CSS transition, driven pure rAF
     barStyle() {
       return { transform: `scaleX(${this.progress})` }
     },
 
-    // Arco SVG: stroke-dashoffset decrece de ARC_CIRC → 0
     arcOffset() {
       return ARC_CIRC * (1 - this.progress)
     },
@@ -180,7 +176,6 @@ export default {
   },
 
   methods: {
-    // ── rAF loop ───────────────────────────────────────────
     _rafStart() {
       this.startTime = null
       const tick = (now) => {
@@ -206,7 +201,6 @@ export default {
       this.progress  = 0
     },
 
-    // ── Navegación ─────────────────────────────────────────
     next() {
       this._advance()
       this._reset()
@@ -223,7 +217,6 @@ export default {
       this._reset()
     },
 
-    // ── Pausa ──────────────────────────────────────────────
     pause() {
       this.paused = true
     },
@@ -231,11 +224,9 @@ export default {
     resume() {
       if (!this.paused) return
       this.paused = false
-      // Recupera el punto donde se pausó
       this.startTime = performance.now() - this.progress * INTERVAL
     },
 
-    // ── Touch ──────────────────────────────────────────────
     onTouchStart(e) {
       this.touchStartY = e.touches[0].clientY
       this.touchStartX = e.touches[0].clientX
@@ -255,16 +246,13 @@ export default {
 </script>
 
 <style scoped>
-/* ── Tokens ──────────────────────────────────────── */
 .carousel {
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
   --clr-text:    #f2f2f2;
   --clr-muted:   rgba(242, 242, 242, 0.44);
   --clr-accent:  #ffffff;
-  --arc-circ:    69.115;   /* 2π × 11 — coincide con ARC_CIRC en JS */
 }
 
-/* ── Shell ───────────────────────────────────────── */
 .carousel {
   position: relative;
   width: 100%;
@@ -275,7 +263,6 @@ export default {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Track ───────────────────────────────────────── */
 .carousel__track {
   display: flex;
   flex-direction: column;
@@ -283,7 +270,6 @@ export default {
   will-change: transform;
 }
 
-/* ── Slide ───────────────────────────────────────── */
 .carousel__slide {
   position: relative;
   flex: 0 0 100vh;
@@ -294,7 +280,6 @@ export default {
   overflow: hidden;
 }
 
-/* ── Ken Burns ───────────────────────────────────── */
 .slide__bg {
   position: absolute;
   inset: -8%;
@@ -314,7 +299,6 @@ export default {
   100% { transform: scale(1.0)  translate(0.5%, -0.5%); }
 }
 
-/* ── Overlay ─────────────────────────────────────── */
 .slide__overlay {
   position: absolute;
   inset: 0;
@@ -324,7 +308,6 @@ export default {
   pointer-events: none;
 }
 
-/* ── Contenido ───────────────────────────────────── */
 .slide__content {
   position: relative;
   z-index: 2;
@@ -334,44 +317,6 @@ export default {
   max-width: 620px;
 }
 
-/* -- Eyebrow -- */
-.slide__eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  opacity: 0;
-  transform: translateX(-14px);
-  transition:
-    opacity   0.55s var(--ease-out) 0.05s,
-    transform 0.55s var(--ease-out) 0.05s;
-}
-.slide__eyebrow.is-visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.eyebrow__line {
-  display: block;
-  width: 28px;
-  height: 1px;
-  background: var(--clr-accent);
-  transform-origin: left;
-  transform: scaleX(0);
-  transition: transform 0.5s var(--ease-out) 0.15s;
-}
-.slide__eyebrow.is-visible .eyebrow__line {
-  transform: scaleX(1);
-}
-
-.eyebrow__label {
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--clr-muted);
-  font-family: 'Principal', 'Helvetica Neue', sans-serif;
-}
-
-/* -- Título: clip-reveal por palabra -- */
 .slide__title {
   display: flex;
   flex-wrap: wrap;
@@ -383,7 +328,6 @@ export default {
   color: var(--clr-text);
 }
 
-/* Cada palabra está envuelta en un mask que oculta el overflow */
 .title__mask {
   display: inline-block;
   overflow: hidden;
@@ -404,7 +348,6 @@ export default {
   opacity: 1;
 }
 
-/* -- Descripción -- */
 .slide__desc {
   font-size: clamp(13px, 1.7vw, 15px);
   line-height: 1.65;
@@ -422,7 +365,6 @@ export default {
   transform: translateY(0);
 }
 
-/* -- CTA -- */
 .slide__cta {
   display: inline-flex;
   align-items: center;
@@ -445,8 +387,7 @@ export default {
     opacity      0.55s var(--ease-out) 0.60s,
     transform    0.55s var(--ease-out) 0.60s,
     background   0.2s ease,
-    border-color 0.2s ease,
-    box-shadow   0.2s ease;
+    border-color 0.2s ease;
 }
 .slide__cta.is-visible {
   opacity: 1;
@@ -455,7 +396,6 @@ export default {
 .slide__cta:hover {
   background: rgba(255,255,255,0.12);
   border-color: rgba(255,255,255,0.5);
-  box-shadow: 0 0 20px rgba(255,255,255,0.07);
 }
 .cta__arrow {
   transition: transform 0.2s ease;
@@ -464,7 +404,6 @@ export default {
   transform: translateX(4px);
 }
 
-/* ── Frase decorativa ────────────────────────────── */
 .carousel__phrase {
   position: absolute;
   top: 50%;
@@ -491,7 +430,6 @@ export default {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Dots ────────────────────────────────────────── */
 .carousel__dots {
   position: absolute;
   bottom: clamp(28px, 5vw, 52px);
@@ -520,7 +458,6 @@ export default {
   inset: 0;
   width: 100%;
   height: 100%;
-  /* El -90deg lo aplicamos con transform en los circles */
   transform: rotate(-90deg);
 }
 
@@ -533,8 +470,7 @@ export default {
   stroke: var(--clr-accent);
   stroke-width: 1.5;
   stroke-linecap: round;
-  stroke-dasharray: 69.115;   /* ARC_CIRC = 2π × 11 */
-  /* stroke-dashoffset viene vía :style binding desde arcOffset */
+  stroke-dasharray: 69.115;
   transition: stroke-dashoffset 0.08s linear;
 }
 
@@ -556,7 +492,6 @@ export default {
   transform: scale(1.35);
 }
 
-/* ── Controles flecha ────────────────────────────── */
 .carousel__controls {
   position: absolute;
   top: 50%;
@@ -595,7 +530,6 @@ export default {
   transform: scale(0.93);
 }
 
-/* ── Contador flip ───────────────────────────────── */
 .carousel__index {
   position: absolute;
   bottom: clamp(16px, 3vw, 24px);
@@ -641,7 +575,6 @@ export default {
   color: rgba(255,255,255,0.32);
 }
 
-/* ── Barra progreso ──────────────────────────────── */
 .carousel__bar {
   position: absolute;
   bottom: 0;
@@ -660,10 +593,8 @@ export default {
   transform-origin: left center;
   transform: scaleX(0);
   will-change: transform;
-  /* Sin CSS transition: actualizado 60fps por rAF */
 }
 
-/* ── Responsive ──────────────────────────────────── */
 @media (max-width: 600px) {
   .carousel__controls,
   .carousel__phrase {

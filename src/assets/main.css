@@ -1,10 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400;500&display=swap');
+/* ============================================
+   1. IMPORTS (Importaciones)
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400');
 @import "tailwindcss";
 
-@font-face {
-  font-family: "Principal";
-  src: local("Inter");
-}
+/* ============================================
+   2. FUENTES LOCALES (Local Fonts)
+   ============================================ */
 
 @font-face {
   font-family: 'COM4DL';
@@ -13,17 +15,61 @@
   font-style: normal;
 }
 
+/* ============================================
+   3. VARIABLES CSS (Design Tokens)
+   ============================================ */
 :root {
+  /* Colores principales */
   --color-background: #fffbf7;
   --color-background-2: #ffeadd;
   --color-primary: #dd4b24;
+  
+  /* Paleta de colores completa */
+  --orange:      #dd4b24;
+  --orange-mid:  #e8612f;
+  --orange-light:#f07a50;
+  --orange-pale: #fdf2ee;
+  --orange-soft: #fce8e0;
+  --ink:         #1a0e09;
+  --ink-soft:    #5a3020;
+  --white:       #ffffff;
+  --off-white:   #fdfaf8;
+  
+  /* Layout & Animación */
+  --header-h:    72px;
+  --expo:        cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================
+   4. RESET / GLOBAL (Estilos base universales)
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { 
+  scroll-behavior: smooth; 
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  /* TOMAMOS UNA SOLA DECISIÓN - no ambas */
+  font-family: 'Georgia', serif, 'Cormorant Garamond';
   font-weight: 400;
+  
+  /* Estos vienen de global.css */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  
+  /* Color de fondo */
+  background-color: var(--color-background);
 }
 
+/* ============================================
+   5. TIPOGRAFÍA ESPECÍFICA (Specific Typography)
+   ============================================ */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 300;

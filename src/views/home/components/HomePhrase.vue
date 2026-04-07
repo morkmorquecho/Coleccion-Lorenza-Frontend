@@ -54,7 +54,7 @@ export default {
   justify-content: center;
   min-height: 680px;
   overflow: hidden;
-  font-family: 'Principal', Georgia, serif;
+  font-family: Georgia, serif;
 }
 
 /* ── Círculos decorativos de fondo ── */
@@ -108,7 +108,7 @@ export default {
 /* ── Texto de la frase ── */
 .phrase-text {
   margin: 0 0 48px 0;
-  font-family: 'Principal', Georgia, serif;
+  font-family: Georgia, serif;
   font-size: clamp(1.6rem, 4vw, 3rem);
   line-height: 1.55;
   color: #c94f2c;
@@ -134,7 +134,7 @@ export default {
 }
 
 .phrase-author {
-  font-family: 'Principal', Georgia, serif;
+  font-family: Georgia, serif;
   font-style: normal;
   font-size: clamp(0.65rem, 1.2vw, 0.8rem);
   letter-spacing: 0.28em;

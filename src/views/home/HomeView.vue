@@ -42,8 +42,9 @@
     <div class=""
       data-aos="fade-left"
       data-aos-easing="linear"
-      data-aos-duration="900"
+      data-aos-duration="1100"
       data-aos-delay="50"
+      data-aos-offset="200"
       data-aos-once="true">
       <CollectionsGrid :items="collections" />
     </div>
@@ -58,17 +59,14 @@
   <div
     data-aos="fade-down"
     data-aos-easing="linear"
-    data-aos-offset="600"
-    data-aos-duration="1500"
+    data-aos-offset="500"
+    data-aos-duration="1200"
     data-aos-delay="800"
     data-aos-once="true"
   >
       <HomeBlogPreview/>
     </div>
 
-    <div class="">
-      <AppFooter/>
-    </div>
   </div>
 </template>
 
@@ -120,7 +118,7 @@ const carrusel3 = Array.from({ length: 5 }, (_, i) => ({
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  margin-top: 3rem;
+  margin-top: 4.1rem;
 }
 
 .btn-explorer {
@@ -162,6 +160,7 @@ const carrusel3 = Array.from({ length: 5 }, (_, i) => ({
   .carousels-wrap {
     grid-template-columns: 1fr;
     height: 100vh;
+    margin-top: 3.3rem;
   }
   .sep         { display: none; }
   .hide-mobile { display: none; }

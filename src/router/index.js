@@ -85,26 +85,26 @@ const routes = [
   // // ════════════════════════════════════════
   // // AUTH — AuthLayout (sin header/footer)
   // // ════════════════════════════════════════
-  // {
-  //   path: '/auth',
-  //   component: () => import('@/layouts/AuthLayout.vue'),
-  //   children: [
+  {
+    path: '/auth',
+    component: () => import('@/layouts/AuthLayout.vue'),
+    children: [
 
-  //     {
-  //       path: 'login',
-  //       name: 'Login',
-  //       component: () => import('@/views/auth/Login.vue'),
-  //       meta: { requiresAuth: false, guestOnly: true }
-  //       // POST /api/v1/auth/login/
-  //       // Incluye botones OAuth Google y Facebook
-  //     },
-  //     {
-  //       path: 'register',
-  //       name: 'Register',
-  //       component: () => import('@/views/auth/Register.vue'),
-  //       meta: { requiresAuth: false, guestOnly: true }
-  //       // POST /api/v1/auth/register/
-  //     },
+      {
+        path: 'login',
+        name: 'Login',
+        component: () => import('@/views/auth/LoginView.vue'),
+        meta: { requiresAuth: false, guestOnly: true }
+        // POST /api/v1/auth/login/
+        // Incluye botones OAuth Google y Facebook
+      },
+      {
+        path: 'register',
+        name: 'Register',
+        component: () => import('@/views/auth/RegisterView.vue'),
+        meta: { requiresAuth: false, guestOnly: true }
+        // POST /api/v1/auth/register/
+      },
   //     {
   //       path: 'email/verify',
   //       name: 'EmailVerify',
@@ -136,8 +136,8 @@ const routes = [
   //       // uidb64 y token llegan como query params desde el link del correo
   //     },
 
-  //   ]
-  // },
+    ]
+  },
 
   // // ════════════════════════════════════════
   // // CUENTA — requiere login
