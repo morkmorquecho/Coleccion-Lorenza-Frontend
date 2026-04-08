@@ -48,7 +48,6 @@ function processQueue(error, token = null) {
 api.interceptors.response.use(
   (response) => {
     const { success, data, errors, message } = response.data
-
     if (!success) {
       const error = new Error(message || 'Error en la respuesta')
       error.errors = errors
@@ -56,35 +55,26 @@ api.interceptors.response.use(
       error.code_error = errors?.code_error || null
       return Promise.reject(error)
     }
-
-    return data 
+    return data
   },
 
-  // Si hay error...
   async (error) => {
     const originalRequest = error.config
     const authStore = useAuthStore()
 
-    // ¿Es un 401 y no es el endpoint de refresh (para evitar loop infinito)?
-    // _retry: marca que ya intentamos renovar este request una vez
-    const responseData = error.response?.data
-    if (responseData && responseData.success === false) {
-      const apiError = new Error(responseData.message || 'Error en la respuesta')
-      apiError.errors = responseData.errors
-      apiError.context = responseData.errors?.context || {}
-      apiError.code_error = responseData.errors?.code_error || null
-      return Promise.reject(apiError)  // 👈 sale aquí, ya con context armado
-    }
-    
+    // ✅ Primero manejar el 401 con refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
 
-      // Si ya hay un refresh en progreso, mete este request en la cola
+      if (!authStore.refreshToken) {
+        return Promise.reject(error) 
+      }
+      
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
         }).then(token => {
           originalRequest.headers.Authorization = `Bearer ${token}`
-          return api(originalRequest)  // reintenta con el nuevo token
+          return api(originalRequest)
         }).catch(err => Promise.reject(err))
       }
 
@@ -92,36 +82,35 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        // Intenta renovar el token
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/auth/token/refresh/`,
           { refresh: authStore.refreshToken }
         )
-
-        const { access, refresh } = response.data
+        const { access, refresh } = response.data.data
         authStore.setTokens(access, refresh)
-
-        // Resuelve todos los requests que estaban esperando
         processQueue(null, access)
-
-        // Reintenta el request original con el nuevo token
         originalRequest.headers.Authorization = `Bearer ${access}`
         return api(originalRequest)
 
       } catch (refreshError) {
-        // El refresh también falló → la sesión expiró completamente
         processQueue(refreshError, null)
         authStore.clearSession()
-
-        // Redirige al login
-        // Importamos el router aquí para evitar dependencia circular
         const { default: router } = await import('@/router')
         router.push({ name: 'Login' })
-
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
       }
+    }
+
+    // ✅ Después manejar otros errores con success:false
+    const responseData = error.response?.data
+    if (responseData && responseData.success === false) {
+      const apiError = new Error(responseData.message || 'Error en la respuesta')
+      apiError.errors = responseData.errors
+      apiError.context = responseData.errors?.context || {}
+      apiError.code_error = responseData.errors?.code_error || null
+      return Promise.reject(apiError)
     }
 
     return Promise.reject(error)
