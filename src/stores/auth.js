@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ── STATE ──────────────────────────────
   // ref() = dato reactivo, como data() en Vue 2
-  const user = ref(null)          // objeto del usuario logueado
+  const user = ref(JSON.parse(localStorage.getItem('user')) || null) 
   const accessToken = ref(localStorage.getItem('access_token') || null)
   const refreshToken = ref(localStorage.getItem('refresh_token') || null)
 
@@ -30,15 +30,16 @@ export const useAuthStore = defineStore('auth', () => {
 
   function setUser(userData) {
     user.value = userData
+    localStorage.setItem('user', JSON.stringify(userData)) // ← persistir
   }
 
   function clearSession() {
-    // Limpia todo al hacer logout
     user.value = null
     accessToken.value = null
     refreshToken.value = null
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('user') 
   }
 
   return {
