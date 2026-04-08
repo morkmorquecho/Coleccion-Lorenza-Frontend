@@ -123,6 +123,7 @@
       // El interceptor ya devuelve { access, refresh, user }
       const data = await authService.loginWithGoogle(googleToken)
       authStore.setTokens(data.access, data.refresh)
+      authStore.setUser(data.user)
       if (data.user) authStore.setUser(data.user)
       router.push({ name: 'Home' })
     } catch (err) {
