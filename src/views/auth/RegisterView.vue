@@ -17,97 +17,37 @@
 
       <form class="flex flex-col gap-4 mt-2" @submit.prevent="register">
 
-        <!-- Username -->
-        <div class="field-group">
-          <input
-            type="text"
-            placeholder="Nombre completo"
-            class="login-input"
-            :class="{ 'input--error': errors.username?.length }"
-            required
-            v-model="form.username"
-          />
-          <transition name="field-error">
-            <ul v-if="errors.username?.length" class="error-list">
-              <li v-for="msg in errors.username" :key="msg" class="error-item">
-                <svg class="error-icon" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                {{ msg }}
-              </li>
-            </ul>
-          </transition>
-        </div>
+        <FormField
+          type="text"
+          placeholder="Nombre completo"
+          v-model="form.username"
+          :errors="errors.username"
+          required
+        />
 
-        <!-- Email -->
-        <div class="field-group">
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            class="login-input"
-            :class="{ 'input--error': errors.email?.length }"
-            required
-            v-model="form.email"
-          />
-          <transition name="field-error">
-            <ul v-if="errors.email?.length" class="error-list">
-              <li v-for="msg in errors.email" :key="msg" class="error-item">
-                <svg class="error-icon" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                {{ msg }}
-              </li>
-            </ul>
-          </transition>
-        </div>
+        <FormField
+          type="email"
+          placeholder="Correo electrónico"
+          v-model="form.email"
+          :errors="errors.email"
+          required
+        />
 
-        <!-- Password -->
-        <div class="field-group">
-          <input
-            type="password"
-            placeholder="Contraseña"
-            class="login-input"
-            :class="{ 'input--error': errors.password?.length }"
-            required
-            v-model="form.password"
-          />
-          <transition name="field-error">
-            <ul v-if="errors.password?.length" class="error-list">
-              <li v-for="msg in errors.password" :key="msg" class="error-item">
-                <svg class="error-icon" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                {{ msg }}
-              </li>
-            </ul>
-          </transition>
-        </div>
+        <FormField
+          type="password"
+          placeholder="Contraseña"
+          v-model="form.password"
+          :errors="errors.password"
+          required
+        />
 
-        <!-- Confirm Password -->
-        <div class="field-group">
-          <input
-            type="password"
-            placeholder="Confirmar contraseña"
-            class="login-input"
-            :class="{ 'input--error': errors.confirm_password?.length }"
-            required
-            v-model="form.confirm_password"
-          />
-          <transition name="field-error">
-            <ul v-if="errors.confirm_password?.length" class="error-list">
-              <li v-for="msg in errors.confirm_password" :key="msg" class="error-item">
-                <svg class="error-icon" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                {{ msg }}
-              </li>
-            </ul>
-          </transition>
-        </div>
+        <FormField
+          type="password"
+          placeholder="Confirmar contraseña"
+          v-model="form.confirm_password"
+          :errors="errors.confirm_password"
+          required
+        />
 
         <!-- <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
           <input type="checkbox" class="h-4 w-4 accent-[#dd4b24]" required />
@@ -158,6 +98,8 @@
   import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
+  import FormField from '@/components/ui/FormField.vue'
+
   const authStore = useAuthStore()
   const router = useRouter()
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID

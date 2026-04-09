@@ -15,7 +15,7 @@ const routes = [
         path: '',
         name: 'Home',
         component: () => import('@/views/home/HomeView.vue'),
-        meta: { requiresAuth: false }
+        meta: { requiresAuth: false, layout: 'main' },
       },
 
       // ── COLECCIONES ──
@@ -23,15 +23,22 @@ const routes = [
         path: 'colecciones',
         name: 'Collection',
         component: () => import('@/views/collections/CollectionsView.vue'),
-        meta: {requiresAuth:false}
+        meta: { requiresAuth: false, layout: 'main' },
       },
 
       {
         path: 'colecciones/:name',
         name: 'Detail Collection',
         component: () => import('@/views/collections/CollectionDetailView.vue'),
-        meta: {requiresAuth:false}
-      }
+        meta: { requiresAuth: false, hideFooter: true, layout: 'main' },
+      },
+
+      {
+        path: 'perfil',
+        name: 'Profile',
+        component: () => import('@/views/home/ProfileView.vue'),
+        meta: { requiresAuth: true, layout: 'main' },
+      },
 
       // ── PIEZAS ──
       // {
@@ -78,8 +85,7 @@ const routes = [
       //   // El carrito vive en cartStore (Pinia), no en la API
       //   // Solo al confirmar se llama /orders/checkout/
       // },
-
-    ]
+    ],
   },
 
   // // ════════════════════════════════════════
@@ -89,12 +95,11 @@ const routes = [
     path: '/auth',
     component: () => import('@/layouts/AuthLayout.vue'),
     children: [
-
       {
         path: 'login',
         name: 'Login',
         component: () => import('@/views/auth/LoginView.vue'),
-        meta: { requiresAuth: false, guestOnly: true }
+        meta: { requiresAuth: false, guestOnly: true, layout: 'auth' },
         // POST /api/v1/auth/login/
         // Incluye botones OAuth Google y Facebook
       },
@@ -102,41 +107,40 @@ const routes = [
         path: 'register',
         name: 'Register',
         component: () => import('@/views/auth/RegisterView.vue'),
-        meta: { requiresAuth: false, guestOnly: true }
+        meta: { requiresAuth: false, guestOnly: true, layout: 'auth' },
         // POST /api/v1/auth/register/
       },
-  //     {
-  //       path: 'email/verify',
-  //       name: 'EmailVerify',
-  //       component: () => import('@/views/auth/EmailVerify.vue'),
-  //       meta: { requiresAuth: false }
-  //       // GET /api/v1/auth/email/verify/?token=XXXX
-  //       // Aplica para: cuenta nueva Y cambio de correo
-  //     },
-  //     {
-  //       path: 'resend-token',
-  //       name: 'ResendToken',
-  //       component: () => import('@/views/auth/ResendToken.vue'),
-  //       meta: { requiresAuth: false }
-  //       // POST /api/v1/auth/resend-token/ → { email }
-  //     },
-  //     {
-  //       path: 'password/reset',
-  //       name: 'PasswordReset',
-  //       component: () => import('@/views/auth/PasswordReset.vue'),
-  //       meta: { requiresAuth: false, guestOnly: true }
-  //       // POST /api/v1/auth/password/reset/ → { email }
-  //     },
-  //     {
-  //       path: 'password/reset/confirm',
-  //       name: 'PasswordResetConfirm',
-  //       component: () => import('@/views/auth/PasswordResetConfirm.vue'),
-  //       meta: { requiresAuth: false, guestOnly: true }
-  //       // POST /api/v1/auth/password/reset/confirm/ → { uidb64, token, new_password }
-  //       // uidb64 y token llegan como query params desde el link del correo
-  //     },
-
-    ]
+      //     {
+      //       path: 'email/verify',
+      //       name: 'EmailVerify',
+      //       component: () => import('@/views/auth/EmailVerify.vue'),
+      //       meta: { requiresAuth: false }
+      //       // GET /api/v1/auth/email/verify/?token=XXXX
+      //       // Aplica para: cuenta nueva Y cambio de correo
+      //     },
+      //     {
+      //       path: 'resend-token',
+      //       name: 'ResendToken',
+      //       component: () => import('@/views/auth/ResendToken.vue'),
+      //       meta: { requiresAuth: false }
+      //       // POST /api/v1/auth/resend-token/ → { email }
+      //     },
+      //     {
+      //       path: 'password/reset',
+      //       name: 'PasswordReset',
+      //       component: () => import('@/views/auth/PasswordReset.vue'),
+      //       meta: { requiresAuth: false, guestOnly: true }
+      //       // POST /api/v1/auth/password/reset/ → { email }
+      //     },
+      //     {
+      //       path: 'password/reset/confirm',
+      //       name: 'PasswordResetConfirm',
+      //       component: () => import('@/views/auth/PasswordResetConfirm.vue'),
+      //       meta: { requiresAuth: false, guestOnly: true }
+      //       // POST /api/v1/auth/password/reset/confirm/ → { uidb64, token, new_password }
+      //       // uidb64 y token llegan como query params desde el link del correo
+      //     },
+    ],
   },
 
   // // ════════════════════════════════════════
@@ -216,7 +220,7 @@ const routes = [
   // {
   //   path: '/checkout',
   //   component: () => import('@/layouts/CheckoutLayout.vue'),
-  //   meta: { requiresAuth: true },
+  //   meta: { requiresAuth: true, layout: 'checkout' },
   //   children: [
   //     {
   //       path: '',
@@ -242,7 +246,6 @@ const routes = [
   //   name: 'NotFound',
   //   component: () => import('@/views/NotFound.vue')
   // }
-
 ]
 
 const router = createRouter({
@@ -250,7 +253,7 @@ const router = createRouter({
   routes,
   scrollBehavior() {
     return { top: 0 }
-  }
+  },
 })
 
 router.beforeEach((to, from) => {
@@ -264,7 +267,6 @@ router.beforeEach((to, from) => {
   if (to.meta.guestOnly && estaLogueado) {
     return { name: 'Home' }
   }
-
 })
 
 export default router
