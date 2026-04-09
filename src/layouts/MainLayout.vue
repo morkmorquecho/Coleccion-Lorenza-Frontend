@@ -12,7 +12,7 @@
       </RouterView>
     </main>
 
-    <AppFooter />
+    <AppFooter v-if="!$route.meta.hideFooter" />
   </div>
 </template>
 
@@ -52,7 +52,7 @@ export default {
 /* ── Transición entre páginas ──────────────── */
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.3s ease, transform 0.35s var(--expo);
+  transition: opacity 0.6s ease, transform 0.45s var(--expo);
 }
 .page-enter-from {
   opacity: 0;

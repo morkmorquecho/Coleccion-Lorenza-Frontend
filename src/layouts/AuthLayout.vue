@@ -47,7 +47,7 @@ import '../assets/main.css'
 /* ── Transición entre páginas ──────────────── */
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.3s ease, transform 0.35s var(--expo);
+  transition: opacity 0.4s ease, transform 0.45s var(--expo);
 }
 .page-enter-from {
   opacity: 0;

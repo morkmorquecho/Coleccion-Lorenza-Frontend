@@ -92,7 +92,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
         <div class="flex items-center gap-8">
 
           <RouterLink
-            :to="{ name: 'Login' }"
+            :to="{ name: 'Profile' }"
             class="footer-util flex flex-col items-center gap-2 text-white transition-colors duration-200 hover:opacity-70"
             aria-label="Perfil"
           >
@@ -179,7 +179,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       <!-- Iconos (desktop) -->
       <div class="nav-icons hidden lg:flex items-center justify-end gap-5 xl:gap-7 2xl:gap-9">
 
-        <RouterLink :to='{name: "Login"}' class="icon-btn text-[#dd4b24]" aria-label="Perfil">
+        <RouterLink :to='{name: "Profile"}' class="icon-btn text-[#dd4b24]" aria-label="Perfil">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
