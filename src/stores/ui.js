@@ -1,49 +1,31 @@
-// src/stores/ui.js
+// stores/ui.js
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 
-export const useUiStore = defineStore('ui', () => {
 
-  // ── LOADING GLOBAL ─────────────────────
-  // Muestra un spinner mientras hay requests activos
-  const isLoading = ref(false)
+export const useUIStore = defineStore('ui', {
+  state: () => ({
+    modal: {
+      show:      false,
+      message:   '',
+      title:     '',
+      animation: '',
+    }
+  }),
 
-  function setLoading(value) {
-    isLoading.value = value
-  }
+  actions: {
+    showError(message, title = 'Ocurrió un error', animation) {
+      if (this.modal.show) return
+      this.modal.message   = message
+      this.modal.title     = title
+      this.modal.animation = animation
+      this.modal.show      = true  
+    },
 
-  // ── NOTIFICACIONES (toast) ──────────────
-  // Lista de notificaciones activas en pantalla
-  const notifications = ref([])
-  // Estructura: { id, type: 'success'|'error'|'info', message, duration }
-
-  function notify(message, type = 'info', duration = 4000) {
-    const id = Date.now() // id único basado en timestamp
-    notifications.value.push({ id, type, message })
-
-    // Se elimina automáticamente después de `duration` ms
-    setTimeout(() => {
-      removeNotification(id)
-    }, duration)
-  }
-
-  function removeNotification(id) {
-    notifications.value = notifications.value.filter(n => n.id !== id)
-  }
-
-  // Atajos para no escribir notify('...', 'success') cada vez
-  const notifySuccess = (msg) => notify(msg, 'success')
-  const notifyError   = (msg) => notify(msg, 'error')
-  const notifyInfo    = (msg) => notify(msg, 'info')
-
-  return {
-    isLoading,
-    setLoading,
-    notifications,
-    notify,
-    removeNotification,
-    notifySuccess,
-    notifyError,
-    notifyInfo,
+    closeModal() {
+      this.modal.show      = false
+      this.modal.message   = ''
+      this.modal.title     = ''
+      this.modal.animation = ''
+    }
   }
 })

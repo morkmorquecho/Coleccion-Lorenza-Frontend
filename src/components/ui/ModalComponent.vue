@@ -72,6 +72,7 @@
 </template>
 
 <script setup>
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -187,16 +188,17 @@ const handleConfirm = () => {
 }
 
 .modal-lottie-box {
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transform: scale(1.3); 
 }
 
 .default-icon {
-  width: 100%;
-  height: 100%;
+  width: 80%;
+  height: 80%;
   color: #dd4b24;
   animation: pulse 2s ease-in-out infinite;
 }
