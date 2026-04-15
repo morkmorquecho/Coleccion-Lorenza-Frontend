@@ -47,6 +47,7 @@ export default {
    no quede debajo del header fijo                       */
 .main-layout__content {
   flex: 1;
+  /* padding-top: calc(var(--header-h) + 1.5rem); */
 }
 
 /* ── Transición entre páginas ──────────────── */

@@ -134,12 +134,12 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   </Transition>
 
   <!-- ─── HEADER PRINCIPAL ──────────────────────────────────────────────────── -->
-  <header
-    :class="[
-      'fixed top-0 left-0 right-0 z-50 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-3 sm:py-4 lg:py-5 mx-2 sm:mx-4 lg:mx-6 xl:mx-8 2xl:mx-12 mt-2 sm:mt-3 lg:mt-4 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg shadow-black/5 transition-all duration-500 ease-out',
-      isVisible && !isMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-    ]"
-  >
+    <header
+      :class="[
+        'fixed top-0 left-0 right-0 z-50 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-3 sm:py-4 lg:py-5 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg shadow-black/5 transition-all duration-500 ease-out',
+        isVisible && !isMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+      ]"
+    >
     <nav class="nav-grid">
 
       <!-- Hamburger (móvil) -->
@@ -154,7 +154,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       </button>
 
       <!-- Nav links (desktop) -->
-      <ul class="nav-links hidden lg:flex items-center gap-5 xl:gap-7 2xl:gap-9">
+      <ul class="nav-links hidden lg:flex items-center gap-5 xl:gap-7 2xl:gap-9 ">
         <li v-for="link in navLinks" :key="link.name">
           <RouterLink 
             :to="link.href"
@@ -177,7 +177,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       </div>
 
       <!-- Iconos (desktop) -->
-      <div class="nav-icons hidden lg:flex items-center justify-end gap-5 xl:gap-7 2xl:gap-9">
+      <div class="nav-icons hidden lg:flex items-center justify-end gap-5 xl:gap-7 2xl:gap-9 ">
 
         <RouterLink :to='{name: "Profile"}' class="icon-btn text-[#dd4b24]" aria-label="Perfil">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -208,7 +208,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       </div>
 
       <!-- Carrito (móvil) -->
-      <button class="nav-cart-mobile lg:hidden icon-btn text-[#dd4b24] relative justify-self-end" aria-label="Carrito">
+      <button class="nav-cart-mobile lg:hidden icon-btn text-[#dd4b24] relative justify-self-end " aria-label="Carrito">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
         </svg>
@@ -248,17 +248,27 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 .fullscreen-menu-leave-active {
   transition: clip-path 0.45s cubic-bezier(0.77, 0, 0.175, 1);
 }
-.fullscreen-menu-enter-from {
+/* .fullscreen-menu-enter-from {
   clip-path: circle(0% at 32px 32px);
-}
-.fullscreen-menu-enter-to {
+} */
+/* .fullscreen-menu-enter-to {
   clip-path: circle(160% at 32px 32px);
-}
-.fullscreen-menu-leave-from {
+} */
+/* .fullscreen-menu-leave-from {
   clip-path: circle(160% at 32px 32px);
-}
+} */
+/* .fullscreen-menu-leave-to {
+  clip-path: circle(0% at 32px 32px);
+} */
+
+.fullscreen-menu-enter-from,
 .fullscreen-menu-leave-to {
-  clip-path: circle(0% at 32px 32px);
+  clip-path: circle(0% at 40px 52px); /* ajusta Y sumando el mt del header (~8-12px) */
+}
+
+.fullscreen-menu-enter-to,
+.fullscreen-menu-leave-from {
+  clip-path: circle(160% at 40px 52px);
 }
 
 /* ─── LINKS ───────────────────────────────────────────────────────────────── */
@@ -314,10 +324,10 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   }
 }
 
-.nav-links       { grid-area: nav-links; padding-left: .4rem; }
+.nav-links       { grid-area: nav-links; ;}
 .nav-hamburger   { grid-area: hamburger; }
-.nav-logo        { grid-area: logo; }
-.nav-icons       { grid-area: nav-icons; padding-right: 2.5rem; }
+.nav-logo        { grid-area: logo; ;}
+.nav-icons       { grid-area: nav-icons;}
 .nav-cart-mobile { grid-area: cart-mobile; }
 
 /* ─── NAV LINKS DESKTOP ───────────────────────────────────────────────────── */
