@@ -33,12 +33,12 @@ const routes = [
         meta: { requiresAuth: false, hideFooter: true, layout: 'main' },
       },
 
-      {
-        path: 'perfil',
-        name: 'Profile',
-        component: () => import('@/views/home/ProfileView.vue'),
-        meta: { requiresAuth: true, layout: 'main' },
-      },
+      // {
+      //   path: 'perfil',
+      //   name: 'Profile',
+      //   component: () => import('@/views/home/ProfileView.vue'),
+      //   meta: { requiresAuth: true, layout: 'main' },
+      // },
 
       // ── PIEZAS ──
       // {
@@ -110,54 +110,54 @@ const routes = [
         meta: { requiresAuth: false, guestOnly: true, layout: 'auth' },
         // POST /api/v1/auth/register/
       },
-      //     {
-      //       path: 'email/verify',
-      //       name: 'EmailVerify',
-      //       component: () => import('@/views/auth/EmailVerify.vue'),
-      //       meta: { requiresAuth: false }
-      //       // GET /api/v1/auth/email/verify/?token=XXXX
-      //       // Aplica para: cuenta nueva Y cambio de correo
-      //     },
-      //     {
-      //       path: 'resend-token',
-      //       name: 'ResendToken',
-      //       component: () => import('@/views/auth/ResendToken.vue'),
-      //       meta: { requiresAuth: false }
-      //       // POST /api/v1/auth/resend-token/ → { email }
-      //     },
-      //     {
-      //       path: 'password/reset',
-      //       name: 'PasswordReset',
-      //       component: () => import('@/views/auth/PasswordReset.vue'),
-      //       meta: { requiresAuth: false, guestOnly: true }
-      //       // POST /api/v1/auth/password/reset/ → { email }
-      //     },
-      //     {
-      //       path: 'password/reset/confirm',
-      //       name: 'PasswordResetConfirm',
-      //       component: () => import('@/views/auth/PasswordResetConfirm.vue'),
-      //       meta: { requiresAuth: false, guestOnly: true }
-      //       // POST /api/v1/auth/password/reset/confirm/ → { uidb64, token, new_password }
-      //       // uidb64 y token llegan como query params desde el link del correo
-      //     },
+      {
+        path: 'email/verify',
+        name: 'EmailVerify',
+        component: () => import('@/views/auth/EmailVerify.vue'),
+        meta: { requiresAuth: false }
+        // GET /api/v1/auth/email/verify/?token=XXXX
+        // Aplica para: cuenta nueva Y cambio de correo
+      },
+      {
+        path: 'resend-token',
+        name: 'ResendToken',
+        component: () => import('@/views/auth/ResendToken.vue'),
+        meta: { requiresAuth: false }
+        // POST /api/v1/auth/resend-token/ → { email }
+      },
+      {
+        path: 'password/reset',
+        name: 'PasswordReset',
+        component: () => import('@/views/auth/PasswordReset.vue'),
+        meta: { requiresAuth: false, guestOnly: true }
+        // POST /api/v1/auth/password/reset/ → { email }
+      },
+      {
+        path: 'reset/password/confirm/:uidb64/:token',
+        name: 'PasswordResetConfirm',
+        component: () => import('@/views/auth/PasswordResetConfirm.vue'),
+        meta: { requiresAuth: false, guestOnly: true }
+        // POST /api/v1/auth/password/reset/confirm/ → { uidb64, token, new_password }
+        // uidb64 y token llegan como query params desde el link del correo
+      },
     ],
   },
 
   // // ════════════════════════════════════════
   // // CUENTA — requiere login
   // // ════════════════════════════════════════
-  // {
-  //   path: '/cuenta',
-  //   component: () => import('@/layouts/MainLayout.vue'),
-  //   meta: { requiresAuth: true },
-  //   children: [
+    {
+      path: '/cuenta',
+      component: () => import('@/layouts/MainLayout.vue'),
+      meta: { requiresAuth: true },
+      children: [
 
-  //     {
-  //       path: '',
-  //       name: 'Account',
-  //       component: () => import('@/views/account/Account.vue'),
-  //     },
-  //     {
+      {
+        path: '',
+        name: 'Profile',
+        component: () => import('@/views/home/ProfileView.vue'),
+      },
+  //  {
   //       path: 'email',
   //       name: 'ChangeEmail',
   //       component: () => import('@/views/account/ChangeEmail.vue'),
@@ -211,8 +211,8 @@ const routes = [
   //       // DELETE /api/v1/users/me/wishlist/:id/
   //     },
 
-  //   ]
-  // },
+    ]
+  },
 
   // // ════════════════════════════════════════
   // // CHECKOUT — requiere login, layout limpio
