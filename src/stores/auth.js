@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ── STATE ──────────────────────────────
   // ref() = dato reactivo, como data() en Vue 2
-  const user = ref(JSON.parse(localStorage.getItem('user')) || null) 
+  const user = ref(safeParse('user'))  
   const accessToken = ref(localStorage.getItem('access_token') || null)
   const refreshToken = ref(localStorage.getItem('refresh_token') || null)
 
@@ -17,6 +17,17 @@ export const useAuthStore = defineStore('auth', () => {
   // El ?. es optional chaining: si user es null no explota
 
   // ── ACTIONS ────────────────────────────
+
+  function safeParse(key) {
+    try {
+      const raw = localStorage.getItem(key)
+      if (!raw || raw === 'undefined') return null
+      return JSON.parse(raw)
+    } catch {
+      localStorage.removeItem(key) // limpia el valor corrupto
+      return null
+    }
+  }
 
   function setTokens(access, refresh) {
     // Guarda en el state Y en localStorage

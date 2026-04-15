@@ -1,26 +1,35 @@
 // src/services/api.js
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import { useUIStore } from '@/stores/ui'
+
+const MANY_REQUESTS_MESSAGE = "Has excedido el número de intentos permitidos. Intenta nuevamente más tarde."
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 })
 
-// ── REQUEST INTERCEPTOR ─────────────────────────────────────────────────────
-api.interceptors.request.use(
-  (config) => {
-    const authStore = useAuthStore()
-    if (authStore.accessToken) {
-      config.headers.Authorization = `Bearer ${authStore.accessToken}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-// ── HELPERS ─────────────────────────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────────────────────
 let isRefreshing = false
 let failedQueue = []
+
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.exp * 1000 < Date.now()
+  } catch {
+    return true
+  }
+}
+
+function isTokenExpiringSoon(token, secondsBefore = 60) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.exp * 1000 < Date.now() + secondsBefore * 1000
+  } catch {
+    return true
+  }
+}
 
 function processQueue(error, token = null) {
   failedQueue.forEach(({ resolve, reject }) => {
@@ -29,110 +38,155 @@ function processQueue(error, token = null) {
   failedQueue = []
 }
 
-/**
- * Convierte una respuesta { success: false, ... } en un Error estructurado.
- * Úsalo en cualquier punto donde necesites normalizar errores de la API.
- */
+function resolveErrorType(context) {
+  if (typeof context === 'string' && context.length > 0) return 'message_error'
+  if (typeof context === 'object' && context !== null && Object.keys(context).length > 0) return 'field_errors'
+  return 'unknown'
+}
+
 function createApiError(responseData) {
-  const error = new Error(responseData.message || 'Error en la respuesta')
+  const context  = responseData.errors?.context ?? {}
+  const type     = resolveErrorType(context)
+
+  const error      = new Error(responseData.message || 'Error inesperado')
   error.errors     = responseData.errors
-  error.context    = responseData.errors?.context    || {}
+  error.context    = context
   error.code_error = responseData.errors?.code_error || null
+  error.type       = type
+
   return error
 }
 
-/**
- * Determina si un error de respuesta es un error formateado por la API
- * (success: false) versus un 401 de token expirado que debemos refrescar.
- *
- * Ajusta la condición según cómo tu backend distinga ambos casos.
- * Opción A: el backend manda success:false en credenciales inválidas.
- * Opción B: usas code_error, e.g. 'TOKEN_EXPIRED' vs 'INVALID_CREDENTIALS'.
- */
 function isFormattedApiError(response) {
   return response?.data?.success === false
 }
 
-// ── RESPONSE INTERCEPTOR ────────────────────────────────────────────────────
-api.interceptors.response.use(
-  // ── Respuestas 2xx ───────────────────────────────────────────────────────
-  (response) => {
-    const { success, data, errors, message } = response.data
+async function doRefresh(authStore) {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_API_URL}/auth/token/refresh/`,
+    { refresh: authStore.refreshToken }
+  )
+  const { access, refresh } = data.data
+  authStore.setTokens(access, refresh)
+  return access
+}
 
-    if (!success) {
-      return Promise.reject(createApiError({ success, errors, message }))
-    }
+// ── INTERCEPTORS ─────────────────────────────────────────────────────────────
+export function setupInterceptors(pinia) {
+  const authStore = useAuthStore(pinia)
+  const uiStore   = useUIStore(pinia)
 
-    return data
-  },
+  // ── REQUEST ──────────────────────────────────────────────────────────────
+  api.interceptors.request.use(
+    async (config) => {
+      let token = authStore.accessToken
 
-  // ── Respuestas de error ──────────────────────────────────────────────────
-  async (error) => {
-    const originalRequest = error.config
-    const authStore       = useAuthStore()
-    const { response }    = error
-
-    // ── 1. Errores formateados por la API (success: false) ─────────────────
-    //    Tienen prioridad sobre cualquier lógica de refresh.
-    //    Esto captura: credenciales inválidas, permisos, validaciones, etc.
-    if (isFormattedApiError(response)) {
-      return Promise.reject(createApiError(response.data))
-    }
-
-    // ── 2. 401 sin formato de API → intentar refresh de token ──────────────
-    if (response?.status === 401 && !originalRequest._retry) {
-
-      // Sin refresh token: sesión inválida, limpiar y redirigir
-      if (!authStore.refreshToken) {
-        authStore.clearSession()
-        const { default: router } = await import('@/router')
-        router.push({ name: 'Login' })
-        return Promise.reject(error)
-      }
-
-      // Otro request ya está refrescando: encolar y esperar
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject })
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`
-            return api(originalRequest)
+      if (token && authStore.refreshToken && isTokenExpiringSoon(token, 60)) {
+        if (isRefreshing) {
+          token = await new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject })
           })
-          .catch(Promise.reject)
+        } else {
+          isRefreshing = true
+          try {
+            token = await doRefresh(authStore)
+            processQueue(null, token)
+          } catch (err) {
+            processQueue(err, null)
+            authStore.clearSession()
+            const { default: router } = await import('@/router')
+            router.push({ name: 'Login' })
+            return Promise.reject(err)
+          } finally {
+            isRefreshing = false
+          }
+        }
       }
 
-      originalRequest._retry = true
-      isRefreshing = true
+      if (token && !isTokenExpired(token)) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
 
-      try {
-        const { data } = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/token/refresh/`,
-          { refresh: authStore.refreshToken }
+      return config
+    },
+    (error) => Promise.reject(error)
+  )
+
+  // ── RESPONSE ─────────────────────────────────────────────────────────────
+  api.interceptors.response.use(
+    (response) => {
+      if (response.status === 204 || response.data == null) {  
+        return null
+      }
+
+      const { success, data, errors, message } = response.data
+      if (!success) {
+        return Promise.reject(createApiError({ success, errors, message }))
+      }
+      return data
+    },
+
+    async (error) => {
+      const originalRequest = error.config
+      const { response }    = error
+
+      if (response?.status === 429) {
+        uiStore.showError(MANY_REQUESTS_MESSAGE)
+        return Promise.reject(
+          createApiError({
+            success: false,
+            message: MANY_REQUESTS_MESSAGE,
+            errors: { code_error: 'RATE_LIMIT_EXCEEDED', context: MANY_REQUESTS_MESSAGE }
+          })
         )
-        const { access, refresh } = data.data
-
-        authStore.setTokens(access, refresh)
-        processQueue(null, access)
-
-        originalRequest.headers.Authorization = `Bearer ${access}`
-        return api(originalRequest)
-
-      } catch (refreshError) {
-        processQueue(refreshError, null)
-        authStore.clearSession()
-        const { default: router } = await import('@/router')
-        router.push({ name: 'Login' })
-        return Promise.reject(refreshError)
-
-      } finally {
-        isRefreshing = false
       }
-    }
 
-    // ── 3. Cualquier otro error HTTP (403, 404, 500, red, etc.) ────────────
-    return Promise.reject(error)
-  }
-)
+      if (isFormattedApiError(response)) {
+        return Promise.reject(createApiError(response.data))
+      }
+
+      // 401 inesperado por race condition
+      if (response?.status === 401 && !originalRequest._retry) {
+        if (!authStore.refreshToken) {
+          authStore.clearSession()
+          const { default: router } = await import('@/router')
+          router.push({ name: 'Login' })
+          return Promise.reject(error)
+        }
+
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject })
+          })
+            .then((token) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`
+              return api(originalRequest)
+            })
+            .catch((err) => Promise.reject(err))
+        }
+
+        originalRequest._retry = true
+        isRefreshing = true
+
+        try {
+          const token = await doRefresh(authStore)
+          processQueue(null, token)
+          originalRequest.headers.Authorization = `Bearer ${token}`
+          return api(originalRequest)
+        } catch (refreshError) {
+          processQueue(refreshError, null)
+          authStore.clearSession()
+          const { default: router } = await import('@/router')
+          router.push({ name: 'Login' })
+          return Promise.reject(refreshError)
+        } finally {
+          isRefreshing = false
+        }
+      }
+
+      return Promise.reject(error)
+    }
+  )
+}
 
 export default api
