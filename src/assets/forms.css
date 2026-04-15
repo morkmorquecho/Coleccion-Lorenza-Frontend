@@ -1,0 +1,180 @@
+/* generic-form.css
+   Estilos reutilizables para formularios tipo card con efecto glassmorphism
+   Uso: importar en cualquier formulario que necesite este diseño
+*/
+
+/* ── Contenedor principal de página (ocupa espacio flexible) ── */
+.form-page {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fffbf7;
+  padding: 1.5rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Texto principal ── */
+.form-text-primary {
+  margin-bottom: 1em;
+}
+
+/* ── Blobs / elementos decorativos de fondo ── */
+.form-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.form-blob--bottom-right {
+  bottom: -2.5rem;
+  right: -2.5rem;
+  width: 10rem;
+  height: 10rem;
+  background: rgba(221, 75, 36, 0.18);
+}
+
+.form-blob--top-left {
+  top: -2.5rem;
+  left: -2.5rem;
+  width: 15rem;
+  height: 15rem;
+  background: rgba(221, 75, 36, 0.08);
+}
+
+/* ── Tarjeta principal ── */
+.form-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+}
+
+@media (min-width: 640px) {
+  .form-card {
+    padding: 4.5rem 2.5rem;
+  }
+}
+
+/* ── Brillo decorativo detrás de la tarjeta ── */
+.form-card__glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(221, 75, 36, 0.08), rgba(221, 75, 36, 0.03));
+  filter: blur(16px);
+  z-index: -1;
+}
+
+/* ── Campos de entrada ── */
+.form-input {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.75rem;
+  color: #1a0e09;
+  font-size: 0.95rem;
+  outline: none;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+.form-input:focus {
+  border-color: rgba(221, 75, 36, 0.4);
+  box-shadow: 0 0 0 3px rgba(221, 75, 36, 0.15);
+}
+
+/* ── Botón principal ── */
+.form-btn-primary {
+  width: 100%;
+  padding: 1rem;
+  background: #dd4b24;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(221, 75, 36, 0.35);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.form-btn-primary:hover {
+  background: #c43e1d;
+  transform: translateY(-1px);
+}
+
+/* ── Divisor con texto (ej: "o continúa con") ── */
+.form-divider {
+  position: relative;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 33%;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.form-divider::before {
+  left: 0;
+}
+
+.form-divider::after {
+  right: 0;
+}
+
+/* ── Botones sociales (para múltiples proveedores) ── */
+.form-social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1a0e09;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.form-social-btn:hover {
+  background: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Grupo de botones sociales (contenedor flex) ── */
+.form-social-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
