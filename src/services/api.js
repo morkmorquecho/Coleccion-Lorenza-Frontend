@@ -38,6 +38,26 @@ function processQueue(error, token = null) {
   failedQueue = []
 }
 
+function normalizeFieldErrors(context) {
+  if (!context || typeof context !== 'object') return context
+
+  const normalized = {}
+
+  for (const key in context) {
+    const value = context[key]
+
+    if (Array.isArray(value)) {
+      normalized[key] = value
+    } else if (typeof value === 'string') {
+      normalized[key] = [value]
+    } else {
+      normalized[key] = value
+    }
+  }
+
+  return normalized
+}
+
 function resolveErrorType(context) {
   if (typeof context === 'string' && context.length > 0) return 'message_error'
   if (typeof context === 'object' && context !== null && Object.keys(context).length > 0) return 'field_errors'
@@ -45,7 +65,8 @@ function resolveErrorType(context) {
 }
 
 function createApiError(responseData) {
-  const context  = responseData.errors?.context ?? {}
+  const rawContext = responseData.errors?.context ?? {}
+  const context = normalizeFieldErrors(rawContext)
   const type     = resolveErrorType(context)
 
   const error      = new Error(responseData.message || 'Error inesperado')

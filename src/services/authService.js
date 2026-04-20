@@ -44,6 +44,10 @@ const authService = {
     return api.post('/auth/oauth/facebook/', { access_token: accessToken })
   },
 
+  changePassword(data){
+    return api.post('/auth/password/change/', data)
+  },
+
   /**
    * Procesa los errores específicos del registro
    * Transforma el formato de error del API al formato del frontend

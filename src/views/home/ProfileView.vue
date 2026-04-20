@@ -218,9 +218,11 @@ const onSavePassword = async ({ currentPassword, newPassword, confirmPassword })
       throw { type: 'field_errors', context: errors }
     }
 
+
     await authService.changePassword({
       current_password: currentPassword,
-      new_password: newPassword
+      new_password: newPassword,
+      confirm_new_password: confirmPassword,
     })
 
     showSuccess('Contraseña actualizada correctamente')

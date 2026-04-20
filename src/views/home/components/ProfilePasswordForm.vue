@@ -10,21 +10,21 @@
         type="password"
         v-model="formData.currentPassword"
         placeholder="Contraseña actual"
-        :errors="errors.currentPassword || []"
+        :errors="errors.current_password || []"
       />
 
       <FormField 
         type="password" 
         v-model="formData.newPassword" 
         placeholder="Nueva contraseña"
-        :errors="errors.newPassword || []"
+        :errors="errors.new_password || []"
       />
 
       <FormField
         type="password"
         v-model="formData.confirmPassword"
         placeholder="Confirmar contraseña"
-        :errors="errors.confirmPassword || []"
+        :errors="errors.confirm_new_password || []"
       />
 
       <div class="edit-actions">
