@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import ProductGrid from '@/components/shared/ProductGrid.vue';
+import ProductGrid from './ProductGrid.vue';
 
 export default {
   name: 'CatalogExample',

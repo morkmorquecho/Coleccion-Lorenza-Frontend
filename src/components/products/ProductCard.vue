@@ -23,14 +23,14 @@
     <div class="card-media">
       <img
         :src="activeImage"
-        :alt="product.name"
+        :alt="product.title"
         class="card-img"
-        :class="{ 'img-hidden': hovered && product.video }"
+        :class="{ 'img-hidden': hovered && product.intro_video }"
       />
       <video
-        v-if="product.video"
+        v-if="product.intro_video"
         ref="videoEl"
-        :src="product.video"
+        :src="product.intro_video"
         class="card-video"
         :class="{ 'video-visible': hovered }"
         muted
@@ -56,13 +56,13 @@
 
     <div class="card-info">
       <div class="card-prices">
-        <span v-if="product.priceOld" class="price-old">{{ product.priceOld }}</span>
-        <span class="price-new">{{ product.price }}</span>
+        <span v-if="product.original_price_base" class="price-old">${{ product.original_price_base }}</span>
+        <span class="price-new">${{ product.final_price_base }}</span>
       </div>
 
       <div class="card-bottom">
         <div class="card-texts">
-          <p class="card-name">{{ product.name }}</p>
+          <p class="card-name">{{ product.title }}</p>
           <p class="card-stock" :class="stockClass">
             <span class="stock-dot" />{{ stockLabel }}
           </p>
@@ -70,7 +70,7 @@
 
         <button
           class="btn-add"
-          :disabled="product.stock === 'out'"
+          :disabled="product.quantity === 0"
           @click.stop="handleAdd"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -87,6 +87,7 @@
 
 <script>
 import { ref, computed } from 'vue'
+import { useCartStore } from '@/stores/cart'
 
 export default {
   name: 'ProductCard',
@@ -95,9 +96,8 @@ export default {
     /**
      * Objeto del producto:
      * {
-     *   name, section, priceOld, price, image, video,
-     *   stock: 'in' | 'out',
-     *   swatches: [{ color: '#hex', label: 'string', image?: 'url' }]
+     *   id, title, thumbnail_path, final_price_base, original_price_base,
+     *   intro_video, stock, swatches: [{ color: '#hex', label: 'string', thumbnail_path?: 'url' }]
      * }
      */
     product: {
@@ -115,9 +115,11 @@ export default {
     },
   },
 
-  emits: ['add', 'wishlist'],
+  emits: ['wishlist'],
 
   setup(props, { emit }) {
+    const cartStore = useCartStore()
+    
     const videoEl           = ref(null)
     const hovered           = ref(false)
     const isWishlisted      = ref(false)
@@ -126,15 +128,15 @@ export default {
     /* ── Imagen activa según swatch seleccionado ────────────────────────── */
     const activeImage = computed(() => {
       const s = props.product.swatches?.[activeSwatchIndex.value]
-      return s?.image ?? props.product.image
+      return s?.thumbnail_path ?? props.product.thumbnail_path
     })
 
     /* ── Stock ──────────────────────────────────────────────────────────── */
     const stockLabel = computed(() =>
-      props.product.stock === 'out' ? 'Sold out' : 'In stock'
+      props.product.quantity === 0 ? 'Sold out' : 'In stock'
     )
     const stockClass = computed(() => ({
-      'stock-out': props.product.stock === 'out',
+      'stock-out': props.product.quantity === 0,
     }))
 
     /* ── Hover (video) ──────────────────────────────────────────────────── */
@@ -166,8 +168,20 @@ export default {
     }
 
     function handleAdd() {
-      if (props.product.stock === 'out') return
-      emit('add', props.product)
+      if (props.product.quantity === 0) return
+      
+      // Usar el store para agregar al carrito
+      // La estructura esperada por el store es { piece: { id, slug, title, thumbnail_path, final_price_base }, quantity }
+      cartStore.addItem({
+        id: props.product.id,
+        slug: props.product.slug,
+        title: props.product.title,
+        thumbnail_path: props.product.thumbnail_path,
+        final_price_base: props.product.final_price_base
+      }, 1)
+      
+      // Opcional: emitir un evento para notificar al padre (ej. para mostrar toast)
+      // emit('added-to-cart', props.product)
     }
 
     return {
@@ -180,6 +194,7 @@ export default {
 </script>
 
 <style scoped>
+/* ... mantén todos los estilos exactamente como estaban ... */
 @font-face {
   font-family: 'COM4DL';
   src: url('/fonts/COM4DL__.TTF') format('truetype');
@@ -373,7 +388,7 @@ export default {
 .price-new {
   font-size: 14px;
   color: #c94f2c;
-  font-weight: 500;
+  font-weight: 600;
   font-family: 'COM4DL', serif;
 }
 
@@ -396,7 +411,7 @@ export default {
   color: #1c1a17;
   letter-spacing: 0.04em;
   margin: 0;
-  font-family: 'COM4DL', serif;
+  font-family:'Cormorant Garamond';
 }
 
 /* ── Stock ───────────────────────────────────────────────────────────────── */
@@ -437,7 +452,7 @@ export default {
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
-  font-family: 'COM4DL', serif;
+  font-family: serif;
   transition:
     background 0.2s ease,
     border-color 0.2s ease,

@@ -41,13 +41,13 @@ const routes = [
       // },
 
       // ── PIEZAS ──
-      // {
-      //   path: 'piezas',
-      //   name: 'Pieces',
-      //   component: () => import('@/views/pieces/PieceList.vue'),
-      //   meta: { requiresAuth: false }
-      //   // GET /api/v1/pieces/ — filtros: ?type=&section=&featured=&page=
-      // },
+      {
+        path: 'piezas',
+        name: 'Pieces',
+        component: () => import('@/views/shop/PieceList.vue'),
+        meta: { requiresAuth: false }
+        // GET /api/v1/pieces/ — filtros: ?type=&section=&featured=&page=
+      },
       // {
       //   path: 'piezas/:slug',
       //   name: 'PieceDetail',
