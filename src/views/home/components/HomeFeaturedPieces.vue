@@ -29,6 +29,10 @@
                 :alt="piece.title"
                 class="card-img"
                 :class="{ 'img-hidden': hoveredIndex === i }"
+                :style="{
+                  objectPosition: getImageFocalPoint(piece),
+                  objectFit: 'cover'
+                }"
               />
               <video
                 :ref="el => { if(el) videoRefs[i] = el }"
@@ -103,6 +107,21 @@ onMounted(async () => {
   const res = await piecesService.getPieces({ featured: true })
   pieces.value = res.results
 })
+
+function getImageFocalPoint(piece) {
+  // Puedes personalizar según metadata del producto
+  if (piece.focal_point) return piece.focal_point // Si viene del backend
+  
+  // Lógica por defecto: muestra siempre la parte superior
+  return '60% 10%' // Centro horizontal, borde superior
+  
+  /* Otras opciones útiles:
+   * '50% 0%'    - Muestra la cabeza/parte superior (bueno para personas)
+   * '50% 10%'   - Un poco más abajo
+   * 'center top' - Mismo que '50% 0%'
+   * 'top'       - Atajo para '50% 0%'
+   */
+}
 
 const videoRefs = ref([])
 const hoveredIndex = ref(null)
@@ -273,13 +292,23 @@ onBeforeUnmount(() => {
   background: #f0ede8;
 }
 
-.card-img,
 .card-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 10px;
+  transition: opacity 0.35s ease;
+}
+
+.card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Elimina object-position de aquí porque se aplica inline */
   border-radius: 10px;
   transition: opacity 0.35s ease;
 }
@@ -325,7 +354,7 @@ onBeforeUnmount(() => {
   font-size: 15px;
   color: #c94f2c;
   font-weight: 700;
-  font-family:   serif;
+  font-family: 'COM4DL', serif;
 }
 
 .card-bottom {
@@ -347,7 +376,7 @@ onBeforeUnmount(() => {
   color: #1c1a17;
   letter-spacing: 0.04em;
   margin: 0;
-  font-family:'Georgia', 'Times New Roman', Times, serif;
+  font-family:'Cormorant Garamond','Georgia', 'Times New Roman', Times, serif;
 }
 
 .card-color {
