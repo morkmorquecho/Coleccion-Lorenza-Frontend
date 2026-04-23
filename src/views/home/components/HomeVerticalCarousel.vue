@@ -69,7 +69,7 @@
     </div>
 
     <!-- Dots con arco de progreso -->
-    <div class="carousel__dots" role="tablist">
+    <!-- <div class="carousel__dots" role="tablist">
       <button
         v-for="(s, i) in slides"
         :key="i"
@@ -91,7 +91,7 @@
         </svg>
         <span class="dot__core"></span>
       </button>
-    </div>
+    </div> -->
 
     <!-- Controles flecha -->
     <div class="carousel__controls">
@@ -108,13 +108,13 @@
     </div>
 
     <!-- Contador con flip -->
-    <div class="carousel__index" aria-live="polite">
+    <!-- <div class="carousel__index" aria-live="polite">
       <span class="idx-wrap">
         <span class="idx-current" :key="'cur-' + current">{{ pad(current + 1) }}</span>
       </span>
       <span class="idx-sep">/</span>
       <span class="idx-total">{{ pad(slides.length) }}</span>
-    </div>
+    </div> -->
 
     <!-- Barra de progreso -->
     <div class="carousel__bar" aria-hidden="true">
@@ -315,6 +315,7 @@ export default {
   flex-direction: column;
   gap: 18px;
   max-width: 620px;
+  margin-top: auto;
 }
 
 .slide__title {
@@ -359,6 +360,7 @@ export default {
   transition:
     opacity   0.6s var(--ease-out) 0.48s,
     transform 0.6s var(--ease-out) 0.48s;
+
 }
 .slide__desc.is-visible {
   opacity: 1;
@@ -432,7 +434,7 @@ export default {
 
 .carousel__dots {
   position: absolute;
-  bottom: clamp(28px, 5vw, 52px);
+  bottom: clamp(10px, 2vw, 52px);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
