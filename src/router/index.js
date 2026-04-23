@@ -2,7 +2,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-
   // ════════════════════════════════════════
   // RUTAS PÚBLICAS — MainLayout
   // ════════════════════════════════════════
@@ -10,7 +9,6 @@ const routes = [
     path: '/',
     component: () => import('@/layouts/MainLayout.vue'),
     children: [
-
       {
         path: '',
         name: 'Home',
@@ -44,20 +42,20 @@ const routes = [
       {
         path: 'piezas',
         name: 'Pieces',
-        component: () => import('@/views/shop/PieceList.vue'),
-        meta: { requiresAuth: false }
+        component: () => import('@/views/shop/PieceListView.vue'),
+        meta: { requiresAuth: false },
         // GET /api/v1/pieces/ — filtros: ?type=&section=&featured=&page=
       },
-      // {
-      //   path: 'piezas/:slug',
-      //   name: 'PieceDetail',
-      //   component: () => import('@/views/pieces/PieceDetail.vue'),
-      //   meta: { requiresAuth: false }
-      //   // GET /api/v1/pieces/:slug/
-      //   // + /pieces/:slug/photos/
-      //   // + /pieces/:slug/discounts/
-      //   // Si authStore.isAdmin → muestra botones editar/eliminar
-      // },
+      {
+        path: 'piezas/:slug',
+        name: 'PieceDetail',
+        component: () => import('@/views/shop/PieceListView.vue'),
+        meta: { requiresAuth: false }
+        // GET /api/v1/pieces/:slug/
+        // + /pieces/:slug/photos/
+        // + /pieces/:slug/discounts/
+        // Si authStore.isAdmin → muestra botones editar/eliminar
+      },
 
       // // ── BLOG ──
       // {
@@ -114,7 +112,7 @@ const routes = [
         path: 'email/verify',
         name: 'EmailVerify',
         component: () => import('@/views/auth/EmailVerify.vue'),
-        meta: { requiresAuth: false }
+        meta: { requiresAuth: false },
         // GET /api/v1/auth/email/verify/?token=XXXX
         // Aplica para: cuenta nueva Y cambio de correo
       },
@@ -122,21 +120,21 @@ const routes = [
         path: 'resend-token',
         name: 'ResendToken',
         component: () => import('@/views/auth/ResendToken.vue'),
-        meta: { requiresAuth: false }
+        meta: { requiresAuth: false },
         // POST /api/v1/auth/resend-token/ → { email }
       },
       {
         path: 'password/reset',
         name: 'PasswordReset',
         component: () => import('@/views/auth/PasswordReset.vue'),
-        meta: { requiresAuth: false, guestOnly: true }
+        meta: { requiresAuth: false, guestOnly: true },
         // POST /api/v1/auth/password/reset/ → { email }
       },
       {
         path: 'reset/password/confirm/:uidb64/:token',
         name: 'PasswordResetConfirm',
         component: () => import('@/views/auth/PasswordResetConfirm.vue'),
-        meta: { requiresAuth: false, guestOnly: true }
+        meta: { requiresAuth: false, guestOnly: true },
         // POST /api/v1/auth/password/reset/confirm/ → { uidb64, token, new_password }
         // uidb64 y token llegan como query params desde el link del correo
       },
@@ -146,72 +144,70 @@ const routes = [
   // // ════════════════════════════════════════
   // // CUENTA — requiere login
   // // ════════════════════════════════════════
-    {
-      path: '/cuenta',
-      component: () => import('@/layouts/MainLayout.vue'),
-      meta: { requiresAuth: true },
-      children: [
-
+  {
+    path: '/cuenta',
+    component: () => import('@/layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
       {
         path: '',
         name: 'Profile',
         component: () => import('@/views/home/ProfileView.vue'),
       },
-  //  {
-  //       path: 'email',
-  //       name: 'ChangeEmail',
-  //       component: () => import('@/views/account/ChangeEmail.vue'),
-  //       // POST /api/v1/users/me/email/request-change → { email, password }
-  //       // El link de confirmación llega al nuevo correo y va a /auth/email/verify
-  //     },
+      //  {
+      //       path: 'email',
+      //       name: 'ChangeEmail',
+      //       component: () => import('@/views/account/ChangeEmail.vue'),
+      //       // POST /api/v1/users/me/email/request-change → { email, password }
+      //       // El link de confirmación llega al nuevo correo y va a /auth/email/verify
+      //     },
 
-  //     // ── DIRECCIONES ──
-  //     {
-  //       path: 'direcciones',
-  //       name: 'Addresses',
-  //       component: () => import('@/views/account/AddressList.vue'),
-  //       // GET /api/v1/users/me/addresses/
-  //     },
-  //     {
-  //       path: 'direcciones/nueva',
-  //       name: 'AddressCreate',
-  //       component: () => import('@/views/account/AddressForm.vue'),
-  //       // POST /api/v1/users/me/addresses/
-  //     },
-  //     {
-  //       path: 'direcciones/:id/editar',
-  //       name: 'AddressEdit',
-  //       component: () => import('@/views/account/AddressForm.vue'),
-  //       // PUT/PATCH /api/v1/users/me/addresses/:id/
-  //       // Mismo componente que AddressCreate, detecta el :id para saber si es editar
-  //     },
+      //     // ── DIRECCIONES ──
+      //     {
+      //       path: 'direcciones',
+      //       name: 'Addresses',
+      //       component: () => import('@/views/account/AddressList.vue'),
+      //       // GET /api/v1/users/me/addresses/
+      //     },
+      //     {
+      //       path: 'direcciones/nueva',
+      //       name: 'AddressCreate',
+      //       component: () => import('@/views/account/AddressForm.vue'),
+      //       // POST /api/v1/users/me/addresses/
+      //     },
+      //     {
+      //       path: 'direcciones/:id/editar',
+      //       name: 'AddressEdit',
+      //       component: () => import('@/views/account/AddressForm.vue'),
+      //       // PUT/PATCH /api/v1/users/me/addresses/:id/
+      //       // Mismo componente que AddressCreate, detecta el :id para saber si es editar
+      //     },
 
-  //     // ── PEDIDOS ──
-  //     {
-  //       path: 'pedidos',
-  //       name: 'Orders',
-  //       component: () => import('@/views/account/OrderList.vue'),
-  //       // GET /api/v1/orders/
-  //     },
-  //     {
-  //       path: 'pedidos/:id',
-  //       name: 'OrderDetail',
-  //       component: () => import('@/views/account/OrderDetail.vue'),
-  //       // GET /api/v1/orders/:id/
-  //       // + GET /api/v1/orders/:id/shipping-trackings/
-  //       // + POST /api/v1/orders/:id/cancel/ (si aplica cancelar)
-  //     },
+      //     // ── PEDIDOS ──
+      //     {
+      //       path: 'pedidos',
+      //       name: 'Orders',
+      //       component: () => import('@/views/account/OrderList.vue'),
+      //       // GET /api/v1/orders/
+      //     },
+      //     {
+      //       path: 'pedidos/:id',
+      //       name: 'OrderDetail',
+      //       component: () => import('@/views/account/OrderDetail.vue'),
+      //       // GET /api/v1/orders/:id/
+      //       // + GET /api/v1/orders/:id/shipping-trackings/
+      //       // + POST /api/v1/orders/:id/cancel/ (si aplica cancelar)
+      //     },
 
-  //     // ── FAVORITOS ──
-  //     {
-  //       path: 'favoritos',
-  //       name: 'Wishlist',
-  //       component: () => import('@/views/account/Wishlist.vue'),
-  //       // GET /api/v1/users/me/wishlist/
-  //       // DELETE /api/v1/users/me/wishlist/:id/
-  //     },
-
-    ]
+      //     // ── FAVORITOS ──
+      //     {
+      //       path: 'favoritos',
+      //       name: 'Wishlist',
+      //       component: () => import('@/views/account/Wishlist.vue'),
+      //       // GET /api/v1/users/me/wishlist/
+      //       // DELETE /api/v1/users/me/wishlist/:id/
+      //     },
+    ],
   },
 
   // // ════════════════════════════════════════
