@@ -1,5 +1,7 @@
 <template>
-  <CollectionGallery :title="title" :photos="photos" />
+  <div class="wrapper-gallery">
+      <CollectionGallery :title="title" :photos="photos" />
+  </div>
 </template>
 
 <script setup>
@@ -25,9 +27,15 @@ onMounted(async () => {
 
 <style scoped>
 
+.wrapper-gallery {
+  background: var(--color-background-2);
+  padding-top: 10em; /* Ajusta este valor según necesites */
+  min-height: 100vh;
+}
+
+
 .collections-section{
   width:100%;
-  margin-top: 2.5em;
 }
 
 /* título */
