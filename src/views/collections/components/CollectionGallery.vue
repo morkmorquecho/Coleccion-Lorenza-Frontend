@@ -236,7 +236,6 @@ watch(
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 4em;
   padding: 0 3.6rem;
   box-sizing: border-box;
 }

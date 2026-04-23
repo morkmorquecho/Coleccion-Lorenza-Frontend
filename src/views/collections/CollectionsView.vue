@@ -23,7 +23,7 @@ onMounted(async () => {
 
 .collections-section{
   width:100%;
-  margin-top: 2.5em;
+  margin-top: 4.5em;
 }
 
 /* título */
@@ -38,6 +38,12 @@ onMounted(async () => {
   letter-spacing:-0.02em;
 
   color:#111;
+}
+
+@media (max-width: 768px) {
+  .collections-section {
+    margin-top: 0;
+  }
 }
 
 </style>
