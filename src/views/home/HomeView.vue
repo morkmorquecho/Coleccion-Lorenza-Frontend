@@ -118,7 +118,7 @@ const carrusel3 = Array.from({ length: 5 }, (_, i) => ({
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  margin-top: 5.8rem;
+  /* margin-top: 5.8rem; */
 }
 
 .btn-explorer {
@@ -160,7 +160,7 @@ const carrusel3 = Array.from({ length: 5 }, (_, i) => ({
   .carousels-wrap {
     grid-template-columns: 1fr;
     height: 100vh;
-    margin-top: 3.3rem;
+    /* margin-top: 3.3rem; */
   }
   .sep         { display: none; }
   .hide-mobile { display: none; }

@@ -2,7 +2,7 @@
   <div class="main-layout">
 
     <!-- ① Header fijo — siempre arriba -->
-    <AppHeader />
+    <AppHeader/>
 
     <main class="main-layout__content">
       <RouterView v-slot="{ Component }">
@@ -19,6 +19,8 @@
 <script>
 import { onMounted } from "vue"
 import AppHeader from '@/components/AppHeader.vue'
+import NewHeader from "@/components/NewHeader.vue"
+
 import "aos/dist/aos.css"
 import '../assets/main.css'
 import AppFooter from "@/components/AppFooter.vue"
@@ -28,6 +30,7 @@ export default {
   components: {
     AppHeader,
     AppFooter,
+    NewHeader,
   }
 }
 </script>
@@ -39,7 +42,8 @@ export default {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--color-background);
+  /* background: var(--color-background); */
+  background-color: var(--color-background);
 }
 
 /* ── Área de contenido ─────────────────────── */
