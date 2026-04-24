@@ -3,6 +3,19 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useCartStore = defineStore('cart', () => {
+  const isCartOpen = ref(false)
+  
+  const openCart = () => {
+    isCartOpen.value = true
+  }
+  
+  const closeCart = () => {
+    isCartOpen.value = false
+  }
+  
+  const toggleCart = () => {
+    isCartOpen.value = !isCartOpen.value
+  }
 
   // ── STATE ──────────────────────────────
   // El carrito no tiene endpoint GET en tu API
@@ -80,6 +93,10 @@ export const useCartStore = defineStore('cart', () => {
     totalItems,
     totalPrice,
     isEmpty,
+    isCartOpen,
+    openCart,
+    closeCart,
+    toggleCart,
     addItem,
     removeItem,
     updateQuantity,

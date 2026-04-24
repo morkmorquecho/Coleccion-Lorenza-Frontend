@@ -59,7 +59,11 @@
                   <p class="card-name">{{ piece.title }}</p>
                   <p class="card-color">{{ piece.section }}</p>
                 </div>
-                <button class="btn-add">
+                  <button
+                    class="btn-add"
+                    :disabled="piece.quantity === 0"
+                    @click.stop="handleAdd"
+                  >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
                     <line x1="3" y1="6" x2="21" y2="6"/>
@@ -212,6 +216,25 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (ro) ro.disconnect()
 })
+
+
+function handleAdd() {
+  if (props.product.quantity === 0) return
+  
+  // Usar el store para agregar al carrito
+  // La estructura esperada por el store es { piece: { id, slug, title, thumbnail_path, final_price_base }, quantity }
+  cartStore.addItem({
+    id: props.product.id,
+    slug: props.product.slug,
+    title: props.product.title,
+    thumbnail_path: props.product.thumbnail_path,
+    final_price_base: props.product.final_price_base
+  }, 1)
+  
+  // Opcional: emitir un evento para notificar al padre (ej. para mostrar toast)
+  // emit('added-to-cart', props.product)
+}
+
 </script>
 
 

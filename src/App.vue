@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useUIStore } from '@/stores/ui'
 import ModalComponent from '@/components/ui/ModalComponent.vue'
 import LottiePlayer from './components/ui/LottiePlayer.vue'
-
+import CartDrawer from './components/cart/CartDrawer.vue'
 const ui = useUIStore()
 
 const showModal = computed({
@@ -29,4 +29,7 @@ const showModal = computed({
       <component :is="Component" :key="route.meta.layout" />
     </Transition>
   </RouterView>
+
+  <CartDrawer />
+
 </template>

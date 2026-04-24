@@ -2,15 +2,6 @@
 import { computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
 
-const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false
-  }
-})
-
-const emit = defineEmits(['close'])
-
 const cart = useCartStore()
 
 const formattedTotal = computed(() => {
@@ -19,6 +10,12 @@ const formattedTotal = computed(() => {
     currency: 'MXN'
   }).format(cart.totalPrice)
 })
+
+
+const closeCart = () => {
+  cart.closeCart()
+}
+
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('es-MX', {
@@ -37,16 +34,16 @@ const handleCheckout = () => {
   <!-- Overlay -->
   <Transition name="fade">
     <div
-      v-if="isOpen"
+      v-if="cart.isCartOpen"
       class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
-      @click="emit('close')"
+      @click="closeCart" 
     />
   </Transition>
 
   <!-- Cart Drawer -->
   <Transition name="slide">
     <div
-      v-if="isOpen"
+      v-if="cart.isCartOpen"
       class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white shadow-2xl flex flex-col"
     >
       <!-- Header -->
@@ -58,7 +55,7 @@ const handleCheckout = () => {
           </span>
         </div>
         <button
-          @click="emit('close')"
+          @click="closeCart"
           class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600 transition-all duration-300"
           aria-label="Cerrar carrito"
         >
@@ -90,7 +87,7 @@ const handleCheckout = () => {
           <h3 class="text-empty-car">Tu carrito está vacío</h3>
           <p class="text-sm text-neutral-500 mb-6">Explora nuestra colección y encuentra piezas únicas</p>
           <button
-            @click="emit('close')"
+            @click="closeCart"
             class="px-6 py-3 bg-[#dd4b24] text-white text-sm font-medium uppercase tracking-wider rounded-full hover:bg-[#c43d1a] transition-colors duration-300"
           >
             Explorar Colección
@@ -192,7 +189,7 @@ const handleCheckout = () => {
 
         <!-- Continue Shopping -->
         <button
-          @click="emit('close')"
+          @click="closeCart"
           class="w-full mt-3 py-3 text-sm text-neutral-500 hover:text-neutral-700 transition-colors text-center"
         >
           Continuar comprando

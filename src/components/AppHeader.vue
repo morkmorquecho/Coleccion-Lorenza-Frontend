@@ -2,12 +2,8 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import CartDrawer from './cart/CartDrawer.vue'
 import { useCartStore } from '@/stores/cart'
+
 const cart = useCartStore()
-
-const isCartOpen = ref(false)
-
-const openCart = () => isCartOpen.value = true
-const closeCart = () => isCartOpen.value = false
 
 const isMenuOpen = ref(false)
 const isSoundOn = ref(true)
@@ -41,7 +37,7 @@ const startInactivityTimer = () => {
     if (!isHovered.value && !isMenuOpen.value && isVisible.value) {
       isVisible.value = false
     }
-  }, 3000)
+  }, 1700)
 }
 
 const handleScroll = () => {
@@ -205,7 +201,7 @@ onUnmounted(() => {
 
         <div class="mt-8 flex items-center gap-3">
           <div class="h-px flex-1 bg-white/10"></div>
-          <span class="text-[9px] font-medium uppercase tracking-[0.2em] text-white/40">2 items en carrito</span>
+          <span class="text-[9px] font-medium uppercase tracking-[0.2em] text-white/40">{{ cart.totalItems }} items en carrito</span>
           <div class="h-px flex-1 bg-white/10"></div>
         </div>
       </div>
@@ -270,16 +266,16 @@ onUnmounted(() => {
           <span>{{ isSpanish ? 'ES' : 'EN' }}</span>
         </button>
 
-        <button @click="openCart" class="action-btn cart-btn" aria-label="Carrito">
+        <button @click="cart.openCart" class="action-btn cart-btn" aria-label="Carrito">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
           </svg>
-          <span class="cart-badge">{{ cart.totalItems }} </span>
+          <span class="cart-badge">{{ cart.totalItems }}</span>
         </button>
       </div>
 
       <div class="header-mobile">
-        <button @click="openCart" class="mobile-cart" aria-label="Carrito">
+        <button @click="cart.openCart" class="mobile-cart" aria-label="Carrito">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
           </svg>
@@ -292,7 +288,8 @@ onUnmounted(() => {
       </div>
     </div>
   </header>
-  <CartDrawer :isOpen="isCartOpen" @close="closeCart" />
+
+  <CartDrawer />
 </template>
 
 <style scoped>
