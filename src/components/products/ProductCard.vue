@@ -2,8 +2,6 @@
   <article
     v-if="product"
     class="card"
-    @mouseenter="onEnter"
-    @mouseleave="onLeave"
   >
     <span v-if="badge" class="badge">{{ badge }}</span>
 
@@ -19,44 +17,49 @@
       </svg>
     </button>
 
-    <!-- Media: imagen + video en hover -->
-    <div class="card-media">
-      <img
-        :src="activeImage"
-        :alt="product.title"
-        class="card-img"
-        :class="{ 'img-hidden': hovered && product.intro_video }"
-      />
-      <video
-        v-if="product.intro_video"
-        ref="videoEl"
-        :src="product.intro_video"
-        class="card-video"
-        :class="{ 'video-visible': hovered }"
-        muted
-        loop
-        playsinline
-        preload="none"
-      />
-      <div class="card-overlay" />
-
-      <!-- Color swatches (ocultos en móvil vía CSS) -->
-      <div v-if="product.swatches?.length" class="swatches">
-        <button
-          v-for="(s, i) in product.swatches"
-          :key="i"
-          class="swatch"
-          :class="{ active: activeSwatchIndex === i }"
-          :style="{ background: s.color }"
-          :title="s.label"
-          @click.stop="activateSwatch(i)"
+    <RouterLink :to="{ name: 'PieceDetail', params: { slug: product.slug } }">
+      <!-- Media: imagen + video en hover -->
+      <div class="card-media"
+          @mouseenter="onEnter"
+          @mouseleave="onLeave"
+      >
+        <img
+          :src="activeImage"
+          :alt="product.title"
+          class="card-img"
+          :class="{ 'img-hidden': hovered && product.intro_video }"
         />
+        <video
+          v-if="product.intro_video"
+          ref="videoEl"
+          :src="product.intro_video"
+          class="card-video"
+          :class="{ 'video-visible': hovered }"
+          muted
+          loop
+          playsinline
+          preload="none"
+        />
+        <div class="card-overlay" />
+
+        <!-- Color swatches (ocultos en móvil vía CSS) -->
+        <div v-if="product.swatches?.length" class="swatches">
+          <button
+            v-for="(s, i) in product.swatches"
+            :key="i"
+            class="swatch"
+            :class="{ active: activeSwatchIndex === i }"
+            :style="{ background: s.color }"
+            :title="s.label"
+            @click.stop="activateSwatch(i)"
+          />
+        </div>
       </div>
-    </div>
+    </RouterLink>
 
     <div class="card-info">
       <div class="card-prices">
-        <span v-if="product.original_price_base" class="price-old">${{ product.original_price_base }}</span>
+        <span v-if="product.has_discount" class="price-old">${{ product.original_price_base }}</span>
         <span class="price-new">${{ product.final_price_base }}</span>
       </div>
 
@@ -85,111 +88,101 @@
   </article>
 </template>
 
-<script>
+<script setup>
 import { ref, computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
 
-export default {
-  name: 'ProductCard',
-
-  props: {
-    /**
-     * Objeto del producto:
-     * {
-     *   id, title, thumbnail_path, final_price_base, original_price_base,
-     *   intro_video, stock, swatches: [{ color: '#hex', label: 'string', thumbnail_path?: 'url' }]
-     * }
-     */
-    product: {
-      type: Object,
-      required: true,
-    },
-    badge: {
-      type: String,
-      default: null,
-    },
-    /** Desactiva hover-video e interacciones (ProductGrid lo activa en móvil) */
-    disableHover: {
-      type: Boolean,
-      default: false,
-    },
+/* ── Props ─────────────────────────────────────────────────────────── */
+const props = defineProps({
+  /**
+   * Objeto del producto:
+   * {
+   *   id, title, thumbnail_path, final_price_base, original_price_base,
+   *   intro_video, stock, swatches: [{ color: '#hex', label: 'string', thumbnail_path?: 'url' }]
+   * }
+   */
+  product: {
+    type: Object,
+    required: true,
   },
-
-  emits: ['wishlist'],
-
-  setup(props, { emit }) {
-    const cartStore = useCartStore()
-    
-    const videoEl           = ref(null)
-    const hovered           = ref(false)
-    const isWishlisted      = ref(false)
-    const activeSwatchIndex = ref(0)
-
-    /* ── Imagen activa según swatch seleccionado ────────────────────────── */
-    const activeImage = computed(() => {
-      const s = props.product.swatches?.[activeSwatchIndex.value]
-      return s?.thumbnail_path ?? props.product.thumbnail_path
-    })
-
-    /* ── Stock ──────────────────────────────────────────────────────────── */
-    const stockLabel = computed(() =>
-      props.product.quantity === 0 ? 'Sold out' : 'In stock'
-    )
-    const stockClass = computed(() => ({
-      'stock-out': props.product.quantity === 0,
-    }))
-
-    /* ── Hover (video) ──────────────────────────────────────────────────── */
-    function onEnter() {
-      if (props.disableHover) return
-      hovered.value = true
-      const vid = videoEl.value
-      if (vid?.src) {
-        vid.currentTime = 0
-        vid.play().catch(() => {})
-      }
-    }
-
-    function onLeave() {
-      if (props.disableHover) return
-      hovered.value = false
-      const vid = videoEl.value
-      if (vid) { vid.pause(); vid.currentTime = 0 }
-    }
-
-    /* ── Actions ────────────────────────────────────────────────────────── */
-    function toggleWishlist() {
-      isWishlisted.value = !isWishlisted.value
-      emit('wishlist', { product: props.product, wishlisted: isWishlisted.value })
-    }
-
-    function activateSwatch(i) {
-      activeSwatchIndex.value = i
-    }
-
-    function handleAdd() {
-      if (props.product.quantity === 0) return
-      
-      // Usar el store para agregar al carrito
-      // La estructura esperada por el store es { piece: { id, slug, title, thumbnail_path, final_price_base }, quantity }
-      cartStore.addItem({
-        id: props.product.id,
-        slug: props.product.slug,
-        title: props.product.title,
-        thumbnail_path: props.product.thumbnail_path,
-        final_price_base: props.product.final_price_base
-      }, 1)
-      
-      // Opcional: emitir un evento para notificar al padre (ej. para mostrar toast)
-      // emit('added-to-cart', props.product)
-    }
-
-    return {
-      videoEl, hovered, isWishlisted, activeSwatchIndex,
-      activeImage, stockLabel, stockClass,
-      onEnter, onLeave, toggleWishlist, activateSwatch, handleAdd,
-    }
+  badge: {
+    type: String,
+    default: null,
   },
+  /** Desactiva hover-video e interacciones (ProductGrid lo activa en móvil) */
+  disableHover: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+/* ── Emits ─────────────────────────────────────────────────────────── */
+const emit = defineEmits(['wishlist'])
+
+/* ── Stores ────────────────────────────────────────────────────────── */
+const cartStore = useCartStore()
+
+/* ── State ─────────────────────────────────────────────────────────── */
+const videoEl = ref(null)
+const hovered = ref(false)
+const isWishlisted = ref(false)
+const activeSwatchIndex = ref(0)
+
+/* ── Computed ──────────────────────────────────────────────────────── */
+const activeImage = computed(() => {
+  const s = props.product.swatches?.[activeSwatchIndex.value]
+  return s?.thumbnail_path ?? props.product.thumbnail_path
+})
+
+const stockLabel = computed(() =>
+  props.product.quantity === 0 ? 'Sold out' : 'In stock'
+)
+
+const stockClass = computed(() => ({
+  'stock-out': props.product.quantity === 0,
+}))
+
+/* ── Methods ───────────────────────────────────────────────────────── */
+function onEnter() {
+  if (props.disableHover) return
+  hovered.value = true
+  const vid = videoEl.value
+  if (vid?.src) {
+    vid.currentTime = 0
+    vid.play().catch(() => {})
+  }
+}
+
+function onLeave() {
+  if (props.disableHover) return
+  hovered.value = false
+  const vid = videoEl.value
+  if (vid) { vid.pause(); vid.currentTime = 0 }
+}
+
+function toggleWishlist() {
+  isWishlisted.value = !isWishlisted.value
+  emit('wishlist', { product: props.product, wishlisted: isWishlisted.value })
+}
+
+function activateSwatch(i) {
+  activeSwatchIndex.value = i
+}
+
+function handleAdd() {
+  if (props.product.quantity === 0) return
+  
+  // Agregar al carrito
+  cartStore.addItem({
+    id: props.product.id,
+    slug: props.product.slug,
+    title: props.product.title,
+    thumbnail_path: props.product.thumbnail_path,
+    final_price_base: props.product.final_price_base
+  }, 1)
+  
+  // ABRIR EL CARRITO AUTOMÁTICAMENTE
+  cartStore.openCart()
 }
 </script>
 
@@ -211,7 +204,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  cursor: pointer;
   min-width: 0;
   width: 100%;
   box-sizing: border-box;
