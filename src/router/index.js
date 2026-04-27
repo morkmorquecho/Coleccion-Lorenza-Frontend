@@ -31,13 +31,6 @@ const routes = [
         meta: { requiresAuth: false, hideFooter: true, layout: 'main' },
       },
 
-      // {
-      //   path: 'perfil',
-      //   name: 'Profile',
-      //   component: () => import('@/views/home/ProfileView.vue'),
-      //   meta: { requiresAuth: true, layout: 'main' },
-      // },
-
       // ── PIEZAS ──
       {
         path: 'piezas',
@@ -49,7 +42,7 @@ const routes = [
       {
         path: 'piezas/:slug',
         name: 'PieceDetail',
-        component: () => import('@/views/shop/PieceListView.vue'),
+        component: () => import('@/views/shop/PieceDetailView.vue'),
         meta: { requiresAuth: false }
         // GET /api/v1/pieces/:slug/
         // + /pieces/:slug/photos/
@@ -74,15 +67,6 @@ const routes = [
       //   // Si authStore.isAdmin → muestra botones editar/eliminar
       // },
 
-      // ── CARRITO ──
-      // {
-      //   path: 'carrito',
-      //   name: 'Cart',
-      //   component: () => import('@/views/cart/Cart.vue'),
-      //   meta: { requiresAuth: false }
-      //   // El carrito vive en cartStore (Pinia), no en la API
-      //   // Solo al confirmar se llama /orders/checkout/
-      // },
     ],
   },
 
@@ -154,35 +138,6 @@ const routes = [
         name: 'Profile',
         component: () => import('@/views/home/ProfileView.vue'),
       },
-      //  {
-      //       path: 'email',
-      //       name: 'ChangeEmail',
-      //       component: () => import('@/views/account/ChangeEmail.vue'),
-      //       // POST /api/v1/users/me/email/request-change → { email, password }
-      //       // El link de confirmación llega al nuevo correo y va a /auth/email/verify
-      //     },
-
-      //     // ── DIRECCIONES ──
-      //     {
-      //       path: 'direcciones',
-      //       name: 'Addresses',
-      //       component: () => import('@/views/account/AddressList.vue'),
-      //       // GET /api/v1/users/me/addresses/
-      //     },
-      //     {
-      //       path: 'direcciones/nueva',
-      //       name: 'AddressCreate',
-      //       component: () => import('@/views/account/AddressForm.vue'),
-      //       // POST /api/v1/users/me/addresses/
-      //     },
-      //     {
-      //       path: 'direcciones/:id/editar',
-      //       name: 'AddressEdit',
-      //       component: () => import('@/views/account/AddressForm.vue'),
-      //       // PUT/PATCH /api/v1/users/me/addresses/:id/
-      //       // Mismo componente que AddressCreate, detecta el :id para saber si es editar
-      //     },
-
       //     // ── PEDIDOS ──
       //     {
       //       path: 'pedidos',

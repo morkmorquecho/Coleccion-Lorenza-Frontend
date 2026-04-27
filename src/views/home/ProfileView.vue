@@ -62,6 +62,15 @@
         />
       </section>
 
+      <PhotosForm
+        v-if="authStore.isAdmin"
+        :pieces="pieces"
+        :bulk-upload-photos="bulkUploadPhotos"
+        :bulk-delete-photos="bulkDeletePhotos"
+        :reorder-photos="reorderPhotos"
+        :get-photos="getPhotos"
+      />
+
       <!-- Cerrar sesión -->
       <section class="glass-card">
         <div class="logout-row">
@@ -101,6 +110,8 @@ import ProfileEmailForm from './components/ProfileEmailForm.vue'
 import ProfilePasswordForm from './components/ProfilePasswordForm.vue'
 import ProfileAddressList from './components/ProfileAddressList.vue'
 import ProfileAddressForm from './components/ProfileAddressForm.vue'
+import piecesService from '@/services/piecesService'
+import PhotosForm from '../shop/components/PhotosForm.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -112,6 +123,8 @@ const modalTitle = ref('')
 const animationPath = ref('')
 const modalShowCancel = ref(false)
 const modalConfirmCallback = ref(null)
+
+const pieces = ref([])
 
 const ANIMATIONS = {
   success: '/animations/burro.json',
@@ -237,15 +250,18 @@ const fetchAddresses = async () => {
     const response = await userService.getAddresses()
     addresses.value = response.results || []
   } catch (error) {
-    showError('Ocurrió un problema cargando las direcciones')
+    showError('Ocurrió un problema cargando las direcciones, recarga la pagina o vuelvelo a intentar mas tarde')
     addresses.value = []
   } finally {
     loadingAddresses.value = false
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   fetchAddresses()
+
+  const res = await piecesService.getPieces()
+  pieces.value = res.results
 })
 
 // ── Address Modal with useFormHandler ──────────────────────────────────────────
@@ -315,6 +331,7 @@ const onSaveAddress = async (addressData) => {
 
     closeAddressModal()
   })
+
 }
 
 // ── Address operations with useFormHandler ─────────────────────────────────────
@@ -352,6 +369,56 @@ const logout = async () => {
     router.push({ name: 'Login' })
   }
 }
+
+
+// BULK CREATE PHOTOS Y DEMAS
+async function bulkUploadPhotos(pieceSlug, photos, onProgress) {
+  try {
+    await piecesService.bulkUploadPhotos(pieceSlug, photos, onProgress)
+
+    showSuccess('Fotos subidas correctamente')
+  } catch (error) {
+    showError('Error al subir las fotos, intentalo mas tarde')
+  }
+}
+
+async function bulkDeletePhotos(pieceSlug, payload) {
+  const confirmed = await showConfirm(
+    '¿Seguro que quieres eliminar las fotos seleccionadas?',
+    'Eliminar fotos'
+  )
+
+  if (!confirmed) return
+
+  try {
+    await piecesService.bulkDeletePhotos(pieceSlug, payload.ids)
+
+    showSuccess('Fotos eliminadas correctamente')
+  } catch (error) {
+    showError('Error al eliminar las fotos, intentalo mas tarde')
+  }
+}
+
+async function reorderPhotos(pieceSlug, payload) {
+  try {
+    await piecesService.reorderPhotos(pieceSlug, payload.photos)
+
+
+  } catch (error) {
+    showError('Error al reordenar las fotos, intentalo mas tarde')
+  }
+}
+
+async function getPhotos(pieceSlug) {
+  try {
+    const res = await piecesService.getPhotos(pieceSlug)
+    return res.results ?? res
+  } catch (error) {
+    showError('Error al cargar las fotos, intentalo mas tarde')
+    return []
+  }
+}
+
 </script>
 
 <style scoped>
@@ -451,16 +518,18 @@ const logout = async () => {
   font-weight: 700;
   color: #1a0e09;
   margin: 0 0 1.25rem;
+  text-transform: uppercase;
 }
 
 /* ── Campos ── */
 .field-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a0e09;
+  margin: 0 0 1.25rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
+
 .field-value {
   font-size: 0.95rem;
   color: #374151;

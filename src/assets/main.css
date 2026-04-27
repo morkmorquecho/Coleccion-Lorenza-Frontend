@@ -66,6 +66,10 @@ body {
   background-color: var(--color-background);
 }
 
+span{
+    font-family: 'Georgia', serif, 'Cormorant Garamond';
+}
+
 /* ============================================
    5. TIPOGRAFÍA ESPECÍFICA (Specific Typography)
    ============================================ */
