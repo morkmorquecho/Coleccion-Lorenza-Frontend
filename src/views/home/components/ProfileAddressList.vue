@@ -95,6 +95,7 @@ defineEmits(['add', 'edit', 'delete', 'set-default'])
   font-weight: 700;
   color: #1a0e09;
   margin: 0;
+  text-transform: uppercase;
 }
 .address-list {
   display: flex;

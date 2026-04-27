@@ -55,7 +55,7 @@
           <div class="instruction-icon">3</div>
           <div class="instruction-text">
             <strong>¡Listo!</strong>
-            <span>Podrás acceder a todos los servicios</span>
+            <span>Disfrutaras de la experiencia completa</span>
           </div>
         </div>
       </div>

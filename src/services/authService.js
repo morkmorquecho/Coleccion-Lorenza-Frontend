@@ -36,8 +36,8 @@ const authService = {
     return api.post('/auth/password/reset/confirm/', data)
   },
 
-  loginWithGoogle(accessToken) {
-    return api.post('/auth/oauth/google/', { access_token: accessToken })
+  loginWithGoogle(credential) {
+    return api.post('/auth/oauth/google/', { id_token: credential })
   },
 
   loginWithFacebook(accessToken) {

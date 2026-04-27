@@ -72,21 +72,10 @@
       <div class="form-divider"><span>O regístrate con</span></div>
 
       <div class="form-social-group">
-        <button class="form-social-btn" @click="registerWithGoogle" :disabled="loading">
-          <svg class="h-5 w-5" viewBox="0 0 24 24">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          Google
-        </button>
-        <button class="form-social-btn" @click="registerWithFacebook" :disabled="loading">
-          <svg class="h-5 w-5 fill-[#1877F2]" viewBox="0 0 24 24">
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-          </svg>
-          Facebook
-        </button>
+        <!-- Google: botón oficial renderizado por el SDK -->
+        <div class="google-btn-wrapper">
+          <div ref="googleButtonRef" class="google-button-container" />
+        </div>
       </div>
 
       <p class="text-center text-gray-700 font-medium text-sm">
@@ -100,44 +89,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted }    from 'vue'
-import { useRouter }         from 'vue-router'
-import authService           from '@/services/authService'
-import { useAuthStore }      from '@/stores/auth'
-import { useFormHandler }    from '@/composables/useFormHandler'
-import FormField             from '@/components/ui/FormField.vue'
-import ModalComponent        from '@/components/ui/ModalComponent.vue'
-import LottiePlayer          from '@/components/ui/LottiePlayer.vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import authService from '@/services/authService'
+import { useAuthStore } from '@/stores/auth'
+import { useFormHandler } from '@/composables/useFormHandler'
+import FormField from '@/components/ui/FormField.vue'
+import ModalComponent from '@/components/ui/ModalComponent.vue'
+import LottiePlayer from '@/components/ui/LottiePlayer.vue'
 
-const router    = useRouter()
+const router = useRouter()
 const authStore = useAuthStore()
 
 // ── Modal local (para message_error) ─────────────────────────────────────────
-const showModal    = ref(false)
+const showModal = ref(false)
 const modalMessage = ref('')
-const modalTitle   = ref('')
+const modalTitle = ref('')
 const animationPath = ref('')
 
 const ANIMATIONS = {
   success: '/animations/burro.json',
-  error:   '/animations/quetzal.json',
+  error: '/animations/quetzal.json',
 }
 
 // Lo pasamos al composable para que sepa cómo mostrar message_error
 function showError(msg) {
-  modalMessage.value  = msg
-  modalTitle.value    = 'Ocurrió un error'
+  modalMessage.value = msg
+  modalTitle.value = 'Ocurrió un error'
   animationPath.value = ANIMATIONS.error
-  showModal.value     = true
+  showModal.value = true
 }
 
 // ── Form handler ──────────────────────────────────────────────────────────────
 const { loading, fieldErrors, handleSubmit } = useFormHandler({ showError })
 
 const form = ref({
-  username:         '',
-  email:            '',
-  password:         '',
+  username: '',
+  email: '',
+  password: '',
   confirm_password: '',
 })
 
@@ -146,43 +135,43 @@ async function onRegister() {
   await handleSubmit(async () => {
     await authService.register(form.value)
     router.push({
-         name: 'ResendToken' ,
-         query: {email: form.value.email}
+      name: 'ResendToken',
+      query: { email: form.value.email }
     })
   })
 }
 
+// ── Google OAuth ──────────────────────────────────────────────────────────────
+const googleButtonRef = ref(null)
+
+async function handleGoogleCredential({ credential, error }) {
+  if (error || !credential) {
+    showError('No se pudo conectar con Google')
+    return
+  }
+  await handleSubmit(async () => {
+    const data = await authService.loginWithGoogle(credential)
+    authStore.setTokens(data.access, data.refresh)
+    authStore.setUser(data.user)
+    router.push({ name: 'Home' })
+  })
+}
+
 onMounted(() => {
-  window.google?.accounts.oauth2
-})
-
-async function registerWithGoogle() {
-  if (loading.value) return
-
-  const client = window.google.accounts.oauth2.initTokenClient({
+  window.google.accounts.id.initialize({
     client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-    scope: 'openid email profile',
-    callback: async ({ error, access_token }) => {
-      if (error) {
-        showError('No se pudo conectar con Google')
-        return
-      }
-      await handleSubmit(async () => {
-        const data = await authService.loginWithGoogle(access_token)
-        authStore.setTokens(data.access, data.refresh)
-        authStore.setUser(data.user)
-        router.push({ name: 'Home' })
-      })
-    },
+    callback: handleGoogleCredential,
   })
 
-  client.requestAccessToken()
-}
-
-function registerWithFacebook() {
-  if (loading.value) return
-  alert('Registro con Facebook.')
-}
+  // Renderiza el botón oficial de Google con texto "Registrarse con Google"
+  window.google.accounts.id.renderButton(googleButtonRef.value, {
+    theme: 'outline',
+    size: 'medium',
+    shape: 'pill',
+    text: 'signup_with',    // 'signup_with' para registro
+    locale: 'es',
+  })
+})
 </script>
 
 <style scoped>
@@ -206,6 +195,65 @@ function registerWithFacebook() {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ✅ Estilos para centrar y agrandar el botón de Google (mismo que Login) */
+.google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-left: 4.8rem;
+}
+
+/* Estilos base para desktop - sin margen izquierdo */
+.google-button-container {
+  display: flex;
+  justify-content: center;
+  min-width: 280px;
+  max-width: 400px;
+  width: 100%;
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* 📱 Estilos para móvil - margen izquierdo de 3rem */
+@media (max-width: 768px) {
+  .google-btn-wrapper {
+    justify-content: flex-start;
+    margin-left: 3.5rem;
+  }
+  
+  .google-button-container {
+    transform: scale(1);
+    min-width: auto;
+  }
+}
+
+/* Opcional: Efecto hover sutil */
+.google-button-container:hover {
+  transform: scale(1.08);
+}
+
+/* En móvil, sin hover scale */
+@media (max-width: 768px) {
+  .google-button-container:hover {
+    transform: scale(1);
+  }
+}
+
+/* Asegura que el iframe del botón de Google ocupe todo el ancho disponible */
+.google-button-container :deep(iframe) {
+  width: 100% !important;
+  min-width: 280px !important;
+}
+
+/* En móvil, el iframe se adapta */
+@media (max-width: 768px) {
+  .google-button-container :deep(iframe) {
+    min-width: auto !important;
+    width: auto !important;
   }
 }
 
