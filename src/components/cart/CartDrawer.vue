@@ -86,12 +86,18 @@ const handleCheckout = () => {
           </div>
           <h3 class="text-empty-car">Tu carrito está vacío</h3>
           <p class="text-sm text-neutral-500 mb-6">Explora nuestra colección y encuentra piezas únicas</p>
-          <button
-            @click="closeCart"
-            class="px-6 py-3 bg-[#dd4b24] text-white text-sm font-medium uppercase tracking-wider rounded-full hover:bg-[#c43d1a] transition-colors duration-300"
+
+          <RouterLink
+            :to="{name: 'Pieces'}"
           >
+            <button
+              @click="closeCart"
+              class="px-6 py-3 bg-[#dd4b24] text-white text-sm font-medium uppercase tracking-wider rounded-full hover:bg-[#c43d1a] transition-colors duration-300"
+            >
             Explorar Colección
-          </button>
+          </button> 
+        </RouterLink>
+        
         </div>
 
         <!-- Items List -->

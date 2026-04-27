@@ -46,13 +46,20 @@ const piecesService = {
     })
   },
 
-  bulkUploadPhotos(pieceSlug, images) {
-    // images: array de archivos
-    // Se arma el FormData aquí para no repetirlo en cada componente
+  bulkUploadPhotos(pieceSlug, photos, onProgress) {
     const formData = new FormData()
-    images.forEach(image => formData.append('images', image))
+
+    photos.forEach((photo, index) => {
+      formData.append('images', photo.file)
+      formData.append('positions', index + 1)
+    })
+
     return api.post(`/pieces/${pieceSlug}/photos/bulk-create/`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (e) => {
+        const progress = Math.round((e.loaded / e.total) * 100)
+        onProgress?.(progress)   // ← llama el callback si existe
+      }
     })
   },
 

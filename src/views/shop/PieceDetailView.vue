@@ -1,79 +1,118 @@
 <template>
-  <div class="piece-detail">
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-      <a href="#" class="breadcrumb-link">Home</a>
-      <span class="breadcrumb-separator">/</span>
-      <a href="#" class="breadcrumb-link">{{ piece.section }}</a>
-      <span class="breadcrumb-separator">/</span>
-      <span class="breadcrumb-current">{{ piece.title }}</span>
-    </nav>
-
+  <div class="piece-detail" v-if="pieceDetail">
     <div class="detail-container">
       <!-- Left: Gallery Section -->
       <div class="gallery-section">
-        <!-- Main Image -->
+        <!-- Thumbnail Grid - Left Side (Desktop) -->
+        <div class="thumbnail-grid-vertical">
+          <button
+            v-for="(item, index) in galleryItems"
+            :key="index"
+            class="thumbnail-item-vertical"
+            :class="{ active: currentImageIndex === index, 'is-video': item.type === 'video' }"
+            @click="currentImageIndex = index"
+          >
+            <img v-if="item.type === 'image'" :src="item.src" :alt="`${pieceDetail.title} - Image ${index + 1}`" />
+            <div v-else class="video-thumb-vertical">
+              <img :src="pieceDetail.thumbnail_path" :alt="`${pieceDetail.title} - Video`" />
+              <div class="video-play-icon-vertical">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Main Image/Video Container -->
         <div 
+          ref="mainContainer"
           class="main-image-container"
           @mousemove="handleMouseMove"
           @mouseleave="handleMouseLeave"
           @click="handleImageClick"
+          @touchstart="handleTouchStart"
+          @touchmove="handleTouchMove"
+          @touchend="handleTouchEnd"
         >
+          <!-- Image Display -->
           <img 
-            :src="currentImage" 
-            :alt="piece.title"
+            v-if="currentItem?.type === 'image'"
+            :src="currentItem?.src" 
+            :alt="pieceDetail.title"
             class="main-image"
           />
+          <!-- Video Display -->
+          <video 
+            v-else-if="currentItem?.type === 'video'"
+            ref="videoPlayer"
+            :src="currentItem?.src" 
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            class="main-video"
+            :poster="pieceDetail.thumbnail_path"
+            controlslist="nodownload nofullscreen noremoteplayback"
+            disablepictureinpicture
+          />
           
-          <!-- Navigation Arrow Cursor -->
+          <!-- Elegant Arrow Cursor -->
           <div 
             v-if="showArrow"
-            class="arrow-cursor"
+            class="arrow-cursor-elegant"
             :style="arrowStyle"
           >
-            <svg 
-              v-if="arrowDirection === 'left'" 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="32" 
-              height="32" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              stroke-width="2"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            <svg 
-              v-else 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="32" 
-              height="32" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              stroke-width="2"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+            <div class="arrow-circle">
+              <svg 
+                v-if="arrowDirection === 'left'" 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="36" 
+                height="36" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="white" 
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+              <svg 
+                v-else 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="36" 
+                height="36" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="white" 
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Video Controls Overlay -->
+          <div v-if="currentItem?.type === 'video'" class="video-controls">
+            <button @click.stop="toggleVideoPlayback" class="video-control-btn">
+              <svg v-if="isVideoPlaying" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16"/>
+                <rect x="14" y="4" width="4" height="16"/>
+              </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </button>
           </div>
 
           <!-- Image Counter -->
           <div class="image-counter">
-            {{ currentImageIndex + 1 }} / {{ galleryImages.length }}
+            {{ currentImageIndex + 1 }} / {{ galleryItems.length }}
           </div>
-        </div>
-
-        <!-- Thumbnail Grid -->
-        <div class="thumbnail-grid">
-          <button
-            v-for="(img, index) in galleryImages"
-            :key="index"
-            class="thumbnail-item"
-            :class="{ active: currentImageIndex === index }"
-            @click="currentImageIndex = index"
-          >
-            <img :src="img" :alt="`${piece.title} - Image ${index + 1}`" />
-          </button>
         </div>
       </div>
 
@@ -81,36 +120,40 @@
       <div class="info-section">
         <!-- Type & Section Tags -->
         <div class="tags-row">
-          <span class="tag tag-type">{{ piece.type }}</span>
-          <span class="tag tag-section">{{ piece.section }}</span>
-          <span v-if="piece.customizable" class="tag tag-custom">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <span class="tag tag-type">
+            {{ pieceDetail.type }}
+          </span>
+          <span class="tag tag-section">
+            {{ pieceDetail.section }}
+          </span>
+          <span v-if="pieceDetail.customizable" class="tag tag-custom">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
             </svg>
-            Customizable
+            Personalizable
           </span>
         </div>
 
         <!-- Title -->
-        <h1 class="piece-title">{{ piece.title }}</h1>
+        <h1 class="piece-title">{{ pieceDetail.title }}</h1>
 
         <!-- Price -->
         <div class="price-container">
-          <span v-if="piece.has_discount" class="original-price">
-            ${{ formatPrice(piece.original_price_base) }} MXN
+          <span v-if="pieceDetail.has_discount" class="original-price">
+            ${{ formatPrice(pieceDetail.original_price_base) }} MXN
           </span>
-          <span class="final-price" :class="{ 'has-discount': piece.has_discount }">
-            ${{ formatPrice(piece.final_price_base) }} MXN
+          <span class="final-price" :class="{ 'has-discount': pieceDetail.has_discount }">
+            ${{ formatPrice(pieceDetail.final_price_base) }} MXN
           </span>
-          <span v-if="piece.has_discount" class="discount-badge">
-            -{{ piece.discount_percentage }}%
+          <span v-if="pieceDetail.has_discount" class="discount-badge">
+            -{{ pieceDetail.discount_percentage }}%
           </span>
         </div>
 
         <!-- Description -->
         <div class="description-block">
           <h3 class="section-title">About this piece</h3>
-          <p class="description-text">{{ piece.description }}</p>
+          <p class="description-text">{{ pieceDetail.description }}</p>
         </div>
 
         <!-- Specifications -->
@@ -119,29 +162,29 @@
           <div class="specs-grid">
             <div class="spec-item">
               <span class="spec-label">Width</span>
-              <span class="spec-value">{{ piece.width }} m</span>
+              <span class="spec-value">{{ pieceDetail.width }} cm</span>
             </div>
             <div class="spec-item">
               <span class="spec-label">Height</span>
-              <span class="spec-value">{{ piece.height }} m</span>
+              <span class="spec-value">{{ pieceDetail.height }} cm</span>
             </div>
             <div class="spec-item">
               <span class="spec-label">Length</span>
-              <span class="spec-value">{{ piece.length }} m</span>
+              <span class="spec-value">{{ pieceDetail.length }} cm</span>
             </div>
             <div class="spec-item">
               <span class="spec-label">Weight</span>
-              <span class="spec-value">{{ piece.weight }} kg</span>
+              <span class="spec-value">{{ pieceDetail.weight }} kg</span>
             </div>
           </div>
         </div>
 
         <!-- Availability -->
         <div class="availability-block">
-          <div class="stock-indicator" :class="piece.quantity > 0 ? 'in-stock' : 'out-stock'">
+          <div class="stock-indicator" :class="pieceDetail.quantity > 0 ? 'in-stock' : 'out-stock'">
             <span class="stock-dot"></span>
-            <span v-if="piece.quantity > 0">
-              {{ piece.quantity }} {{ piece.quantity === 1 ? 'piece' : 'pieces' }} available
+            <span v-if="pieceDetail.quantity > 0">
+              {{ pieceDetail.quantity }} {{ pieceDetail.quantity === 1 ? 'piece' : 'pieces' }} available
             </span>
             <span v-else>Out of stock</span>
           </div>
@@ -149,12 +192,16 @@
 
         <!-- Actions -->
         <div class="actions-block">
-          <button class="btn-primary" :disabled="piece.quantity === 0">
+          <button class="btn-primary" 
+            :disabled="pieceDetail.quantity === 0"
+            @click.stop="handleAdd"
+          >
+
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
             </svg>
-            Add to Cart
+            Añadir a la cesta
           </button>
           <button class="btn-secondary">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -163,75 +210,92 @@
           </button>
         </div>
 
-        <!-- Video Preview -->
-        <div v-if="piece.intro_video" class="video-block">
-          <h3 class="section-title">See it in action</h3>
-          <div class="video-container">
-            <video 
-              :src="piece.intro_video" 
-              controls 
-              preload="metadata"
-              class="intro-video"
-              :poster="piece.thumbnail_path"
-            />
-          </div>
-        </div>
-
         <!-- Featured Badge -->
-        <div v-if="piece.featured" class="featured-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-          Featured Piece
+        <div v-if="pieceDetail.featured" class="featured-indicator">
+          <span class="featured-line"></span>
+          <span class="featured-text">Pieza Destacada</span>
+          <span class="featured-line"></span>
         </div>
       </div>
     </div>
+
+    <!-- Thumbnails Horizontal para Mobile -->
+   
+  </div>
+  <div v-else class="loading">
+    Cargando...
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import piecesService from '@/services/piecesService'
+import { useRoute } from 'vue-router'
+import { useCartStore } from '@/stores/cart'
 
-const props = defineProps({
-  piece: {
-    type: Object,
-    default: () => ({
-      id: 10010,
-      title: "Monarca",
-      slug: "monarca",
-      description: "A stunning handcrafted alebrije inspired by the majestic monarch butterfly. Each piece is meticulously painted with vibrant colors and intricate patterns that represent the spirit of Mexican folk art. This wall art piece brings life and cultural richness to any space.",
-      thumbnail_path: "https://pub-6420ef6d244f406e90e09d644afccd2e.r2.dev/pieces/thumbnails/590650e6b32b446286c600ded024e92d.jpg",
-      intro_video: "https://pub-6420ef6d244f406e90e09d644afccd2e.r2.dev/pieces/intro-video/bde20179f61042488ad132a8af0931b2.mp4",
-      quantity: 2,
-      width: "1.00",
-      height: "1.00",
-      length: "0.99",
-      weight: "1.00",
-      customizable: true,
-      featured: true,
-      type: "WALL ART",
-      section: "DAY OF THE DEAD",
-      created_at: "2026-04-22T07:53:50.675021-06:00",
-      has_discount: true,
-      discount_percentage: 15,
-      final_price_base: 1190.0,
-      original_price_base: 1400.0
-    })
-  }
+const pieceDetail = ref(null)
+const photos = ref(null)
+const route = useRoute()
+
+onMounted(async () => {
+  pieceDetail.value = await piecesService.getPiece(route.params.slug)
+  const response = await piecesService.getPhotos(route.params.slug)
+  photos.value = response.results
 })
 
-// Gallery images (simulated - in production these would come from API)
-const galleryImages = computed(() => {
-  const baseImages = [props.piece.thumbnail_path]
-  // Simulate 9 gallery images
-  for (let i = 1; i < 9; i++) {
-    baseImages.push(props.piece.thumbnail_path)
+const galleryItems = computed(() => {
+  if (!pieceDetail.value) return []
+
+  const items = []
+
+  // 1. Thumbnail siempre primero
+  items.push({ type: 'image', src: pieceDetail.value.thumbnail_path })
+
+  // 2. Video en segunda posición si existe
+  if (pieceDetail.value.intro_video) {
+    items.push({ type: 'video', src: pieceDetail.value.intro_video })
   }
-  return baseImages
+
+  // 3. Resto de fotos ordenadas por position
+  if (photos.value && photos.value.length > 0) {
+    const sortedPhotos = [...photos.value].sort((a, b) => a.position - b.position)
+    sortedPhotos.forEach(photo => {
+      items.push({ type: 'image', src: photo.image_path })
+    })
+  }
+
+  return items
 })
 
 const currentImageIndex = ref(0)
-const currentImage = computed(() => galleryImages.value[currentImageIndex.value])
+const currentItem = computed(() => galleryItems.value[currentImageIndex.value])
+const videoPlayer = ref(null)
+const isVideoPlaying = ref(true)
+const mainContainer = ref(null)
+
+// Video playback control
+function toggleVideoPlayback() {
+  if (videoPlayer.value) {
+    if (videoPlayer.value.paused) {
+      videoPlayer.value.play()
+      isVideoPlaying.value = true
+    } else {
+      videoPlayer.value.pause()
+      isVideoPlaying.value = false
+    }
+  }
+}
+
+// Watch for video item changes
+watch(currentImageIndex, async (newIndex) => {
+  if (galleryItems.value[newIndex]?.type === 'video') {
+    await nextTick()
+    if (videoPlayer.value) {
+      videoPlayer.value.play()
+      isVideoPlaying.value = true
+    }
+  }
+})
 
 // Arrow cursor logic
 const showArrow = ref(false)
@@ -249,8 +313,8 @@ function handleMouseMove(event) {
   const x = event.clientX - rect.left
   const centerX = rect.width / 2
   
-  mouseX.value = event.clientX - rect.left - 16
-  mouseY.value = event.clientY - rect.top - 16
+  mouseX.value = event.clientX - rect.left
+  mouseY.value = event.clientY - rect.top
   
   arrowDirection.value = x < centerX ? 'left' : 'right'
   showArrow.value = true
@@ -264,12 +328,44 @@ function handleImageClick() {
   if (arrowDirection.value === 'left') {
     currentImageIndex.value = currentImageIndex.value > 0 
       ? currentImageIndex.value - 1 
-      : galleryImages.value.length - 1
+      : galleryItems.value.length - 1
   } else {
-    currentImageIndex.value = currentImageIndex.value < galleryImages.value.length - 1 
+    currentImageIndex.value = currentImageIndex.value < galleryItems.value.length - 1 
       ? currentImageIndex.value + 1 
       : 0
   }
+}
+
+// Touch swipe logic for mobile
+let touchStartX = 0
+let touchEndX = 0
+const minSwipeDistance = 50
+
+function handleTouchStart(event) {
+  touchStartX = event.touches[0].clientX
+}
+
+function handleTouchMove(event) {
+  touchEndX = event.touches[0].clientX
+}
+
+function handleTouchEnd() {
+  const swipeDistance = touchEndX - touchStartX
+  
+  if (Math.abs(swipeDistance) > minSwipeDistance) {
+    if (swipeDistance > 0) {
+      currentImageIndex.value = currentImageIndex.value > 0 
+        ? currentImageIndex.value - 1 
+        : galleryItems.value.length - 1
+    } else {
+      currentImageIndex.value = currentImageIndex.value < galleryItems.value.length - 1 
+        ? currentImageIndex.value + 1 
+        : 0
+    }
+  }
+  
+  touchStartX = 0
+  touchEndX = 0
 }
 
 function formatPrice(price) {
@@ -278,45 +374,36 @@ function formatPrice(price) {
     maximumFractionDigits: 0
   }).format(price)
 }
+
+const cartStore = useCartStore()
+
+function handleAdd() {
+  if (pieceDetail.value.quantity === 0) return
+  
+  // Agregar al carrito
+  cartStore.addItem({
+    id: pieceDetail.value.id,
+    slug: pieceDetail.value.slug,
+    title: pieceDetail.value.title,
+    thumbnail_path: pieceDetail.value.thumbnail_path,
+    final_price_base: pieceDetail.value.final_price_base
+  }, 1)
+  
+  // ABRIR EL CARRITO AUTOMÁTICAMENTE
+  cartStore.openCart()
+}
 </script>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 .piece-detail {
   min-height: 100vh;
-  background: linear-gradient(180deg, #faf8f5 0%, #f5f0e8 100%);
+  background: var(--color-background);
   padding: 2rem 4rem 4rem;
   font-family: 'Inter', sans-serif;
-}
-
-/* Breadcrumb */
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  font-size: 0.875rem;
-}
-
-.breadcrumb-link {
-  color: #8b7355;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.breadcrumb-link:hover {
-  color: #c4501a;
-}
-
-.breadcrumb-separator {
-  color: #c9bfb0;
-}
-
-.breadcrumb-current {
-  color: #2d2a26;
-  font-weight: 500;
-  text-transform: capitalize;
+  margin-top: 6em;
 }
 
 /* Main Container */
@@ -328,23 +415,171 @@ function formatPrice(price) {
   margin: 0 auto;
 }
 
-/* Gallery Section */
+/* Gallery Section with horizontal layout */
 .gallery-section {
   display: flex;
-  flex-direction: column;
   gap: 1rem;
+  align-items: flex-start;
 }
 
-.main-image-container {
+/* Vertical Thumbnail Grid - Left Side (Desktop only) */
+.thumbnail-grid-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.thumbnail-item-vertical {
+  width: 80px;
+  height: 80px;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #e8e2d9;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.thumbnail-item-vertical img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.thumbnail-item-vertical:hover img,
+.thumbnail-item-vertical.active img {
+  opacity: 1;
+}
+
+.thumbnail-item-vertical.active {
+  border-color: #c4501a;
+  box-shadow: 0 0 0 2px rgba(196, 80, 26, 0.2);
+}
+
+/* Video Thumbnail Vertical */
+.video-thumb-vertical {
   position: relative;
-  aspect-ratio: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.video-thumb-vertical img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-play-icon-vertical {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  background: rgba(196, 80, 26, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.thumbnail-item-vertical.is-video:hover .video-play-icon-vertical {
+  background: #c4501a;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.thumbnail-item-vertical.is-video.active .video-play-icon-vertical {
+  background: #c4501a;
+}
+
+/* Horizontal Thumbnail Grid - Mobile only */
+.thumbnail-grid-horizontal {
+  display: none;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+.thumbnail-item-horizontal {
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #e8e2d9;
+  padding: 0;
+}
+
+.thumbnail-item-horizontal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.thumbnail-item-horizontal:hover img,
+.thumbnail-item-horizontal.active img {
+  opacity: 1;
+}
+
+.thumbnail-item-horizontal.active {
+  border-color: #c4501a;
+  box-shadow: 0 0 0 2px rgba(196, 80, 26, 0.2);
+}
+
+.video-thumb-horizontal {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.video-thumb-horizontal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-play-icon-horizontal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  background: rgba(196, 80, 26, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+/* Main Image Container */
+.main-image-container {
+  flex: 1;
+  position: relative;
+  aspect-ratio: 4 / 5;
   border-radius: 1.5rem;
   overflow: hidden;
   background: #e8e2d9;
   cursor: none;
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 20px 40px -10px rgba(139, 115, 85, 0.15);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 40px -10px rgba(139, 115, 85, 0.15);
+  width: 80%;
 }
 
 .main-image {
@@ -358,20 +593,84 @@ function formatPrice(price) {
   transform: scale(1.02);
 }
 
-.arrow-cursor {
+.main-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #2d2a26;
+}
+
+/* Hide default video controls */
+.main-video::-webkit-media-controls {
+  display: none !important;
+}
+
+.main-video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+/* Elegant Arrow Cursor */
+.arrow-cursor-elegant {
   position: absolute;
   pointer-events: none;
-  width: 64px;
-  height: 64px;
+  z-index: 10;
+}
+
+.arrow-circle {
+  width: 56px;
+  height: 56px;
+  background:var(--color-primary);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 50%;
-  color: #2d2a26;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  transition: transform 0.1s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.arrow-circle svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Custom video controls */
+.video-controls {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
   z-index: 10;
+}
+
+.video-control-btn {
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.video-control-btn:hover {
+  background: rgba(196, 80, 26, 0.9);
+  transform: scale(1.05);
 }
 
 .image-counter {
@@ -387,48 +686,11 @@ function formatPrice(price) {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Thumbnail Grid */
-.thumbnail-grid {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 0.5rem;
-}
-
-.thumbnail-item {
-  aspect-ratio: 1;
-  border: 2px solid transparent;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: #e8e2d9;
-  padding: 0;
-}
-
-.thumbnail-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.thumbnail-item:hover img,
-.thumbnail-item.active img {
-  opacity: 1;
-}
-
-.thumbnail-item.active {
-  border-color: #c4501a;
-  box-shadow: 0 0 0 2px rgba(196, 80, 26, 0.2);
-}
-
-/* Info Section */
+/* Right Info Section */
 .info-section {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding-top: 0.5rem;
 }
 
 /* Tags */
@@ -441,28 +703,38 @@ function formatPrice(price) {
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.85rem;
-  border-radius: 2rem;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  transition: all 0.2s ease;
 }
 
 .tag-type {
-  background: #2d2a26;
+  background: linear-gradient(135deg, #2d2a26 0%, #3d3a36 100%);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(45, 42, 38, 0.2);
 }
 
 .tag-section {
-  background: #e8e2d9;
+  background: linear-gradient(135deg, #f5f0e8 0%, #e8e2d9 100%);
   color: #5c5347;
+  border: 1px solid #d9d0c3;
 }
 
 .tag-custom {
   background: linear-gradient(135deg, #c4501a 0%, #e07a3a 100%);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(196, 80, 26, 0.25);
+  animation: subtle-glow 3s ease-in-out infinite;
+}
+
+@keyframes subtle-glow {
+  0%, 100% { box-shadow: 0 2px 8px rgba(196, 80, 26, 0.25); }
+  50% { box-shadow: 0 2px 12px rgba(196, 80, 26, 0.4); }
 }
 
 /* Title */
@@ -617,6 +889,7 @@ function formatPrice(price) {
   display: flex;
   gap: 0.75rem;
   padding-top: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .btn-primary {
@@ -625,21 +898,21 @@ function formatPrice(price) {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 1.25rem 2rem;
-  background: linear-gradient(135deg, #2d2a26 0%, #3d3a36 100%);
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #c4501a 0%, #e07a3a 100%);
   color: #fff;
   border: none;
   border-radius: 1rem;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(45, 42, 38, 0.3);
+  box-shadow: 0 4px 15px rgba(196, 80, 26, 0.35);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(45, 42, 38, 0.4);
+  box-shadow: 0 8px 25px rgba(196, 80, 26, 0.45);
 }
 
 .btn-primary:disabled {
@@ -651,8 +924,8 @@ function formatPrice(price) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 52px;
+  height: 52px;
   background: #fff;
   border: 2px solid #e8e2d9;
   border-radius: 1rem;
@@ -667,87 +940,192 @@ function formatPrice(price) {
   background: #fef7f4;
 }
 
-/* Video */
-.video-block {
-  padding-top: 0.5rem;
+/* Featured Indicator */
+.featured-indicator {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
   border-top: 1px solid #e8e2d9;
 }
 
-.video-container {
-  border-radius: 1rem;
-  overflow: hidden;
-  background: #2d2a26;
+.featured-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #c9bfb0 50%, transparent 100%);
 }
 
-.intro-video {
-  width: 100%;
-  display: block;
+.featured-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #8b7355;
 }
 
-/* Featured Badge */
-.featured-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #fef3e2 0%, #fde8cc 100%);
-  border: 1px solid #f5d5a8;
-  border-radius: 1rem;
-  color: #b8860b;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-top: auto;
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
+/* Responsive Styles */
+@media (max-width: 1024px) {
   .piece-detail {
-    padding: 1.5rem 2rem 3rem;
+    padding: 1rem 2rem 2rem;
   }
   
   .detail-container {
-    gap: 3rem;
-  }
-  
-  .thumbnail-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
-  .detail-container {
-    grid-template-columns: 1fr;
     gap: 2rem;
   }
   
   .piece-title {
     font-size: 2.5rem;
   }
-  
-  .thumbnail-grid {
-    grid-template-columns: repeat(9, 1fr);
-  }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .piece-detail {
-    padding: 1rem 1rem 2rem;
+    padding: 1rem;
+    margin-top: 5em;
+  }
+  
+  .detail-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  /* Ocultar thumbnails verticales en móvil */
+  .thumbnail-grid-vertical {
+    display: none;
+  }
+  
+  /* Mostrar thumbnails horizontales en móvil */
+  .thumbnail-grid-horizontal {
+    display: flex;
+  }
+  
+  /* La imagen ocupa 100% en móvil */
+  .main-image-container {
+    width: 100%;
+    cursor: grab;
+  }
+  
+  .main-image-container:active {
+    cursor: grabbing;
+  }
+  
+  .arrow-cursor-elegant {
+    display: none;
   }
   
   .piece-title {
     font-size: 2rem;
   }
   
-  .thumbnail-grid {
-    grid-template-columns: repeat(5, 1fr);
+  .final-price {
+    font-size: 1.5rem;
   }
   
   .specs-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
   }
   
-  .final-price {
-    font-size: 1.5rem;
+  .spec-item {
+    padding: 0.75rem;
+  }
+  
+  .spec-value {
+    font-size: 1rem;
+  }
+  
+  .btn-primary {
+    padding: 0.875rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .btn-secondary {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .specs-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tags-row {
+    gap: 0.35rem;
+  }
+  
+  .tag {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.65rem;
+  }
+  
+  .piece-title {
+    font-size: 1.75rem;
+  }
+  
+  .description-text {
+    font-size: 0.9rem;
+  }
+}
+
+
+@media (min-width: 769px) {
+  .thumbnail-grid-vertical {
+    max-height: 37rem; /* Ajusta este valor según la altura de .main-image-container */
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    padding-right: 4px; /* Espacio para el scrollbar */
+    margin-top: 0.5rem;
+    -ms-overflow-style: none;  /* IE y Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  /* Personalizar scrollbar */
+  .thumbnail-grid-vertical::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Edge */
+    width: 0;
+    background: transparent;
+  }
+  
+  .thumbnail-grid-vertical::-webkit-scrollbar-track {
+    background: #e8e2d9;
+    border-radius: 4px;
+  }
+  
+  .thumbnail-grid-vertical::-webkit-scrollbar-thumb {
+    background: #c4501a;
+    border-radius: 4px;
+  }
+  
+  /* Asegurar que todos los thumbnails (incluyendo videos) tengan el mismo tamaño */
+  .thumbnail-item-vertical,
+  .video-thumb-vertical {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  
+  /* Forzar que las imágenes dentro de video-thumb-vertical ocupen todo el contenedor */
+  .video-thumb-vertical img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
+  /* Mantener el ícono de play centrado */
+  .video-play-icon-vertical {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
   }
 }
 </style>
