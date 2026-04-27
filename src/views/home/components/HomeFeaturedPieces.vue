@@ -17,24 +17,30 @@
             v-for="(piece, i) in pieces"
             :key="i"
             class="card"
+            :class="{ 'active-slide': currentSlide === i }"
             @mouseenter="onCardEnter(i)"
             @mouseleave="onCardLeave(i)"
           >
             <span class="badge">NEW</span>
 
             <!-- media wrapper: image + video -->
-            <div class="card-media">
+            <RouterLink :to="{ name: 'PieceDetail', params: { slug: piece.slug } }">
+            <div class="card-media"
+              @mouseenter="onCardEnter(i)"
+              @mouseleave="onCardLeave(i)"
+            >
               <img
                 :src="piece.thumbnail_path"
                 :alt="piece.title"
                 class="card-img"
-                :class="{ 'img-hidden': hoveredIndex === i }"
+                :class="{ 'img-hidden': hoveredIndex === i && piece.intro_video }"
                 :style="{
                   objectPosition: getImageFocalPoint(piece),
                   objectFit: 'cover'
                 }"
               />
               <video
+                v-if="piece.intro_video && piece.intro_video.trim() !== ''"
                 :ref="el => { if(el) videoRefs[i] = el }"
                 :src="piece.intro_video"
                 class="card-video"
@@ -45,6 +51,7 @@
                 preload="none"
               />
             </div>
+          </RouterLink>
 
             <div class="card-info">
               <div class="card-prices">
@@ -61,9 +68,10 @@
                 </div>
                   <button
                     class="btn-add"
+                    :class="{ 'btn-disabled': piece.quantity === 0 }"
                     :disabled="piece.quantity === 0"
-                    @click.stop="handleAdd"
-                  >
+                    @click.stop="handleAdd(piece)" 
+                >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
                     <line x1="3" y1="6" x2="21" y2="6"/>
@@ -101,30 +109,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import '../../../assets/main.css'
 import piecesService from '@/services/piecesService'
+import { useCartStore } from '@/stores/cart'
 
 const pieces = ref([])
 
 onMounted(async () => {
   const res = await piecesService.getPieces({ featured: true })
   pieces.value = res.results
+  await nextTick()
+  updateCardWidth()
 })
 
 function getImageFocalPoint(piece) {
-  // Puedes personalizar según metadata del producto
-  if (piece.focal_point) return piece.focal_point // Si viene del backend
-  
-  // Lógica por defecto: muestra siempre la parte superior
-  return '60% 10%' // Centro horizontal, borde superior
-  
-  /* Otras opciones útiles:
-   * '50% 0%'    - Muestra la cabeza/parte superior (bueno para personas)
-   * '50% 10%'   - Un poco más abajo
-   * 'center top' - Mismo que '50% 0%'
-   * 'top'       - Atajo para '50% 0%'
-   */
+  if (piece.focal_point) return piece.focal_point
+  return '60% 10%'
 }
 
 const videoRefs = ref([])
@@ -135,16 +136,22 @@ const isMobile = ref(false)
 function onCardEnter(i) {
   if (isMobile.value) return
   hoveredIndex.value = i
+  
+  const piece = pieces.value[i]
   const vid = videoRefs.value[i]
-  if (vid && vid.src) {
+  
+  if (vid && piece?.intro_video && vid.src) {
     vid.currentTime = 0
-    vid.play().catch(() => {})
+    vid.play().catch(err => {
+      console.log('Video autoplay failed:', err)
+    })
   }
 }
 
 function onCardLeave(i) {
   if (isMobile.value) return
   hoveredIndex.value = null
+  
   const vid = videoRefs.value[i]
   if (vid) {
     vid.pause()
@@ -152,91 +159,193 @@ function onCardLeave(i) {
   }
 }
 
-// ── Mobile carousel ─────────────────────────────────────────────────────────
+// ── Mobile carousel (Instagram Stories style) ──────────────────────────────
 const track = ref(null)
 const currentSlide = ref(0)
+const isDragging = ref(false)
+const startPosition = ref(0)
+const currentTranslate = ref(0)
+const previousTranslate = ref(0)
+const animationId = ref(null)
+const cardWidth = ref(0)
 
-let touchStartX = 0
-let touchDeltaX = 0
-let cardWidth = 0
-
-function getCardWidth() {
-  if (!track.value) return 0
+function updateCardWidth() {
+  if (!track.value) return
   const card = track.value.querySelector('.card')
-  return card ? card.offsetWidth + 16 : 0
+  if (card) {
+    // Obtener el ancho incluyendo el gap
+    const cardRect = card.getBoundingClientRect()
+    const trackChildren = track.value.children
+    if (trackChildren.length > 0) {
+      // Calcular el gap del CSS
+      const trackStyle = window.getComputedStyle(track.value)
+      const gap = parseInt(trackStyle.gap) || 16
+      cardWidth.value = cardRect.width + gap
+    }
+  }
+}
+
+function setSliderPosition() {
+  if (!track.value) return
+  const position = -currentSlide.value * cardWidth.value
+  currentTranslate.value = position
+  previousTranslate.value = position
+  track.value.style.transform = `translateX(${position}px)`
 }
 
 function goTo(index) {
-  currentSlide.value = Math.max(0, Math.min(index, pieces.length - 1))
-  if (track.value) {
-    cardWidth = getCardWidth()
-    track.value.style.transform = `translateX(-${currentSlide.value * cardWidth}px)`
+  if (index === currentSlide.value) return
+  currentSlide.value = Math.max(0, Math.min(index, pieces.value.length - 1))
+  setSliderPosition()
+}
+
+function animation() {
+  if (!isDragging.value) return
+  
+  const movedBy = currentTranslate.value - previousTranslate.value
+  
+  // Calcular el cambio de slide basado en el movimiento
+  const threshold = cardWidth.value * 0.3 // 30% del ancho de la card
+  
+  if (movedBy < -threshold) {
+    // Swipe hacia la izquierda - siguiente slide
+    goTo(currentSlide.value + 1)
+    isDragging.value = false
+  } else if (movedBy > threshold) {
+    // Swipe hacia la derecha - slide anterior
+    goTo(currentSlide.value - 1)
+    isDragging.value = false
+  } else {
+    // Volver a la posición original
+    setSliderPosition()
+    isDragging.value = false
+  }
+  
+  if (animationId.value) {
+    cancelAnimationFrame(animationId.value)
+    animationId.value = null
   }
 }
 
 function onTouchStart(e) {
   if (!isMobile.value) return
-  touchStartX = e.touches[0].clientX
-  touchDeltaX = 0
-  cardWidth = getCardWidth()
+  
+  // Cancelar cualquier animación pendiente
+  if (animationId.value) {
+    cancelAnimationFrame(animationId.value)
+    animationId.value = null
+  }
+  
+  isDragging.value = true
+  startPosition.value = e.touches[0].clientX
+  previousTranslate.value = currentTranslate.value
+  
+  // Remover transición durante el arrastre
+  if (track.value) {
+    track.value.style.transition = 'none'
+  }
 }
 
 function onTouchMove(e) {
-  if (!isMobile.value) return
-  touchDeltaX = e.touches[0].clientX - touchStartX
-  const base = -currentSlide.value * cardWidth
+  if (!isMobile.value || !isDragging.value) return
+  
+  const currentPosition = e.touches[0].clientX
+  const diff = currentPosition - startPosition.value
+  
+  // Calcular nueva posición con límites suaves
+  let newTranslate = previousTranslate.value + diff
+  
+  // Añadir resistencia en los bordes
+  if (currentSlide.value === 0 && diff > 0) {
+    // Primera card, arrastrando a la derecha - resistencia
+    newTranslate = previousTranslate.value + (diff * 0.3)
+  } else if (currentSlide.value === pieces.value.length - 1 && diff < 0) {
+    // Última card, arrastrando a la izquierda - resistencia
+    newTranslate = previousTranslate.value + (diff * 0.3)
+  }
+  
+  currentTranslate.value = newTranslate
+  
   if (track.value) {
-    track.value.style.transform = `translateX(${base + touchDeltaX}px)`
+    track.value.style.transform = `translateX(${newTranslate}px)`
   }
 }
 
 function onTouchEnd() {
-  if (!isMobile.value) return
-  if (touchDeltaX < -50) goTo(currentSlide.value + 1)
-  else if (touchDeltaX > 50) goTo(currentSlide.value - 1)
-  else goTo(currentSlide.value)
+  if (!isMobile.value || !isDragging.value) return
+  
+  // Restaurar transición
+  if (track.value) {
+    track.value.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+  }
+  
+  // Usar requestAnimationFrame para una animación suave
+  animationId.value = requestAnimationFrame(animation)
 }
 
 // ── Resize observer ─────────────────────────────────────────────────────────
 let ro = null
+let resizeObserver = null
 
 onMounted(() => {
   const check = () => {
     isMobile.value = window.innerWidth < 768
+    updateCardWidth()
+    
     if (!isMobile.value && track.value) {
       track.value.style.transform = ''
+      track.value.style.transition = ''
+    } else if (isMobile.value) {
+      setSliderPosition()
     }
   }
 
   check()
-  ro = new ResizeObserver(check)
+  
+  ro = new ResizeObserver(() => {
+    updateCardWidth()
+    if (isMobile.value) {
+      setSliderPosition()
+    }
+  })
   ro.observe(document.body)
+  
+  // Observar cambios en el track para actualizar ancho
+  if (track.value) {
+    resizeObserver = new ResizeObserver(() => {
+      updateCardWidth()
+      if (isMobile.value) {
+        setSliderPosition()
+      }
+    })
+    resizeObserver.observe(track.value)
+  }
 })
 
 onBeforeUnmount(() => {
   if (ro) ro.disconnect()
+  if (resizeObserver) resizeObserver.disconnect()
+  if (animationId.value) {
+    cancelAnimationFrame(animationId.value)
+  }
 })
 
+const cartStore = useCartStore()
 
-function handleAdd() {
-  if (props.product.quantity === 0) return
+function handleAdd(piece) {
+  if (piece.quantity === 0) return
   
-  // Usar el store para agregar al carrito
-  // La estructura esperada por el store es { piece: { id, slug, title, thumbnail_path, final_price_base }, quantity }
   cartStore.addItem({
-    id: props.product.id,
-    slug: props.product.slug,
-    title: props.product.title,
-    thumbnail_path: props.product.thumbnail_path,
-    final_price_base: props.product.final_price_base
+    id: piece.id,
+    slug: piece.slug,
+    title: piece.title,
+    thumbnail_path: piece.thumbnail_path,
+    final_price_base: piece.final_price_base
   }, 1)
-  
-  // Opcional: emitir un evento para notificar al padre (ej. para mostrar toast)
-  // emit('added-to-cart', props.product)
+
+  cartStore.openCart()
 }
-
 </script>
-
 
 <style scoped>
 /* ── Section ──────────────────────────────────────────────────────────────── */
@@ -245,7 +354,8 @@ function handleAdd() {
   background: var(--color-background);
   padding: 24px;
   box-sizing: border-box;
-  font-family:   serif;
+  font-family: serif;
+  overflow-x: hidden;
 }
 
 /* ── Desktop grid ─────────────────────────────────────────────────────────── */
@@ -255,11 +365,13 @@ function handleAdd() {
   gap: 16px;
   max-width: 1500px;
   margin: 0 auto;
+  overflow-x: hidden;
 }
 
 /* ── Cards wrapper ────────────────────────────────────────────────────────── */
 .cards-wrapper {
   overflow: hidden;
+  min-width: 0;
 }
 
 .cards-track {
@@ -280,32 +392,26 @@ function handleAdd() {
   flex-direction: column;
   gap: 12px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  cursor: pointer;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 0;
+  overflow: hidden;
 }
 
 .card:hover {
-  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
 }
 
-/* Badge */
-.badge {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  background: var(--orange-soft);
-  color: #3a3530;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  padding: 4px 10px;
-  border-radius: 999px;
-  z-index: 2;
-  font-family: 'COM4DL';
+/* Efecto de zoom en la imagen al hacer hover */
+.card:hover .card-img:not(.img-hidden) {
+  transform: scale(1.08);
 }
 
-/* Media */
+.card:hover .card-video {
+  transform: scale(1.08);
+}
+
+/* Media wrapper con overflow hidden para el zoom */
 .card-media {
   position: relative;
   width: 100%;
@@ -322,7 +428,7 @@ function handleAdd() {
   height: 100%;
   object-fit: cover;
   border-radius: 10px;
-  transition: opacity 0.35s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-img {
@@ -331,9 +437,8 @@ function handleAdd() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Elimina object-position de aquí porque se aplica inline */
   border-radius: 10px;
-  transition: opacity 0.35s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-img {
@@ -350,6 +455,22 @@ function handleAdd() {
 
 .card-video.video-visible {
   opacity: 1;
+}
+
+/* Badge */
+.badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: var(--orange-soft);
+  color: #3a3530;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  z-index: 2;
+  font-family: 'COM4DL';
 }
 
 /* Info */
@@ -410,7 +531,7 @@ function handleAdd() {
   font-style: italic;
 }
 
-/* Add button */
+/* Add button - Estilos normales */
 .btn-add {
   display: flex;
   align-items: center;
@@ -426,14 +547,35 @@ function handleAdd() {
   cursor: pointer;
   white-space: nowrap;
   font-family: serif;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
-.btn-add:hover {
+.btn-add:hover:not(:disabled) {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: #fff;
+  transform: scale(1.05);
+}
+
+/* Estilos para botón deshabilitado */
+.btn-add:disabled,
+.btn-add.btn-disabled {
+  opacity: 0.5;
+  background: #f5f5f5;
+  border-color: #e0e0e0;
+  color: #999;
+  transform: none;
+  cursor: default;
+}
+
+.btn-add:disabled:hover,
+.btn-add.btn-disabled:hover {
+  background: #f5f5f5;
+  border-color: #e0e0e0;
+  color: #999;
+  transform: none;
+  cursor: default;
 }
 
 /* ── Hero panel ───────────────────────────────────────────────────────────── */
@@ -514,12 +656,14 @@ function handleAdd() {
 @media (max-width: 767px) {
   .highlighted {
     padding: 0;
+    overflow-x: hidden;
   }
 
   .hl-grid {
     display: flex;
     flex-direction: column-reverse;
     gap: 0;
+    overflow-x: hidden;
   }
 
   /* Hero takes full width on mobile */
@@ -529,32 +673,43 @@ function handleAdd() {
     min-height: 56vw;
   }
 
-  /* Cards become horizontal scroll carousel */
+  /* Cards become horizontal carousel - Instagram Stories style */
   .cards-wrapper {
     padding: 20px 20px 16px;
     overflow: hidden;
+    position: relative;
   }
 
   .cards-track {
     display: flex;
     gap: 16px;
-    /* remove grid, flex row */
     grid-template-columns: unset;
+    width: 100%;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: grab;
+    touch-action: pan-y pinch-zoom;
+  }
+  
+  .cards-track:active {
+    cursor: grabbing;
   }
 
   .card {
-    min-width: calc(80vw - 40px);
+    min-width: calc(100% - 0px);
     flex-shrink: 0;
+    flex-grow: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .carousel-dots {
     display: flex;
+    margin-top: 20px;
   }
 }
 
 @media (max-width: 480px) {
   .card {
-    min-width: calc(88vw - 40px);
+    min-width: 100%;
   }
 }
 </style>
