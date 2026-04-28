@@ -398,8 +398,8 @@ function handleAdd() {
 }
 
 .card-name {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #1c1a17;
   letter-spacing: 0.04em;
   margin: 0;

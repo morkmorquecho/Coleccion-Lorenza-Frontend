@@ -354,7 +354,6 @@ function handleAdd(piece) {
   background: var(--color-background);
   padding: 24px;
   box-sizing: border-box;
-  font-family: serif;
   overflow-x: hidden;
 }
 
@@ -491,7 +490,7 @@ function handleAdd(piece) {
   font-size: 13px;
   color: #999;
   text-decoration: line-through;
-  font-family: serif;
+  font-family: 'COM4DL';
 }
 
 .price-new {

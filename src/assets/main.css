@@ -3,6 +3,7 @@
    ============================================ */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400');
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap');
 
 /* ============================================
    2. FUENTES LOCALES (Local Fonts)
@@ -53,7 +54,6 @@ html {
 }
 
 body {
-  /* TOMAMOS UNA SOLA DECISIÓN - no ambas */
   font-family: 'Georgia', serif, 'Cormorant Garamond';
   font-weight: 400;
   
@@ -68,6 +68,10 @@ body {
 
 span{
     font-family: 'Georgia', serif, 'Cormorant Garamond';
+}
+
+.font-prices {
+  font-family: 'DM Serif Display';
 }
 
 /* ============================================

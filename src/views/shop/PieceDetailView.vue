@@ -139,10 +139,10 @@
 
         <!-- Price -->
         <div class="price-container">
-          <span v-if="pieceDetail.has_discount" class="original-price">
+          <span v-if="pieceDetail.has_discount" class="original-price font-prices">
             ${{ formatPrice(pieceDetail.original_price_base) }} MXN
           </span>
-          <span class="final-price" :class="{ 'has-discount': pieceDetail.has_discount }">
+          <span class="final-price font-prices" :class="{ 'has-discount': pieceDetail.has_discount }">
             ${{ formatPrice(pieceDetail.final_price_base) }} MXN
           </span>
           <span v-if="pieceDetail.has_discount" class="discount-badge">

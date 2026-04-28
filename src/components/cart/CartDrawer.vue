@@ -24,10 +24,6 @@ const formatPrice = (price) => {
   }).format(price)
 }
 
-const handleCheckout = () => {
-  // Aquí iría la lógica de checkout
-  console.log('Checkout payload:', cart.toCheckoutPayload())
-}
 </script>
 
 <template>
@@ -120,7 +116,7 @@ const handleCheckout = () => {
             <div class="flex-1 flex flex-col justify-between min-w-0">
               <div>
                 <h3 class="text-sm font-medium text-neutral-900 truncate">{{ item.piece.title }}</h3>
-                <p class="text-sm text-neutral-500 mt-0.5">{{ formatPrice(item.piece.final_price_base) }}</p>
+                <p class="text-sm text-neutral-500 mt-0.5 font-prices">{{ formatPrice(item.piece.final_price_base) }}</p>
               </div>
 
               <!-- Quantity Controls -->
@@ -168,8 +164,8 @@ const handleCheckout = () => {
         <!-- Summary -->
         <div class="space-y-3 mb-5">
           <div class="flex items-center justify-between text-sm">
-            <span class="text-neutral-500">Subtotal</span>
-            <span class="text-neutral-900">{{ formattedTotal }}</span>
+            <span class="text-neutral-500 ">Subtotal</span>
+            <span class="text-neutral-900 font-prices">{{ formattedTotal }}</span>
           </div>
           <div class="flex items-center justify-between text-sm">
             <span class="text-neutral-500">Envío</span>
@@ -178,20 +174,24 @@ const handleCheckout = () => {
           <div class="h-px bg-neutral-200"></div>
           <div class="flex items-center justify-between">
             <span class="text-neutral-900 font-medium">Total</span>
-            <span class="text-lg font-medium text-neutral-900">{{ formattedTotal }}</span>
+            <span class="text-xl font-medium text-neutral-900 font-prices">{{ formattedTotal }}</span>
           </div>
         </div>
 
         <!-- Checkout Button -->
-        <button
-          @click="handleCheckout"
-          class="checkout-btn w-full py-4 bg-[#dd4b24] text-white text-sm font-medium uppercase tracking-wider rounded-full hover:bg-[#c43d1a] transition-all duration-300 flex items-center justify-center gap-2"
+        <RouterLink
+          :to="{name:'Checkout'}"
         >
-          <span>Proceder al pago</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-          </svg>
-        </button>
+          <button
+            @click="closeCart"
+            class="checkout-btn w-full py-4 bg-[#dd4b24] text-white text-sm font-medium uppercase tracking-wider rounded-full hover:bg-[#c43d1a] transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            <span>Proceder al pago</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </RouterLink>
 
         <!-- Continue Shopping -->
         <button

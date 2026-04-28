@@ -138,14 +138,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@font-face {
-  font-family: 'COM4DL';
-  src: url('/fonts/COM4DL__.TTF') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* ─── Variables ─────────────────────────────────────────── */
 .footer {
   --orange:      #c94f2c;

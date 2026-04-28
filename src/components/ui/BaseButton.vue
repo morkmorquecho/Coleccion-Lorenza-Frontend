@@ -1,7 +1,7 @@
 <template>
   <button 
     :class="[
-      'base-btn',
+      'base-btn rounded-full',
       `base-btn--${variant}`,
       `base-btn--${size}`,
       { 'base-btn--hover': isHovered },
@@ -125,21 +125,18 @@ const handleClick = (event) => {
 .base-btn--small {
   padding: 0.45rem 0.9rem;
   font-size: 0.82rem;
-  border-radius: 0.6rem;
 }
 
 /* XSmall (para acciones dentro de tarjetas) */
 .base-btn--xsmall {
   padding: 0.35rem 0.7rem;
   font-size: 0.8rem;
-  border-radius: 0.6rem;
 }
 
 /* Medium (default) */
 .base-btn--medium {
   padding: 0.6rem 1.2rem;
   font-size: 0.88rem;
-  border-radius: 0.6rem;
 }
 
 /* === DISABLED === */

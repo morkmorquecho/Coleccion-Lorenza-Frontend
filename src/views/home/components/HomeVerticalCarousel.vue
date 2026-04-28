@@ -135,7 +135,7 @@ export default {
   props: {
     slides: { type: Array,  required: true },
     delay:  { type: Number, default: 0 },
-    phrase: { type: String, default: 'ARTE' },
+    phrase: { type: String, default: 'ARTE MEXICANO EN PAPEL' },
   },
 
   data() {
@@ -342,6 +342,7 @@ export default {
   transition:
     transform 0.7s var(--ease-out) calc(0.22s + var(--wi) * 0.09s),
     opacity   0.4s var(--ease-out) calc(0.22s + var(--wi) * 0.09s);
+  font-family: serif;
 }
 
 .slide__title.is-visible .title__word {
@@ -354,7 +355,6 @@ export default {
   line-height: 1.65;
   color: var(--clr-muted);
   max-width: 420px;
-  font-family: 'Principal', 'Helvetica Neue', sans-serif;
   opacity: 0;
   transform: translateY(12px);
   transition:
@@ -382,7 +382,7 @@ export default {
   text-decoration: none;
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(10px);
-  font-family: 'Principal', 'Helvetica Neue', sans-serif;
+  font-family: 'Helvetica Neue', sans-serif;
   opacity: 0;
   transform: translateY(12px);
   transition:
@@ -540,7 +540,7 @@ export default {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  font-family: 'Principal', 'Helvetica Neue', sans-serif;
+  font-family: 'Helvetica Neue', sans-serif;
 }
 
 .idx-wrap {
