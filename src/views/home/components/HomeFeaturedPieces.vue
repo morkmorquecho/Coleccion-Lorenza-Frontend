@@ -25,33 +25,33 @@
 
             <!-- media wrapper: image + video -->
             <RouterLink :to="{ name: 'PieceDetail', params: { slug: piece.slug } }">
-            <div class="card-media"
-              @mouseenter="onCardEnter(i)"
-              @mouseleave="onCardLeave(i)"
-            >
-              <img
-                :src="piece.thumbnail_path"
-                :alt="piece.title"
-                class="card-img"
-                :class="{ 'img-hidden': hoveredIndex === i && piece.intro_video }"
-                :style="{
-                  objectPosition: getImageFocalPoint(piece),
-                  objectFit: 'cover'
-                }"
-              />
-              <video
-                v-if="piece.intro_video && piece.intro_video.trim() !== ''"
-                :ref="el => { if(el) videoRefs[i] = el }"
-                :src="piece.intro_video"
-                class="card-video"
-                :class="{ 'video-visible': hoveredIndex === i }"
-                muted
-                loop
-                playsinline
-                preload="none"
-              />
-            </div>
-          </RouterLink>
+              <div class="card-media"
+                @mouseenter="onCardEnter(i)"
+                @mouseleave="onCardLeave(i)"
+              >
+                <img
+                  :src="piece.thumbnail_path"
+                  :alt="piece.title"
+                  class="card-img"
+                  :class="{ 'img-hidden': hoveredIndex === i && piece.intro_video }"
+                  :style="{
+                    objectPosition: getImageFocalPoint(piece),
+                    objectFit: 'cover'
+                  }"
+                />
+                <video
+                  v-if="piece.intro_video && piece.intro_video.trim() !== ''"
+                  :ref="el => { if(el) videoRefs[i] = el }"
+                  :src="piece.intro_video"
+                  class="card-video"
+                  :class="{ 'video-visible': hoveredIndex === i }"
+                  muted
+                  loop
+                  playsinline
+                  preload="none"
+                />
+              </div>
+            </RouterLink>
 
             <div class="card-info">
               <div class="card-prices">
@@ -66,11 +66,11 @@
                   <p class="card-name">{{ piece.title }}</p>
                   <p class="card-color">{{ piece.section }}</p>
                 </div>
-                  <button
-                    class="btn-add"
-                    :class="{ 'btn-disabled': piece.quantity === 0 }"
-                    :disabled="piece.quantity === 0"
-                    @click.stop="handleAdd(piece)" 
+                <button
+                  class="btn-add"
+                  :class="{ 'btn-disabled': piece.quantity === 0 }"
+                  :disabled="piece.quantity === 0"
+                  @click.stop="handleAdd(piece)" 
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
@@ -101,7 +101,8 @@
         <img src="/img/alebrijes/foto.jpg" alt="Women's Sale" class="hero-img" />
         <div class="hero-overlay">
           <h2 class="hero-title">Decora tu hogar con identidad</h2>
-          <p class="hero-sub">Piezas con esencia mexicana que cuentan una historia.</p>        </div>
+          <p class="hero-sub">Piezas con esencia mexicana que cuentan una historia.</p>
+        </div>
       </div>
 
     </div>
@@ -121,6 +122,7 @@ onMounted(async () => {
   pieces.value = res.results
   await nextTick()
   updateCardWidth()
+  updateCarouselPosition()
 })
 
 function getImageFocalPoint(piece) {
@@ -162,83 +164,50 @@ function onCardLeave(i) {
 // ── Mobile carousel (Instagram Stories style) ──────────────────────────────
 const track = ref(null)
 const currentSlide = ref(0)
+const startX = ref(0)
+const currentX = ref(0)
 const isDragging = ref(false)
-const startPosition = ref(0)
-const currentTranslate = ref(0)
-const previousTranslate = ref(0)
-const animationId = ref(null)
 const cardWidth = ref(0)
 
 function updateCardWidth() {
-  if (!track.value) return
-  const card = track.value.querySelector('.card')
-  if (card) {
-    // Obtener el ancho incluyendo el gap
-    const cardRect = card.getBoundingClientRect()
-    const trackChildren = track.value.children
-    if (trackChildren.length > 0) {
-      // Calcular el gap del CSS
-      const trackStyle = window.getComputedStyle(track.value)
-      const gap = parseInt(trackStyle.gap) || 16
-      cardWidth.value = cardRect.width + gap
-    }
+  if (!track.value || !isMobile.value) return
+  
+  // Obtener el primer card para calcular el ancho real
+  const firstCard = track.value.querySelector('.card')
+  if (firstCard) {
+    // Obtener el estilo computado del track para el gap
+    const trackStyle = window.getComputedStyle(track.value)
+    const gap = parseInt(trackStyle.gap) || 16
+    
+    // Ancho total del card incluyendo márgenes
+    const cardRect = firstCard.getBoundingClientRect()
+    cardWidth.value = cardRect.width + gap
+    
+    // Actualizar posición después de cambiar el ancho
+    updateCarouselPosition()
   }
 }
 
-function setSliderPosition() {
-  if (!track.value) return
-  const position = -currentSlide.value * cardWidth.value
-  currentTranslate.value = position
-  previousTranslate.value = position
-  track.value.style.transform = `translateX(${position}px)`
+function updateCarouselPosition() {
+  if (!track.value || !isMobile.value) return
+  const newPosition = -currentSlide.value * cardWidth.value
+  track.value.style.transform = `translateX(${newPosition}px)`
 }
 
 function goTo(index) {
+  if (!isMobile.value) return
   if (index === currentSlide.value) return
+  
   currentSlide.value = Math.max(0, Math.min(index, pieces.value.length - 1))
-  setSliderPosition()
-}
-
-function animation() {
-  if (!isDragging.value) return
-  
-  const movedBy = currentTranslate.value - previousTranslate.value
-  
-  // Calcular el cambio de slide basado en el movimiento
-  const threshold = cardWidth.value * 0.3 // 30% del ancho de la card
-  
-  if (movedBy < -threshold) {
-    // Swipe hacia la izquierda - siguiente slide
-    goTo(currentSlide.value + 1)
-    isDragging.value = false
-  } else if (movedBy > threshold) {
-    // Swipe hacia la derecha - slide anterior
-    goTo(currentSlide.value - 1)
-    isDragging.value = false
-  } else {
-    // Volver a la posición original
-    setSliderPosition()
-    isDragging.value = false
-  }
-  
-  if (animationId.value) {
-    cancelAnimationFrame(animationId.value)
-    animationId.value = null
-  }
+  updateCarouselPosition()
 }
 
 function onTouchStart(e) {
   if (!isMobile.value) return
   
-  // Cancelar cualquier animación pendiente
-  if (animationId.value) {
-    cancelAnimationFrame(animationId.value)
-    animationId.value = null
-  }
-  
   isDragging.value = true
-  startPosition.value = e.touches[0].clientX
-  previousTranslate.value = currentTranslate.value
+  startX.value = e.touches[0].clientX
+  currentX.value = startX.value
   
   // Remover transición durante el arrastre
   if (track.value) {
@@ -249,22 +218,18 @@ function onTouchStart(e) {
 function onTouchMove(e) {
   if (!isMobile.value || !isDragging.value) return
   
-  const currentPosition = e.touches[0].clientX
-  const diff = currentPosition - startPosition.value
+  currentX.value = e.touches[0].clientX
+  const diff = currentX.value - startX.value
   
-  // Calcular nueva posición con límites suaves
-  let newTranslate = previousTranslate.value + diff
+  // Calcular nueva posición
+  let newTranslate = -currentSlide.value * cardWidth.value + diff
   
   // Añadir resistencia en los bordes
   if (currentSlide.value === 0 && diff > 0) {
-    // Primera card, arrastrando a la derecha - resistencia
-    newTranslate = previousTranslate.value + (diff * 0.3)
+    newTranslate = -currentSlide.value * cardWidth.value + (diff * 0.3)
   } else if (currentSlide.value === pieces.value.length - 1 && diff < 0) {
-    // Última card, arrastrando a la izquierda - resistencia
-    newTranslate = previousTranslate.value + (diff * 0.3)
+    newTranslate = -currentSlide.value * cardWidth.value + (diff * 0.3)
   }
-  
-  currentTranslate.value = newTranslate
   
   if (track.value) {
     track.value.style.transform = `translateX(${newTranslate}px)`
@@ -274,48 +239,69 @@ function onTouchMove(e) {
 function onTouchEnd() {
   if (!isMobile.value || !isDragging.value) return
   
+  isDragging.value = false
+  const diff = currentX.value - startX.value
+  const threshold = cardWidth.value * 0.25 // 25% del ancho para cambiar de slide
+  
   // Restaurar transición
   if (track.value) {
     track.value.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   }
   
-  // Usar requestAnimationFrame para una animación suave
-  animationId.value = requestAnimationFrame(animation)
+  // Determinar si debemos cambiar de slide
+  if (Math.abs(diff) > threshold) {
+    if (diff < 0 && currentSlide.value < pieces.value.length - 1) {
+      // Swipe izquierda - siguiente
+      goTo(currentSlide.value + 1)
+    } else if (diff > 0 && currentSlide.value > 0) {
+      // Swipe derecha - anterior
+      goTo(currentSlide.value - 1)
+    } else {
+      // Volver al slide actual
+      updateCarouselPosition()
+    }
+  } else {
+    // Volver al slide actual
+    updateCarouselPosition()
+  }
 }
 
 // ── Resize observer ─────────────────────────────────────────────────────────
-let ro = null
 let resizeObserver = null
 
 onMounted(() => {
-  const check = () => {
+  const checkAndUpdate = () => {
+    const wasMobile = isMobile.value
     isMobile.value = window.innerWidth < 768
-    updateCardWidth()
     
-    if (!isMobile.value && track.value) {
-      track.value.style.transform = ''
-      track.value.style.transition = ''
+    // Resetear posición si cambiamos de desktop a mobile
+    if (!wasMobile && isMobile.value) {
+      currentSlide.value = 0
+      if (track.value) {
+        track.value.style.transform = ''
+      }
+      updateCardWidth()
+    } else if (wasMobile && !isMobile.value) {
+      // Resetear estilos al volver a desktop
+      if (track.value) {
+        track.value.style.transform = ''
+        track.value.style.transition = ''
+      }
     } else if (isMobile.value) {
-      setSliderPosition()
+      updateCardWidth()
     }
   }
 
-  check()
+  checkAndUpdate()
   
-  ro = new ResizeObserver(() => {
-    updateCardWidth()
-    if (isMobile.value) {
-      setSliderPosition()
-    }
-  })
-  ro.observe(document.body)
+  // Observar cambios de tamaño
+  window.addEventListener('resize', checkAndUpdate)
   
-  // Observar cambios en el track para actualizar ancho
+  // Observar cambios en el track y sus hijos
   if (track.value) {
     resizeObserver = new ResizeObserver(() => {
-      updateCardWidth()
       if (isMobile.value) {
-        setSliderPosition()
+        updateCardWidth()
       }
     })
     resizeObserver.observe(track.value)
@@ -323,10 +309,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  if (ro) ro.disconnect()
-  if (resizeObserver) resizeObserver.disconnect()
-  if (animationId.value) {
-    cancelAnimationFrame(animationId.value)
+  window.removeEventListener('resize', checkAndUpdate)
+  if (resizeObserver) {
+    resizeObserver.disconnect()
   }
 })
 
@@ -379,6 +364,7 @@ function handleAdd(piece) {
   gap: 16px;
   transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
+  padding: 1.5em;
 }
 
 /* ── Single card ──────────────────────────────────────────────────────────── */
@@ -583,6 +569,9 @@ function handleAdd(piece) {
   border-radius: 16px;
   overflow: hidden;
   min-height: 400px;
+  width: 98%;
+  height: 93%;
+  margin-top: 1.7rem;
 }
 
 .hero-img {
@@ -687,6 +676,7 @@ function handleAdd(piece) {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: grab;
     touch-action: pan-y pinch-zoom;
+    padding: 0;
   }
   
   .cards-track:active {

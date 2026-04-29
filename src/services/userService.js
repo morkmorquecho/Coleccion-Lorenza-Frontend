@@ -4,8 +4,8 @@ import api from './api'
 const userService = {
 
   // ── DIRECCIONES ──
-  getAddresses() {
-    return api.get('/users/me/addresses/')
+  getAddresses(params = {}) {
+    return api.get('/users/me/addresses/', {params})
   },
 
   getAddress(id) {

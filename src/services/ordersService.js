@@ -19,6 +19,10 @@ const ordersService = {
     return api.post(`/orders/${id}/cancel/`)
   },
 
+  consultCoupon(params) {
+    return api.get('orders/coupons/validate/', { params })
+  },
+  
   // ── CHECKOUT ──
   checkout(data) {
     // data viene directo de cartStore.toCheckoutPayload() + dirección + método de pago

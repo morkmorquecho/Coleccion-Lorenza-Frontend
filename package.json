@@ -10,7 +10,7 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
-    "@stripe/stripe-js": "^8.9.0",
+    "@stripe/stripe-js": "^8.11.0",
     "@tsparticles/engine": "^3.9.1",
     "@vee-validate/rules": "^4.15.1",
     "aos": "^2.3.4",

@@ -69,7 +69,10 @@ function createApiError(responseData) {
   const context = normalizeFieldErrors(rawContext)
   const type     = resolveErrorType(context)
 
-  const error      = new Error(responseData.message || 'Error inesperado')
+  const detail  = rawContext?.detail ?? null                              // ← extrae detail
+  const message = responseData.message || detail || 'Error inesperado'   // ← lo usa como fallback
+
+  const error      = new Error(message)
   error.errors     = responseData.errors
   error.context    = context
   error.code_error = responseData.errors?.code_error || null

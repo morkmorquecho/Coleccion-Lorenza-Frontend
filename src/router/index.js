@@ -165,29 +165,38 @@ const routes = [
     ],
   },
 
-  // // ════════════════════════════════════════
-  // // CHECKOUT — requiere login, layout limpio
-  // // ════════════════════════════════════════
-  // {
-  //   path: '/checkout',
-  //   component: () => import('@/layouts/CheckoutLayout.vue'),
-  //   meta: { requiresAuth: true, layout: 'checkout' },
-  //   children: [
-  //     {
-  //       path: '',
-  //       name: 'Checkout',
-  //       component: () => import('@/views/checkout/Checkout.vue'),
-  //       // POST /api/v1/orders/checkout/ → { address, payment_method, items, coupon_code }
-  //       // Retorna client_secret de Stripe
-  //     },
-  //     {
-  //       path: 'exito',
-  //       name: 'CheckoutSuccess',
-  //       component: () => import('@/views/checkout/CheckoutSuccess.vue'),
-  //       // Stripe redirige aquí cuando el pago es exitoso
-  //     },
-  //   ]
-  // },
+  // ════════════════════════════════════════
+  // CHECKOUT — requiere login, layout limpio
+  // ════════════════════════════════════════
+  {
+    path: '/checkout',
+    component: () => import('@/layouts/CheckoutLayout.vue'),
+    meta: { requiresAuth: true, layout: 'checkout' },
+    children: [
+      {
+        path: '',
+        name: 'Checkout',
+        component: () => import('@/views/checkout/CheckoutView.vue'),
+        props: true
+        // POST /api/v1/orders/checkout/ → { address, payment_method, items, coupon_code }
+        // Retorna client_secret de Stripe
+      },
+      {
+        path: 'exito/:orderId',
+        name: 'CheckoutSuccess',
+        component: () => import('@/views/checkout/CheckoutSuccessView.vue'),
+        props: true
+        // Stripe redirige aquí cuando el pago es exitoso
+      },
+      {
+        path: 'pendiente/:orderId',
+        name: 'CheckoutPending',
+        component: () => import('@/views/checkout/CheckoutPendingView.vue'),
+        props: true
+        // Stripe redirige aquí cuando el pago es exitoso
+      },
+    ]
+  },
 
   // // ════════════════════════════════════════
   // // 404
