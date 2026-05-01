@@ -41,11 +41,6 @@ const props = defineProps({
     type: Number,
     default: 2000
   },
-  // Ruta del archivo Lottie
-  animationPath: {
-    type: String,
-    required: true
-  },
   // Velocidad de la animación
   speed: {
     type: Number,
