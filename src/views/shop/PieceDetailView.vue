@@ -1,5 +1,13 @@
 <template>
-  <div class="piece-detail" v-if="pieceDetail">
+  <div class="piece-detail" >
+    <LoadingOverlay 
+      :loading="isLoading"
+      :min-display-time="2000"
+      animation-path="/animations/loader.json"
+      :speed="1"
+      :show-message="true"
+      @loading-complete="onLoadingComplete"
+    >
     <div class="detail-container">
       <!-- Left: Gallery Section -->
       <div class="gallery-section">
@@ -156,10 +164,10 @@
           <p class="description-text">{{ pieceDetail.description }}</p>
         </div>
 
-        <!-- Specifications -->
+        <!-- Specifications - Now with exactly 3 items -->
         <div class="specs-block">
           <h3 class="section-title">Specifications</h3>
-          <div class="specs-grid">
+          <div class="specs-grid-three">
             <div class="spec-item">
               <span class="spec-label">Width</span>
               <span class="spec-value">{{ pieceDetail.width }} cm</span>
@@ -171,10 +179,6 @@
             <div class="spec-item">
               <span class="spec-label">Length</span>
               <span class="spec-value">{{ pieceDetail.length }} cm</span>
-            </div>
-            <div class="spec-item">
-              <span class="spec-label">Weight</span>
-              <span class="spec-value">{{ pieceDetail.weight }} kg</span>
             </div>
           </div>
         </div>
@@ -196,7 +200,6 @@
             :disabled="pieceDetail.quantity === 0"
             @click.stop="handleAdd"
           >
-
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
@@ -219,11 +222,7 @@
       </div>
     </div>
 
-    <!-- Thumbnails Horizontal para Mobile -->
-   
-  </div>
-  <div v-else class="loading">
-    Cargando...
+    </LoadingOverlay>
   </div>
 </template>
 
@@ -234,6 +233,7 @@ import { useRoute } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
 import { useCurrency } from '@/composables/useCurrency'
+import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
 
 const { formatPrice } = useCurrency()
 
@@ -241,11 +241,29 @@ const currencyStore = useCurrencyStore()
 const pieceDetail = ref(null)
 const photos = ref(null)
 const route = useRoute()
+const isLoading = ref(true) 
+
+const loadPieceData = async () => {
+  try {
+    isLoading.value = true
+    
+    // Cargar ambos en paralelo
+    const [piece, photosResponse] = await Promise.all([
+      piecesService.getPiece(route.params.slug),
+      piecesService.getPhotos(route.params.slug)
+    ])
+    
+    pieceDetail.value = piece
+    photos.value = photosResponse.results
+  } catch (error) {
+    console.error('Error loading piece details:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 onMounted(async () => {
-  pieceDetail.value = await piecesService.getPiece(route.params.slug)
-  const response = await piecesService.getPhotos(route.params.slug)
-  photos.value = response.results
+  await loadPieceData()
 })
 
 const galleryItems = computed(() => {
@@ -373,7 +391,6 @@ function handleTouchEnd() {
   touchEndX = 0
 }
 
-
 const cartStore = useCartStore()
 
 function handleAdd() {
@@ -391,8 +408,11 @@ function handleAdd() {
   // ABRIR EL CARRITO AUTOMÁTICAMENTE
   cartStore.openCart()
 }
-</script>
 
+function onLoadingComplete() {
+  console.log('Loading completed')
+}
+</script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
@@ -618,7 +638,7 @@ function handleAdd() {
 .arrow-circle {
   width: 56px;
   height: 56px;
-  background:var(--color-primary);
+  background: var(--color-primary);
   backdrop-filter: blur(8px);
   border-radius: 50%;
   display: flex;
@@ -803,15 +823,15 @@ function handleAdd() {
   margin: 0;
 }
 
-/* Specifications */
+/* Specifications - Grid for exactly 3 items */
 .specs-block {
   padding-top: 0.5rem;
   border-top: 1px solid #e8e2d9;
 }
 
-.specs-grid {
+.specs-grid-three {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
@@ -964,6 +984,10 @@ function handleAdd() {
   color: #8b7355;
 }
 
+.piece-detail :deep(.loading-overlay) {
+  min-height: 70vh;
+}
+
 /* Responsive Styles */
 @media (max-width: 1024px) {
   .piece-detail {
@@ -977,12 +1001,30 @@ function handleAdd() {
   .piece-title {
     font-size: 2.5rem;
   }
+  
+  /* Adjust specs grid for 3 items on tablet */
+  .specs-grid-three {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .spec-item {
+    padding: 0.75rem;
+  }
+  
+  .spec-value {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 768px) {
   .piece-detail {
     padding: 1rem;
     margin-top: 5em;
+  }
+
+  .piece-detail :deep(.loading-overlay) {
+    min-height: 60vh;
   }
   
   .detail-container {
@@ -1022,8 +1064,9 @@ function handleAdd() {
     font-size: 1.5rem;
   }
   
-  .specs-grid {
-    grid-template-columns: 1fr 1fr;
+  /* Stack specs vertically on mobile */
+  .specs-grid-three {
+    grid-template-columns: 1fr;
     gap: 0.75rem;
   }
   
@@ -1047,7 +1090,7 @@ function handleAdd() {
 }
 
 @media (max-width: 480px) {
-  .specs-grid {
+  .specs-grid-three {
     grid-template-columns: 1fr;
   }
   
@@ -1069,22 +1112,21 @@ function handleAdd() {
   }
 }
 
-
 @media (min-width: 769px) {
   .thumbnail-grid-vertical {
-    max-height: 37rem; /* Ajusta este valor según la altura de .main-image-container */
+    max-height: 37rem;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
-    padding-right: 4px; /* Espacio para el scrollbar */
+    padding-right: 4px;
     margin-top: 0.5rem;
-    -ms-overflow-style: none;  /* IE y Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   
   /* Personalizar scrollbar */
   .thumbnail-grid-vertical::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari, Edge */
+    display: none;
     width: 0;
     background: transparent;
   }
@@ -1099,7 +1141,7 @@ function handleAdd() {
     border-radius: 4px;
   }
   
-  /* Asegurar que todos los thumbnails (incluyendo videos) tengan el mismo tamaño */
+  /* Asegurar que todos los thumbnails tengan el mismo tamaño */
   .thumbnail-item-vertical,
   .video-thumb-vertical {
     width: 80px;

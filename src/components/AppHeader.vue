@@ -43,7 +43,7 @@ const startInactivityTimer = () => {
     if (!isHovered.value && !isMenuOpen.value && isVisible.value) {
       isVisible.value = false
     }
-  }, 1700)
+  }, 2500)
 }
 
 const handleScroll = () => {

@@ -180,49 +180,39 @@
     </Transition>
 
     <!-- Products Grid with Loading Animation -->
-    <main class="products-main">
-      <!-- Loading Animation -->
-      <Transition name="fade-transition" mode="out-in">
-        <div v-if="isLoading" key="loading" class="loading-container">
-          <div class="loading-animation">
-            <LottiePlayer 
-              :path="loaderAnimationPath"
-              :autoplay="true"
-              :loop="true"
-              :speed="1"
-            />
+     <main class="products-main">
+      <LoadingOverlay 
+        :loading="isLoading"
+        :min-display-time="3000"
+        :speed="1"
+        :show-message="true"
+        @loading-complete="onLoadingComplete"
+      >
+        <!-- Contenido que se mostrará después de la carga -->
+        <ProductGrid
+          v-if="filteredProducts.length > 0"
+          :products="filteredProducts"
+          :cols="4"
+          :gap="24"
+          @add="onAdd"
+        />
+
+        <!-- Empty state -->
+        <div v-else class="empty-state">
+          <div class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+              <path d="M8 8l6 6"></path>
+            </svg>
           </div>
+          <h3 class="empty-title">No se encontraron piezas</h3>
+          <p class="empty-subtitle">Intenta ajustar los filtros de búsqueda</p>
+          <button @click="clearFilters" class="empty-btn">
+            Ver todas las piezas
+          </button>
         </div>
-
-        <!-- Products Grid -->
-        <div v-else key="content" class="products-grid-wrapper">
-          <Transition name="products-transition">
-            <ProductGrid
-              v-if="filteredProducts.length > 0"
-              :products="filteredProducts"
-              :cols="4"
-              :gap="24"
-              @add="onAdd"
-            />
-
-            <!-- Empty state -->
-            <div v-else class="empty-state">
-              <div class="empty-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.3-4.3"></path>
-                  <path d="M8 8l6 6"></path>
-                </svg>
-              </div>
-              <h3 class="empty-title">No se encontraron piezas</h3>
-              <p class="empty-subtitle">Intenta ajustar los filtros de búsqueda</p>
-              <button @click="clearFilters" class="empty-btn">
-                Ver todas las piezas
-              </button>
-            </div>
-          </Transition>
-        </div>
-      </Transition>
+      </LoadingOverlay>
     </main>
   </div>
 </template>
@@ -231,7 +221,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import ProductGrid from '@/components/products/ProductGrid.vue'
 import piecesService from '@/services/piecesService'
-import LottiePlayer from '@/components/ui/LottiePlayer.vue'
+import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
 
 const products = ref([])
 const sections = ref([])
@@ -240,7 +230,6 @@ const showSortMenu = ref(false)
 const sortWrapper = ref(null)
 const isMobile = ref(false)
 const isLoading = ref(true)
-const loaderAnimationPath = ref('/animations/loader.json')
 
 // Timeout para asegurar que la animación se muestre al menos un tiempo mínimo
 let minimumLoadingTimeout = null
@@ -249,35 +238,38 @@ let dataLoadingPromise = null
 onMounted(async () => {
   // Iniciar carga de datos
   const loadData = async () => {
-    const [piecesRes, sectionsRes, typesRes] = await Promise.all([
-      piecesService.getPieces(),
-      piecesService.getSections(),
-      piecesService.getTypes()
-    ])
-    
-    products.value = piecesRes.results
-    sections.value = sectionsRes.results
-    pieceTypes.value = typesRes.results
+    try {
+      const [piecesRes, sectionsRes, typesRes] = await Promise.all([
+        piecesService.getPieces(),
+        piecesService.getSections(),
+        piecesService.getTypes()
+      ])
+      
+      products.value = piecesRes.results
+      sections.value = sectionsRes.results
+      pieceTypes.value = typesRes.results
+    } catch (error) {
+      console.error('Error loading data:', error)
+    } finally {
+      // Marcar que la carga terminó
+      isLoading.value = false
+    }
   }
   
-  // Crear promesa de carga de datos
-  dataLoadingPromise = loadData()
-  
-  // Crear promesa de tiempo mínimo (500ms para animación fluida)
-  minimumLoadingTimeout = new Promise(resolve => setTimeout(resolve, 500))
-  
-  // Esperar ambas condiciones
-  await Promise.all([dataLoadingPromise, minimumLoadingTimeout])
-  
-  // Pequeño delay adicional para transición suave
-  await nextTick()
-  isLoading.value = false
+  loadData()
   
   // Detectar si es móvil
   checkMobile()
   window.addEventListener('resize', checkMobile)
   document.addEventListener('click', handleClickOutside)
 })
+
+const onLoadingComplete = () => {
+  console.log('Loading animation completed smoothly')
+  // Aquí puedes agregar cualquier lógica adicional después de la transición
+}
+
+
 
 // Limpiar timeouts
 onBeforeUnmount(() => {
@@ -905,7 +897,6 @@ const handleClickOutside = (event) => {
   max-width: 1600px;
   margin: 0 auto;
   min-height: 500px;
-  position: relative;
 }
 
 /* Loading Container */

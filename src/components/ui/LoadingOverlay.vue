@@ -1,3 +1,4 @@
+<!-- components/ui/LoadingOverlay.vue -->
 <template>
   <div class="loading-overlay">
     <Transition name="fade-transition" mode="out-in">
@@ -6,18 +7,19 @@
         v-if="isLoading" 
         key="loading" 
         class="loading-container"
-        :class="{ 'min-time-reached': minTimeReached }"
       >
         <div class="loading-animation">
           <LottiePlayer 
-            :path="animationPath"
+            path="/animations/burro.json"
             :autoplay="true"
             :loop="true"
             :speed="speed"
           />
         </div>
-        <div v-if="showMessage && elapsedTime > 3000" class="loading-message">
-          <p>Cargando piezas únicas...</p>
+
+        <!-- FIX ②⑤: visible desde el inicio, dentro del mismo contenedor que el lottie -->
+        <div v-if="showMessage" class="loading-message">
+          <p>Cargando...</p>
         </div>
       </div>
 
@@ -31,13 +33,13 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import LottiePlayer from '@/components/ui/LottiePlayer.vue'
+import LottiePlayer from './LottiePlayer.vue'
 
 const props = defineProps({
   // Tiempo mínimo en milisegundos que debe durar la animación
   minDisplayTime: {
     type: Number,
-    default: 3000 // 3 segundos
+    default: 2000
   },
   // Ruta del archivo Lottie
   animationPath: {
@@ -49,7 +51,7 @@ const props = defineProps({
     type: Number,
     default: 1
   },
-  // Mostrar mensaje después de cierto tiempo
+  // Mostrar mensaje
   showMessage: {
     type: Boolean,
     default: true
@@ -66,49 +68,24 @@ const emit = defineEmits(['loading-complete'])
 // Estados internos
 const isLoading = ref(true)
 const minTimeReached = ref(false)
-const elapsedTime = ref(0)
 let startTime = null
-let animationFrame = null
 let minTimeTimeout = null
-let loadingCompleteResolver = null
-
-// Controlador para saber si ya se resolvió la carga real
 let actualLoadingComplete = false
 
-// Función para actualizar el tiempo transcurrido
-const updateElapsedTime = () => {
-  if (!startTime) return
-  elapsedTime.value = Date.now() - startTime
-  animationFrame = requestAnimationFrame(updateElapsedTime)
-}
-
-// Función para finalizar la carga
+// FIX ④⑤: sin setTimeout extra, isLoading se apaga directamente
 const finishLoading = () => {
-  // Limpiar timeouts y animation frames
-  if (minTimeTimeout) {
-    clearTimeout(minTimeTimeout)
-  }
-  if (animationFrame) {
-    cancelAnimationFrame(animationFrame)
-  }
-  
-  // Pequeño delay adicional para transición suave
-  setTimeout(() => {
-    isLoading.value = false
-    emit('loading-complete')
-  }, 50)
+  if (minTimeTimeout) clearTimeout(minTimeTimeout)
+  isLoading.value = false
+  emit('loading-complete')
 }
 
 // Observar cambios en la prop loading
 watch(() => props.loading, (newLoading) => {
   if (!newLoading && !actualLoadingComplete) {
     actualLoadingComplete = true
-    
-    // Si ya pasó el tiempo mínimo, terminar inmediatamente
     if (minTimeReached.value) {
       finishLoading()
     }
-    // Si no, esperar a que se cumpla el tiempo mínimo
   }
 })
 
@@ -118,15 +95,9 @@ onMounted(() => {
   actualLoadingComplete = false
   isLoading.value = true
   minTimeReached.value = false
-  
-  // Iniciar contador de tiempo
-  updateElapsedTime()
-  
-  // Configurar timeout para tiempo mínimo
+
   minTimeTimeout = setTimeout(() => {
     minTimeReached.value = true
-    
-    // Si la carga real ya terminó, proceder a finalizar
     if (actualLoadingComplete) {
       finishLoading()
     }
@@ -135,12 +106,7 @@ onMounted(() => {
 
 // Limpiar al desmontar
 onBeforeUnmount(() => {
-  if (minTimeTimeout) {
-    clearTimeout(minTimeTimeout)
-  }
-  if (animationFrame) {
-    cancelAnimationFrame(animationFrame)
-  }
+  if (minTimeTimeout) clearTimeout(minTimeTimeout)
 })
 </script>
 
@@ -151,20 +117,20 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
-/* Fade Transition */
+/* FIX ④: transición más rápida y suave */
 .fade-transition-enter-active,
 .fade-transition-leave-active {
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .fade-transition-enter-from {
   opacity: 0;
-  transform: scale(0.95);
+  transform: translateY(12px);
 }
 
 .fade-transition-leave-to {
   opacity: 0;
-  transform: scale(0.98);
+  transform: translateY(-6px);
 }
 
 /* Loading Container */
@@ -175,58 +141,40 @@ onBeforeUnmount(() => {
   justify-content: center;
   min-height: 500px;
   width: 100%;
-  transition: all 0.3s ease;
 }
 
-.loading-container.min-time-reached {
-  animation: subtlePulse 1s ease-in-out infinite;
-}
-
+/* FIX ③: Lottie más grande */
 .loading-animation {
-  width: 200px;
-  height: 200px;
-  transition: all 0.3s ease;
+  width: 300px;
+  height: 300px;
 }
 
-/* Mensaje que aparece después de 3 segundos */
+/* FIX ②: mensaje visible desde el inicio y más llamativo */
 .loading-message {
-  margin-top: 24px;
+  margin-top: 16px;
   text-align: center;
-  animation: fadeInUp 0.5s ease;
 }
 
 .loading-message p {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1rem;
+  font-size: 1.25rem;
   color: #c4501a;
-  letter-spacing: 0.05em;
-  font-weight: 500;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  text-transform: uppercase;
+  animation: pulse 1.4s ease-in-out infinite;
 }
 
-/* Content State */
 .loading-content {
   width: 100%;
-  animation: contentFadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Animaciones */
-@keyframes subtlePulse {
+@keyframes pulse {
   0%, 100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.85;
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 0.45;
   }
 }
 
@@ -241,15 +189,15 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
+  /* FIX ③ mobile */
   .loading-animation {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
   }
-  
+
   .loading-message p {
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 }
 </style>
