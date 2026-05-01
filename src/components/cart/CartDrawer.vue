@@ -1,14 +1,23 @@
 <script setup>
 import { computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
+import { useCurrencyStore } from '@/stores/currency'
 
 const cart = useCartStore()
 
+const currencyStore = useCurrencyStore()
+
 const formattedTotal = computed(() => {
+  const total = (cart.items || []).reduce((sum, item) =>
+    sum + (item.piece.final_price_base[currencyStore.currency] * item.quantity), 0
+  )
+
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
-    currency: 'MXN'
-  }).format(cart.totalPrice)
+    currency: currencyStore.currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(Math.ceil(total))
 })
 
 
@@ -16,12 +25,11 @@ const closeCart = () => {
   cart.closeCart()
 }
 
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
-    currency: 'MXN'
-  }).format(price)
+    currency: currencyStore.currency
+  }).format(price[currencyStore.currency])
 }
 
 </script>

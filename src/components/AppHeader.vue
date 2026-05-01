@@ -2,8 +2,10 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import CartDrawer from './cart/CartDrawer.vue'
 import { useCartStore } from '@/stores/cart'
+import { useCurrencyStore } from '@/stores/currency'
 
 const cart = useCartStore()
+const currencyStore = useCurrencyStore()
 
 const isMenuOpen = ref(false)
 const isSoundOn = ref(true)
@@ -26,6 +28,10 @@ const toggleSound    = () => { isSoundOn.value  = !isSoundOn.value  }
 const toggleLanguage = () => { isSpanish.value  = !isSpanish.value  }
 const toggleMenu     = () => { isMenuOpen.value = !isMenuOpen.value }
 const closeMenu      = () => { isMenuOpen.value = false }
+
+const toggleCurrency = () => {
+  currencyStore.currency = currencyStore.currency === 'MXN' ? 'USD' : 'MXN'
+}
 
 // Función para iniciar el timer de inactividad
 const startInactivityTimer = () => {
@@ -197,6 +203,14 @@ onUnmounted(() => {
             </svg>
             <span class="text-[9px] font-medium uppercase tracking-[0.2em]">{{ isSpanish ? 'ES' : 'EN' }}</span>
           </button>
+
+          <!-- Currency button in mobile menu -->
+          <button @click="toggleCurrency" class="footer-util flex flex-col items-center gap-2 text-white/80 transition-all duration-300 hover:text-white" aria-label="Cambiar moneda">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-[9px] font-medium uppercase tracking-[0.2em]">{{ currencyStore.currency }}</span>
+          </button>
         </div>
 
         <div class="mt-8 flex items-center gap-3">
@@ -264,6 +278,11 @@ onUnmounted(() => {
 
         <button @click="toggleLanguage" class="action-btn lang-btn" aria-label="Idioma">
           <span>{{ isSpanish ? 'ES' : 'EN' }}</span>
+        </button>
+
+        <!-- Currency switcher button -->
+        <button @click="toggleCurrency" class="action-btn currency-btn" aria-label="Cambiar moneda">
+          <span>{{ currencyStore.currency }}</span>
         </button>
 
         <button @click="cart.openCart" class="action-btn cart-btn" aria-label="Carrito">
@@ -411,7 +430,8 @@ onUnmounted(() => {
 
 .is-floating .nav-item,
 .is-floating .action-btn,
-.is-floating .lang-btn span {
+.is-floating .lang-btn span,
+.is-floating .currency-btn span {
   color: rgba(221, 75, 36, 0.85);
   text-shadow: 
     0 0 20px rgba(255, 255, 255, 0.4),
@@ -452,7 +472,8 @@ onUnmounted(() => {
 }
 
 .is-scrolled .nav-item,
-.is-scrolled .action-btn {
+.is-scrolled .action-btn,
+.is-scrolled .currency-btn span {
   color: rgba(221, 75, 36, 0.6);
   text-shadow: none;
 }
@@ -591,7 +612,7 @@ onUnmounted(() => {
   transform: translateY(-2px);
 }
 
-.lang-btn {
+.lang-btn, .currency-btn {
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.1em;

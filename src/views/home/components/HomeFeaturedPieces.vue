@@ -56,10 +56,10 @@
             <div class="card-info">
               <div class="card-prices">
                 <span
-                  v-if="piece.original_price_base != piece.final_price_base"                
-                  class="price-old">${{ piece.original_price_base }}
+                  v-if="piece.has_discount"                
+                  class="price-old">{{ formatPrice(piece.original_price_base) }}
                 </span>
-                <span class="price-new">${{ piece.final_price_base }}</span>
+                <span class="price-new">{{ formatPrice(piece.final_price_base )}}</span>
               </div>
               <div class="card-bottom">
                 <div class="card-texts">
@@ -114,6 +114,9 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import '../../../assets/main.css'
 import piecesService from '@/services/piecesService'
 import { useCartStore } from '@/stores/cart'
+import { useCurrency } from '@/composables/useCurrency'
+
+const { formatPrice } = useCurrency()
 
 const pieces = ref([])
 
@@ -269,35 +272,30 @@ function onTouchEnd() {
 // ── Resize observer ─────────────────────────────────────────────────────────
 let resizeObserver = null
 
-onMounted(() => {
-  const checkAndUpdate = () => {
-    const wasMobile = isMobile.value
-    isMobile.value = window.innerWidth < 768
-    
-    // Resetear posición si cambiamos de desktop a mobile
-    if (!wasMobile && isMobile.value) {
-      currentSlide.value = 0
-      if (track.value) {
-        track.value.style.transform = ''
-      }
-      updateCardWidth()
-    } else if (wasMobile && !isMobile.value) {
-      // Resetear estilos al volver a desktop
-      if (track.value) {
-        track.value.style.transform = ''
-        track.value.style.transition = ''
-      }
-    } else if (isMobile.value) {
-      updateCardWidth()
+const checkAndUpdate = () => {
+  const wasMobile = isMobile.value
+  isMobile.value = window.innerWidth < 768
+  
+  if (!wasMobile && isMobile.value) {
+    currentSlide.value = 0
+    if (track.value) {
+      track.value.style.transform = ''
     }
+    updateCardWidth()
+  } else if (wasMobile && !isMobile.value) {
+    if (track.value) {
+      track.value.style.transform = ''
+      track.value.style.transition = ''
+    }
+  } else if (isMobile.value) {
+    updateCardWidth()
   }
+}
 
+onMounted(() => {
   checkAndUpdate()
-  
-  // Observar cambios de tamaño
   window.addEventListener('resize', checkAndUpdate)
-  
-  // Observar cambios en el track y sus hijos
+
   if (track.value) {
     resizeObserver = new ResizeObserver(() => {
       if (isMobile.value) {
@@ -305,6 +303,13 @@ onMounted(() => {
       }
     })
     resizeObserver.observe(track.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkAndUpdate)
+  if (resizeObserver) {
+    resizeObserver.disconnect()
   }
 })
 

@@ -140,10 +140,10 @@
         <!-- Price -->
         <div class="price-container">
           <span v-if="pieceDetail.has_discount" class="original-price font-prices">
-            ${{ formatPrice(pieceDetail.original_price_base) }} MXN
+            {{ formatPrice(pieceDetail.original_price_base) }} {{ currencyStore.currency }}
           </span>
           <span class="final-price font-prices" :class="{ 'has-discount': pieceDetail.has_discount }">
-            ${{ formatPrice(pieceDetail.final_price_base) }} MXN
+            {{ formatPrice(pieceDetail.final_price_base) }} {{ currencyStore.currency }}
           </span>
           <span v-if="pieceDetail.has_discount" class="discount-badge">
             -{{ pieceDetail.discount_percentage }}%
@@ -232,7 +232,12 @@ import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import piecesService from '@/services/piecesService'
 import { useRoute } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { useCurrencyStore } from '@/stores/currency'
+import { useCurrency } from '@/composables/useCurrency'
 
+const { formatPrice } = useCurrency()
+
+const currencyStore = useCurrencyStore()
 const pieceDetail = ref(null)
 const photos = ref(null)
 const route = useRoute()
@@ -368,12 +373,6 @@ function handleTouchEnd() {
   touchEndX = 0
 }
 
-function formatPrice(price) {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(price)
-}
 
 const cartStore = useCartStore()
 
@@ -386,7 +385,7 @@ function handleAdd() {
     slug: pieceDetail.value.slug,
     title: pieceDetail.value.title,
     thumbnail_path: pieceDetail.value.thumbnail_path,
-    final_price_base: pieceDetail.value.final_price_base
+    final_price_base: pieceDetail.value.final_price_base.MXN
   }, 1)
   
   // ABRIR EL CARRITO AUTOMÁTICAMENTE

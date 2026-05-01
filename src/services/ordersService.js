@@ -50,6 +50,10 @@ const ordersService = {
     return api.get(`/orders/${orderPk}/shipping-trackings/${id}/`)
   },
 
+  getUsdRate(){
+    return api.get('usd-mxn-rate/')
+  },
+
 }
 
 export default ordersService

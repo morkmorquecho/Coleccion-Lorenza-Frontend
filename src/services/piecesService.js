@@ -1,16 +1,19 @@
 // src/services/piecesService.js
 import api from './api'
+import { useCurrencyStore } from '@/stores/currency'
+const currencyStore = useCurrencyStore()
 
 const piecesService = {
 
   // ── PIEZAS ──
   getPieces(params = {}) {
-    // params: { type, section, featured, page }
-    return api.get('/pieces/', { params })
+    const { currency } = useCurrencyStore()
+    return api.get('/pieces/', { params: { ...params, currency } })
   },
 
   getPiece(slug) {
-    return api.get(`/pieces/${slug}/`)
+    const { currency } = useCurrencyStore()
+    return api.get(`/pieces/${slug}/`, { params: { currency } })
   },
 
   createPiece(data) {

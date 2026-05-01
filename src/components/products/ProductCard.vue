@@ -59,8 +59,8 @@
 
     <div class="card-info">
       <div class="card-prices">
-        <span v-if="product.has_discount" class="price-old">${{ product.original_price_base }}</span>
-        <span class="price-new">${{ product.final_price_base }}</span>
+        <span v-if="product.has_discount" class="price-old">{{ formatPrice(product.original_price_base) }}</span>
+        <span class="price-new">{{ formatPrice(product.final_price_base) }}</span>
       </div>
 
       <div class="card-bottom">
@@ -91,6 +91,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
+import { useCurrency } from '@/composables/useCurrency'
+
+const { formatPrice } = useCurrency()
 
 /* ── Props ─────────────────────────────────────────────────────────── */
 const props = defineProps({

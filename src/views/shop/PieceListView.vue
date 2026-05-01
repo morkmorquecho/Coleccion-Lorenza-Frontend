@@ -179,39 +179,59 @@
       </div>
     </Transition>
 
-    <!-- Products Grid - Hero Section -->
+    <!-- Products Grid with Loading Animation -->
     <main class="products-main">
-      <ProductGrid
-        v-if="filteredProducts.length > 0"
-        :products="filteredProducts"
-        :cols="4"
-        :gap="24"
-        @add="onAdd"
-      />
-
-      <!-- Empty state -->
-      <div v-else class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-            <path d="M8 8l6 6"></path>
-          </svg>
+      <!-- Loading Animation -->
+      <Transition name="fade-transition" mode="out-in">
+        <div v-if="isLoading" key="loading" class="loading-container">
+          <div class="loading-animation">
+            <LottiePlayer 
+              :path="loaderAnimationPath"
+              :autoplay="true"
+              :loop="true"
+              :speed="1"
+            />
+          </div>
         </div>
-        <h3 class="empty-title">No se encontraron piezas</h3>
-        <p class="empty-subtitle">Intenta ajustar los filtros de búsqueda</p>
-        <button @click="clearFilters" class="empty-btn">
-          Ver todas las piezas
-        </button>
-      </div>
+
+        <!-- Products Grid -->
+        <div v-else key="content" class="products-grid-wrapper">
+          <Transition name="products-transition">
+            <ProductGrid
+              v-if="filteredProducts.length > 0"
+              :products="filteredProducts"
+              :cols="4"
+              :gap="24"
+              @add="onAdd"
+            />
+
+            <!-- Empty state -->
+            <div v-else class="empty-state">
+              <div class="empty-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                  <path d="M8 8l6 6"></path>
+                </svg>
+              </div>
+              <h3 class="empty-title">No se encontraron piezas</h3>
+              <p class="empty-subtitle">Intenta ajustar los filtros de búsqueda</p>
+              <button @click="clearFilters" class="empty-btn">
+                Ver todas las piezas
+              </button>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import ProductGrid from '@/components/products/ProductGrid.vue'
 import piecesService from '@/services/piecesService'
+import LottiePlayer from '@/components/ui/LottiePlayer.vue'
 
 const products = ref([])
 const sections = ref([])
@@ -219,16 +239,39 @@ const pieceTypes = ref([])
 const showSortMenu = ref(false)
 const sortWrapper = ref(null)
 const isMobile = ref(false)
+const isLoading = ref(true)
+const loaderAnimationPath = ref('/animations/loader.json')
+
+// Timeout para asegurar que la animación se muestre al menos un tiempo mínimo
+let minimumLoadingTimeout = null
+let dataLoadingPromise = null
 
 onMounted(async () => {
-  const res = await piecesService.getPieces()
-  products.value = res.results
-
-  const s = await piecesService.getSections()
-  sections.value = s.results
-
-  const t = await piecesService.getTypes()
-  pieceTypes.value = t.results
+  // Iniciar carga de datos
+  const loadData = async () => {
+    const [piecesRes, sectionsRes, typesRes] = await Promise.all([
+      piecesService.getPieces(),
+      piecesService.getSections(),
+      piecesService.getTypes()
+    ])
+    
+    products.value = piecesRes.results
+    sections.value = sectionsRes.results
+    pieceTypes.value = typesRes.results
+  }
+  
+  // Crear promesa de carga de datos
+  dataLoadingPromise = loadData()
+  
+  // Crear promesa de tiempo mínimo (500ms para animación fluida)
+  minimumLoadingTimeout = new Promise(resolve => setTimeout(resolve, 500))
+  
+  // Esperar ambas condiciones
+  await Promise.all([dataLoadingPromise, minimumLoadingTimeout])
+  
+  // Pequeño delay adicional para transición suave
+  await nextTick()
+  isLoading.value = false
   
   // Detectar si es móvil
   checkMobile()
@@ -236,7 +279,11 @@ onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
 })
 
+// Limpiar timeouts
 onBeforeUnmount(() => {
+  if (minimumLoadingTimeout) {
+    clearTimeout(minimumLoadingTimeout)
+  }
   window.removeEventListener('resize', checkMobile)
   document.removeEventListener('click', handleClickOutside)
 })
@@ -323,10 +370,10 @@ const filteredProducts = computed(() => {
   if (filters.value.sortBy) {
     switch (filters.value.sortBy) {
       case 'price-asc':
-        result.sort((a, b) => a.final_price_base - b.final_price_base)
+        result.sort((a, b) => a.final_price_base.MXN - b.final_price_base.MXN)
         break
       case 'price-desc':
-        result.sort((a, b) => b.final_price_base - a.final_price_base)
+        result.sort((a, b) => b.final_price_base.MXN - a.final_price_base.MXN)
         break
       case 'date-asc':
         result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
@@ -857,6 +904,62 @@ const handleClickOutside = (event) => {
   padding: 48px;
   max-width: 1600px;
   margin: 0 auto;
+  min-height: 500px;
+  position: relative;
+}
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  width: 100%;
+}
+
+.loading-animation {
+  width: 200px;
+  height: 200px;
+}
+
+/* Products Grid Wrapper */
+.products-grid-wrapper {
+  width: 100%;
+}
+
+/* Transiciones suaves */
+.fade-transition-enter-active,
+.fade-transition-leave-active {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-transition-enter-from {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.fade-transition-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+/* Transición para los productos */
+.products-transition-enter-active {
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.products-transition-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.products-transition-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.products-transition-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 /* Empty State */
@@ -996,6 +1099,11 @@ const handleClickOutside = (event) => {
 
   .products-main {
     padding: 24px 20px;
+  }
+
+  .loading-animation {
+    width: 150px;
+    height: 150px;
   }
 }
 </style>
