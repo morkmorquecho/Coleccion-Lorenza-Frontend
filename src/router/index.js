@@ -198,14 +198,14 @@ const routes = [
     ]
   },
 
-  // // ════════════════════════════════════════
-  // // 404
-  // // ════════════════════════════════════════
-  // {
-  //   path: '/:pathMatch(.*)*',
-  //   name: 'NotFound',
-  //   component: () => import('@/views/NotFound.vue')
-  // }
+  // ════════════════════════════════════════
+  // 404
+  // ════════════════════════════════════════
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue')
+  }
 ]
 
 const router = createRouter({
