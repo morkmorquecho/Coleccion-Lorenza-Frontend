@@ -112,6 +112,9 @@ import ProfileAddressList from './components/ProfileAddressList.vue'
 import ProfileAddressForm from './components/ProfileAddressForm.vue'
 import piecesService from '@/services/piecesService'
 import PhotosForm from '../shop/components/PhotosForm.vue'
+import { useCartStore } from '@/stores/cart'
+
+const cartStore = useCartStore()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -320,11 +323,13 @@ const onSaveAddress = async (addressData) => {
 
       const idx = addresses.value.findIndex(a => a.id === selectedAddress.value.id)
       addresses.value[idx] = { ...addresses.value[idx], ...addressData }
+      cartStore.clearCart()
 
       showSuccess('Dirección actualizada correctamente')
     } else {
       const response = await userService.createAddress(addressData)
       addresses.value.push(response)
+      cartStore.clearCart()
 
       showSuccess('Dirección creada correctamente')
     }
@@ -340,6 +345,7 @@ const setDefault = async (id) => {
   await handleAddressSubmit(async () => {
     await userService.setDefaultAddress(id)
     addresses.value.forEach((a) => (a.is_default = a.id === id))
+    cartStore.clearCart()    
     showSuccess('Dirección principal actualizada')
   })
   loadingAddresses.value = false
@@ -353,6 +359,7 @@ const deleteAddress = async (id) => {
   await handleAddressSubmit(async () => {
     await userService.deleteAddress(id)
     addresses.value = addresses.value.filter((a) => a.id !== id)
+    cartStore.clearCart()
     showSuccess('Dirección eliminada correctamente')
   })
   loadingAddresses.value = false
