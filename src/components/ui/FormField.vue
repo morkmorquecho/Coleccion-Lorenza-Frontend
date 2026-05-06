@@ -1,12 +1,43 @@
 <template>
   <div class="field-group">
+    <!-- SELECT -->
+    <select
+      v-if="options"
+      v-bind="$attrs"
+      class="login-input"
+      :class="[
+        { 'input--error': errors?.length },
+        { 'input--has-value': modelValue }
+      ]"
+      :value="modelValue"
+      required
+      @change="$emit('update:modelValue', $event.target.value)"
+    >
+      <!-- Placeholder real -->
+      <option value="" disabled hidden>
+        {{ placeholder }}
+      </option>
+
+      <option
+        v-for="opt in options"
+        :key="opt.value"
+        :value="opt.value"
+      >
+        {{ opt.label }}
+      </option>
+    </select>
+
+    <!-- INPUT -->
     <input
+      v-else
       v-bind="$attrs"
       class="login-input"
       :class="{ 'input--error': errors?.length }"
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
     />
+
+    <!-- ERRORES -->
     <transition name="field-error">
       <ul v-if="errors?.length" class="error-list" role="alert">
         <li v-for="msg in errors" :key="msg" class="error-item">
@@ -24,7 +55,9 @@
 <script setup>
 defineProps({
   modelValue: String,
-  errors: Array
+  errors: Array,
+  placeholder: String,
+  options: Array,
 })
 
 defineEmits(['update:modelValue'])
@@ -46,25 +79,47 @@ defineEmits(['update:modelValue'])
   color: #1a0e09;
   font-size: .95rem;
   outline: none;
-  transition: box-shadow .2s, border-color .2s;
+  transition: all 0.25s ease;
   box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
 }
 
-.login-input::placeholder {
+/* Placeholder visual en select */
+select.login-input:invalid {
   color: #9ca3af;
 }
 
+/* Cuando ya seleccionaron algo */
+.input--has-value {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(221, 75, 36, 0.5);
+  font-weight: 500;
+}
+
+/* Focus elegante */
 .login-input:focus {
   border-color: rgba(221, 75, 36, .4);
   box-shadow: 0 0 0 3px rgba(221, 75, 36, .15);
+  transform: scale(1.01);
 }
 
+/* Error */
 .input--error {
   border-color: rgba(221, 75, 36, 0.6) !important;
   box-shadow: 0 0 0 3px rgba(221, 75, 36, 0.12) !important;
   background: rgba(255, 245, 242, 0.8) !important;
 }
 
+/* Flecha custom */
+select.login-input {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%239ca3af' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+/* ERRORES */
 .error-list {
   list-style: none;
   padding: 0;
@@ -93,6 +148,7 @@ defineEmits(['update:modelValue'])
   color: #dd4b24;
 }
 
+/* Animación errores */
 .field-error-enter-active {
   transition: all 0.2s ease;
 }

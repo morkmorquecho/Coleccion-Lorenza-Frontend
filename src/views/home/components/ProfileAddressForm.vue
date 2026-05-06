@@ -17,10 +17,15 @@
             placeholder="Número de teléfono"
             :errors="errors.phone_number || []"
           />
-          <FormField 
-            v-model="formData.country" 
+          <FormField
+            v-model="formData.country"
             placeholder="País"
             :errors="errors.country || []"
+            :options="[
+              { label: 'México',        value: 'mexico'  },
+              { label: 'Estados Unidos', value: 'usa'    },
+              { label: 'Canadá',        value: 'canada'  },
+            ]"
           />
           <FormField 
             v-model="formData.state" 
