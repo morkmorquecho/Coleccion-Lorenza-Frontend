@@ -402,7 +402,8 @@ function handleAdd() {
     slug: pieceDetail.value.slug,
     title: pieceDetail.value.title,
     thumbnail_path: pieceDetail.value.thumbnail_path,
-    final_price_base: pieceDetail.value.final_price_base.MXN
+    final_price_base: pieceDetail.value.final_price_base,
+    quantity:pieceDetail.value.quantity
   }, 1)
   
   // ABRIR EL CARRITO AUTOMÁTICAMENTE

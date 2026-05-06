@@ -16,10 +16,14 @@
               <span class="quantity-unit">{{ item.quantity === 1 ? 'pieza' : 'piezas' }}</span>
             </div>
           </div>
-          <div class="item-prices">
-            <s v-if="item.piece.has_discount">{{ formatPrice((item.piece.original_price_base * item.quantity).toFixed(2)) }}</s>
-            <span class="font-prices">{{ formatPrice((item.piece.final_price_base * item.quantity).toFixed(2) )}}</span>
-          </div>
+            <div class="item-prices">
+              <s v-if="item.piece.has_discount">
+                {{ formatPrice(item.piece.original_price_base, item.quantity) }}
+              </s>
+              <span class="font-prices">
+                {{ formatPrice(item.piece.final_price_base, item.quantity) }}
+              </span>
+            </div>
         </li>
       </ul>
 

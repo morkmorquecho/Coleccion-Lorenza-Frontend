@@ -181,7 +181,8 @@ function handleAdd() {
     slug: props.product.slug,
     title: props.product.title,
     thumbnail_path: props.product.thumbnail_path,
-    final_price_base: props.product.final_price_base
+    final_price_base: props.product.final_price_base,
+    quantity:props.product.quantity
   }, 1)
   
   // ABRIR EL CARRITO AUTOMÁTICAMENTE

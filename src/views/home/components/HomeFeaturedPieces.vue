@@ -330,7 +330,8 @@ function handleAdd(piece) {
     slug: piece.slug,
     title: piece.title,
     thumbnail_path: piece.thumbnail_path,
-    final_price_base: piece.final_price_base
+    final_price_base: piece.final_price_base,
+    quantity:piece.quantity
   }, 1)
 
   cartStore.openCart()
