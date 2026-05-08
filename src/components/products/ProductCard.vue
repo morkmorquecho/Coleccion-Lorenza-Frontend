@@ -437,23 +437,27 @@ function handleAdd() {
 .btn-add {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   border: 1.5px solid #c5bfb6;
   background: transparent;
   color: #1c1a17;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 8px 14px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
   font-family: serif;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
+}
+
+.btn-add:hover:not(:disabled) {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  transform: scale(1.05);
 }
 
 .btn-add svg {
