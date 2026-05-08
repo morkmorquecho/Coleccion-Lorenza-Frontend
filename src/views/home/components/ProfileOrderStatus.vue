@@ -4,10 +4,10 @@
     <header class="orders-header">
       <div class="header-top">
         <h3 class="header-title">Mis pedidos</h3>
-        <span class="header-count">{{ filteredShipments.length }}</span>
+        <span class="header-count font-prices">{{ filteredShipments.length }}</span>
       </div>
 
-      <div class="search-wrapper">
+      <!-- <div class="search-wrapper">
         <svg
           class="search-icon"
           width="15"
@@ -26,7 +26,7 @@
           placeholder="Buscar pedido..."
           class="search-input"
         />
-      </div>
+      </div> -->
     </header>
 
     <!-- Filters -->
@@ -44,7 +44,13 @@
     </nav>
 
     <!-- Content wrapper with overlay -->
-    <div class="content-wrapper" :class="{ 'has-overlay': modalLoading }">
+    <div 
+      class="content-wrapper" 
+      :class="{ 
+        'has-overlay': modalLoading,
+        'empty-state-wrapper': displayedShipments.length === 0
+      }"
+    >
       <!-- Loading Overlay (solo visible al hacer clic) -->
       <LoadingOverlay 
         v-if="modalLoading"
@@ -108,7 +114,7 @@
             </div>
 
             <div class="order-right">
-              <span class="order-total">{{ formatPrice(order.total) }}</span>
+              <span class="order-total font-prices">{{ formatPrice(order.total) }}</span>
               <span class="order-badge" :class="getStatusClass(order.status)">{{
                 getStatusLabel(order.status)
               }}</span>
@@ -167,11 +173,12 @@
     :loading="modalLoading"
     @cancel="handleCancel"
     @message="handleMessage"
+    :cancelling="isCancelling"
   />
 </template>
 
 <script setup>
-import { ref, computed, watch,nextTick  } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import OrderDetailModal from './OrderDetailModal.vue'
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
 import ordersService from '@/services/ordersService'
@@ -275,11 +282,11 @@ function formatDate(d) {
 }
 
 function handleFilterChange(v) {
-  const scrollY = window.scrollY  // ← guarda posición actual
+  const scrollY = window.scrollY
   activeFilter.value = v
   currentPage.value = 1
   nextTick(() => {
-    window.scrollTo({ top: scrollY, behavior: 'instant' })  // ← restaura
+    window.scrollTo({ top: scrollY, behavior: 'instant' })
   })
 }
 
@@ -288,7 +295,6 @@ function goToPage(p) {
 }
 
 async function openModal(shipmentId) {
-  // Activar loading overlay al hacer clic
   modalLoading.value = true
   showModal.value = true
   selectedShipment.value = []
@@ -316,14 +322,24 @@ function showConfirm(msg, title = '¿Estás seguro?') {
   })
 }
 
+const emit = defineEmits(['orderCancelled'])
+const isCancelling = ref(false)
+
 async function handleCancel(shipment) {
   const confirmed = await showConfirm('¿Seguro que quieres cancelar tu pedido?', 'Cancelar pedido')
-  if(!confirmed) return
+  if (!confirmed) return
+
+  isCancelling.value = true   
   try {
     await ordersService.cancelOrder(shipment.order.id)
-    uiStore.showModal('Su pedido sera rembolzado y la orden fue cancelada','Orden cancelada', '/animations/mariachi.json')
+    showModal.value = false
+    selectedShipment.value = null
+    emit('orderCancelled')
+    uiStore.showModal('Su pedido será reembolsado y la orden fue cancelada', 'Orden cancelada', '/animations/mariachi.json')
   } catch (error) {
-    uiStore.showModal('Error al cancelar el pedido', 'Intentalo de nuevo mas tarde')
+    uiStore.showModal('Error al cancelar el pedido', 'Intentalo de nuevo más tarde')
+  } finally {
+    isCancelling.value = false  
   }
 }
 
@@ -334,7 +350,6 @@ function handleMessage(shipment) {
 
 <style scoped>
 .orders-container {
-  font-family: 'Inter', system-ui, sans-serif;
   max-width: 600px;
   padding: 2rem;
   background: rgba(255, 255, 255, 0.5);
@@ -342,12 +357,18 @@ function handleMessage(shipment) {
   position: relative;
 }
 
-/* Content wrapper */
+/* Content wrapper - BASE */
 .content-wrapper {
   position: relative;
   min-height: 400px;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Cuando no hay órdenes - solo 100px */
+.content-wrapper.empty-state-wrapper {
+  min-height: 100px;
+}
 
 /* LoadingOverlay positioning */
 .content-wrapper :deep(.loading-overlay) {
@@ -363,6 +384,11 @@ function handleMessage(shipment) {
 
 .content-wrapper :deep(.loading-container) {
   min-height: 400px;
+}
+
+/* Cuando está vacío y tiene loading, ajustar el contenedor */
+.content-wrapper.empty-state-wrapper :deep(.loading-container) {
+  min-height: 100px;
 }
 
 /* Inner content blur effect */
@@ -392,7 +418,7 @@ function handleMessage(shipment) {
 }
 
 .header-count {
-  font-size: 0.8125rem;
+  font-size: 1.2rem;
   font-weight: 500;
   color: var(--color-primary);
   background: #fff7ed;
@@ -622,7 +648,7 @@ function handleMessage(shipment) {
 .order-total {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #ea580c;
+  color: var(--color-primary);
   letter-spacing: -0.01em;
 }
 
@@ -680,7 +706,7 @@ function handleMessage(shipment) {
   background: transparent;
   border-radius: 0.5rem;
   cursor: pointer;
-  color: #c2410c;
+  color: var(--color-primary);
   transition: all 0.15s;
 }
 

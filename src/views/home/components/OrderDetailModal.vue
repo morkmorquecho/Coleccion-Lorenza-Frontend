@@ -28,23 +28,26 @@
                 <h2 class="text-base font-semibold text-stone-800" style="font-family: Georgia">
                   {{ shipment ? `Orden #${shipment.order.id}` : 'Cargando...' }}
                 </h2>
-                <p class="text-xs text-stone-500 " >
+                <p class="text-xs text-stone-500">
                   {{ shipment ? formatDate(shipment.created_at) : '' }}
                 </p>
               </div>
             </div>
             <button
               @click="close"
-              class="flex items-center justify-center w-8 h-8 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-orange-50 transition-colors"
+              :disabled="cancelling"
+              class="modal-close"
               aria-label="Cerrar"
             >
-              <XIcon class="w-4 h-4" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
             </button>
           </header>
 
           <!-- Scrollable Content Area -->
           <div class="flex-1 overflow-y-auto scroll-smooth">
-            <!-- Loading Skeleton -->
+            <!-- Loading Skeleton principal -->
             <div v-if="loading" class="p-6 space-y-4">
               <div class="flex gap-2">
                 <div class="h-6 w-20 bg-orange-100 rounded-full animate-pulse" />
@@ -57,6 +60,19 @@
               </div>
               <div class="h-24 bg-orange-50 rounded-xl animate-pulse" />
               <div class="h-12 bg-orange-100 rounded-xl animate-pulse" />
+            </div>
+
+            <!-- Cancel Loading Overlay -->
+            <div 
+              v-else-if="cancelling" 
+              class="flex flex-col items-center justify-center min-h-100 p-8"
+            >
+              <div class="relative w-20 h-20 mb-4">
+                <div class="absolute inset-0 rounded-full border-4 border-orange-100"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-orange-500 border-t-transparent animate-spin"></div>
+              </div>
+              <p class="text-stone-600 font-medium">Cancelando orden...</p>
+              <p class="text-sm text-stone-400 mt-1">Por favor espera un momento</p>
             </div>
 
             <!-- Content -->
@@ -184,7 +200,8 @@
 
               <!-- Total -->
               <div
-                class="flex items-center justify-between p-4 bg-linear-to-r from-orange-500 to-orange-600 rounded-xl"
+                class="flex items-center justify-between p-4 rounded-xl"
+                style="background: var(--color-primary)"
               >
                 <span class="text-sm font-medium text-orange-100"> Total del pedido </span>
                 <span class="text-lg font-bold font-prices text-white tabular-nums">
@@ -196,20 +213,22 @@
 
           <!-- Actions - Fixed Footer -->
           <footer
-            v-if="shipment && !loading"
+            v-if="shipment && !cancelling"
             class="shrink-0 flex gap-3 px-6 py-4 border-t border-orange-100 bg-orange-50/30"
           >
             <button
               v-if="shipment.order.can_be_cancelled"
-              @click="$emit('cancel', shipment)"
-              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors"
+              @click="handleCancel"
+              :disabled="cancelling"
+              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <XIcon class="w-4 h-4" />
               Cancelar
             </button>
             <button
               @click="$emit('message', shipment)"
-              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors"
+              :disabled="cancelling"
+              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <MessageIcon class="w-4 h-4" />
               Mensaje al artista
@@ -260,6 +279,7 @@ const props = defineProps<{
   modelValue: boolean
   shipment?: Shipment | null
   loading?: boolean
+  cancelling?: boolean 
 }>()
 
 const emit = defineEmits<{
@@ -269,24 +289,6 @@ const emit = defineEmits<{
 }>()
 
 const copied = ref(false)
-
-// Icons as functional components
-const createIcon = (paths: string[], opts?: { fill?: boolean }): FunctionalComponent => {
-  return () =>
-    h(
-      'svg',
-      {
-        xmlns: 'http://www.w3.org/2000/svg',
-        viewBox: '0 0 24 24',
-        fill: opts?.fill ? 'currentColor' : 'none',
-        stroke: opts?.fill ? 'none' : 'currentColor',
-        'stroke-width': 2,
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-      },
-      paths.map((d) => h('path', { d })),
-    )
-}
 
 const XIcon = X
 const TruckIcon = Truck
@@ -361,7 +363,9 @@ const carrierLabel = computed(() => {
 })
 
 function close() {
-  emit('update:modelValue', false)
+  if (!props.cancelling) {
+    emit('update:modelValue', false)
+  }
 }
 
 function formatDate(dateString: string): string {
@@ -384,6 +388,11 @@ async function copyTracking() {
   } catch {
     console.error('Failed to copy tracking number')
   }
+}
+
+async function handleCancel() {
+  if (!props.shipment) return
+  emit('cancel', props.shipment)
 }
 </script>
 
@@ -414,7 +423,7 @@ async function copyTracking() {
 /* Estilos para el scroll personalizado (opcional) */
 .overflow-y-auto {
   scrollbar-width: thin;
-  scrollbar-color: #f97316 #fed7aa;
+  scrollbar-color: var(--color-primary) #fed7aa;
 }
 
 .overflow-y-auto::-webkit-scrollbar {
@@ -434,4 +443,40 @@ async function copyTracking() {
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #ea580c;
 }
+
+/* Animación para el spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  color: #6b5b52;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #dd4b24;
+  transform: rotate(90deg);
+}
+
 </style>
