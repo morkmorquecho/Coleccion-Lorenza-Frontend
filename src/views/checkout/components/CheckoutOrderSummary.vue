@@ -165,8 +165,8 @@ const emit = defineEmits(['checkout'])
   align-items: flex-start;
 }
 .item-img-wrap {
-  width: 56px;
-  height: 56px;
+  width: 60 px;
+  height: 80px;
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
