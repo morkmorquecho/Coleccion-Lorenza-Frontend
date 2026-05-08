@@ -191,7 +191,7 @@ onUnmounted(() => {
 
 <style scoped>
 .carousel-section {
-  --accent: #ff5e1f;
+  --accent: var(--color-primary);
   --color-background: var(--color-background);
   --ink: #1a1008;
   --muted: #6b5e52;
@@ -380,7 +380,7 @@ onUnmounted(() => {
   transition: color 0.4s ease;
 }
 .blog-card:hover .card-excerpt,
-.blog-card.is-hovered .card-excerpt { color: #e04a10; }
+.blog-card.is-hovered .card-excerpt { color: var(--color-primary); }
 
 /* ── Progress ────────────────────────────────────────────────────────────── */
 .progress-bar-wrap {

@@ -64,6 +64,7 @@
 
       <ProfileOrderStatus
         :shipments="shipmentsList"
+        @orderCancelled="fetchOrders"
       />
 
       <!-- Cerrar sesión -->

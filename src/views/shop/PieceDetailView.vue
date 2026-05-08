@@ -477,7 +477,7 @@ function onLoadingComplete() {
 }
 
 .thumbnail-item-vertical.active {
-  border-color: #c4501a;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(196, 80, 26, 0.2);
 }
 
@@ -511,12 +511,12 @@ function onLoadingComplete() {
 }
 
 .thumbnail-item-vertical.is-video:hover .video-play-icon-vertical {
-  background: #c4501a;
+  background: var(--color-primary);
   transform: translate(-50%, -50%) scale(1.1);
 }
 
 .thumbnail-item-vertical.is-video.active .video-play-icon-vertical {
-  background: #c4501a;
+  background: var(--color-primary);
 }
 
 /* Horizontal Thumbnail Grid - Mobile only */
@@ -556,7 +556,7 @@ function onLoadingComplete() {
 }
 
 .thumbnail-item-horizontal.active {
-  border-color: #c4501a;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(196, 80, 26, 0.2);
 }
 
@@ -745,7 +745,7 @@ function onLoadingComplete() {
 }
 
 .tag-custom {
-  background: linear-gradient(135deg, #c4501a 0%, #e07a3a 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #e07a3a 100%);
   color: #fff;
   box-shadow: 0 2px 8px rgba(196, 80, 26, 0.25);
   animation: subtle-glow 3s ease-in-out infinite;
@@ -787,11 +787,11 @@ function onLoadingComplete() {
 }
 
 .final-price.has-discount {
-  color: #c4501a;
+  color: var(--color-primary);
 }
 
 .discount-badge {
-  background: #c4501a;
+  background: var(--color-primary);
   color: #fff;
   padding: 0.25rem 0.75rem;
   border-radius: 2rem;
@@ -918,7 +918,7 @@ function onLoadingComplete() {
   justify-content: center;
   gap: 0.75rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #c4501a 0%, #e07a3a 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #e07a3a 100%);
   color: #fff;
   border: none;
   border-radius: calc(infinity * 1px);
@@ -1137,7 +1137,7 @@ function onLoadingComplete() {
   }
   
   .thumbnail-grid-vertical::-webkit-scrollbar-thumb {
-    background: #c4501a;
+    background: var(--color-primary);
     border-radius: 4px;
   }
   
