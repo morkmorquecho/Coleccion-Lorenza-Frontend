@@ -2,6 +2,9 @@
 import { computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
+import { useCurrency } from '@/composables/useCurrency'
+
+const {formatPrice} = useCurrency()
 
 const cart = useCartStore()
 
@@ -25,12 +28,7 @@ const closeCart = () => {
   cart.closeCart()
 }
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: currencyStore.currency
-  }).format(price[currencyStore.currency])
-}
+
 
 </script>
 
