@@ -3,7 +3,8 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 
-const MANY_REQUESTS_MESSAGE = "Has excedido el número de intentos permitidos. Intenta nuevamente más tarde."
+const MANY_REQUESTS_MESSAGE =
+  'Has excedido el número de intentos permitidos. Intenta nuevamente más tarde.'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -60,23 +61,24 @@ function normalizeFieldErrors(context) {
 
 function resolveErrorType(context) {
   if (typeof context === 'string' && context.length > 0) return 'message_error'
-  if (typeof context === 'object' && context !== null && Object.keys(context).length > 0) return 'field_errors'
+  if (typeof context === 'object' && context !== null && Object.keys(context).length > 0)
+    return 'field_errors'
   return 'unknown'
 }
 
 function createApiError(responseData) {
   const rawContext = responseData.errors?.context ?? {}
   const context = normalizeFieldErrors(rawContext)
-  const type     = resolveErrorType(context)
+  const type = resolveErrorType(context)
 
-  const detail  = rawContext?.detail ?? null                              // ← extrae detail
-  const message = responseData.message || detail || 'Error inesperado'   // ← lo usa como fallback
+  const detail = rawContext?.detail ?? null // ← extrae detail
+  const message = responseData.message || detail || 'Error inesperado' // ← lo usa como fallback
 
-  const error      = new Error(message)
-  error.errors     = responseData.errors
-  error.context    = context
+  const error = new Error(message)
+  error.errors = responseData.errors
+  error.context = context
   error.code_error = responseData.errors?.code_error || null
-  error.type       = type
+  error.type = type
 
   return error
 }
@@ -86,10 +88,9 @@ function isFormattedApiError(response) {
 }
 
 async function doRefresh(authStore) {
-  const { data } = await axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/token/refresh/`,
-    { refresh: authStore.refreshToken }
-  )
+  const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/auth/token/refresh/`, {
+    refresh: authStore.refreshToken,
+  })
   const { access, refresh } = data.data
   authStore.setTokens(access, refresh)
   return access
@@ -98,7 +99,7 @@ async function doRefresh(authStore) {
 // ── INTERCEPTORS ─────────────────────────────────────────────────────────────
 export function setupInterceptors(pinia) {
   const authStore = useAuthStore(pinia)
-  const uiStore   = useUIStore(pinia)
+  const uiStore = useUIStore(pinia)
 
   // ── REQUEST ──────────────────────────────────────────────────────────────
   api.interceptors.request.use(
@@ -133,13 +134,13 @@ export function setupInterceptors(pinia) {
 
       return config
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   )
 
   // ── RESPONSE ─────────────────────────────────────────────────────────────
   api.interceptors.response.use(
     (response) => {
-      if (response.status === 204 || response.data == null) {  
+      if (response.status === 204 || response.data == null) {
         return null
       }
 
@@ -152,16 +153,16 @@ export function setupInterceptors(pinia) {
 
     async (error) => {
       const originalRequest = error.config
-      const { response }    = error
+      const { response } = error
 
       if (response?.status === 429) {
-        uiStore.showError(MANY_REQUESTS_MESSAGE)
+        uiStore.showModal(MANY_REQUESTS_MESSAGE)
         return Promise.reject(
           createApiError({
             success: false,
             message: MANY_REQUESTS_MESSAGE,
-            errors: { code_error: 'RATE_LIMIT_EXCEEDED', context: MANY_REQUESTS_MESSAGE }
-          })
+            errors: { code_error: 'RATE_LIMIT_EXCEEDED', context: MANY_REQUESTS_MESSAGE },
+          }),
         )
       }
 
@@ -209,7 +210,7 @@ export function setupInterceptors(pinia) {
       }
 
       return Promise.reject(error)
-    }
+    },
   )
 }
 

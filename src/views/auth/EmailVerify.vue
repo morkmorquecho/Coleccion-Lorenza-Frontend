@@ -1,15 +1,5 @@
 <template>
   <div class="form-page">
-    <ModalComponent
-      v-model="showModal"
-      :title="modalTitle"
-      :subtitle="modalMessage"
-    >
-      <template #lottie>
-        <LottiePlayer :path="animationPath" />
-      </template>
-    </ModalComponent>
-
     <!-- Blobs decorativos -->
     <div class="form-blob form-blob--bottom-right"></div>
     <div class="form-blob form-blob--top-left"></div>
@@ -75,10 +65,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { useFormHandler } from '@/composables/useFormHandler'
 import authService from '@/services/authService'
 import LottiePlayer from '@/components/ui/LottiePlayer.vue'
-import ModalComponent from '@/components/ui/ModalComponent.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useUIStore } from '@/stores/ui'
 
 const authStore = useAuthStore()
+const uiStore = useUIStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -87,23 +78,13 @@ const status = ref('loading')
 const errorMessage = ref('')
 const token = ref(null)
 
-// ── Modal configuration ─────────────────────────────────────────────────────────
-const showModal = ref(false)
-const modalMessage = ref('')
-const modalTitle = ref('')
-const animationPath = ref('')
-
-const ANIMATIONS = {
-  success: '/animations/burro.json',
-  error: '/animations/quetzal.json',
-}
-
-// Callback para mostrar errores en el modal
+// Callback para mostrar errores usando el store centralizado
 function showError(msg) {
-  modalMessage.value = msg
-  modalTitle.value = 'Error de verificación'
-  animationPath.value = ANIMATIONS.error
-  showModal.value = true
+  uiStore.showModal(
+    msg, 
+    'Error de verificación', 
+    '/animations/quetzal.json'  // animation path
+  )
 }
 
 // ── Form handler ──────────────────────────────────────────────────────────────
@@ -126,8 +107,6 @@ async function onVerify() {
 }
 
 // Si hay error, capturar mensaje para mostrar en la UI
-// Nota: El composable maneja el error en el modal, pero necesitamos
-// el mensaje local para mostrarlo en la vista de error
 const verify = async () => {
   status.value = 'loading'
   errorMessage.value = ''
@@ -147,7 +126,7 @@ const verify = async () => {
       errorMessage.value = 'No se pudo verificar tu cuenta. Intenta nuevamente.'
     }
     
-    // Si el error es por token expirado/inválido, mostrar modal adicional
+    // Si el error es por token expirado/inválido, mostrar modal centralizado
     if (errorMessage.value.includes('expirado') || errorMessage.value.includes('inválido')) {
       showError(errorMessage.value)
     }

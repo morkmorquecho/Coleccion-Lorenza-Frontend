@@ -13,7 +13,7 @@ export const useUIStore = defineStore('ui', {
   }),
 
   actions: {
-    showError(message, title = 'Ocurrió un error', animation) {
+    showModal(message, title = 'Ocurrió un error', animation) {
       if (this.modal.show) return
       this.modal.message   = message
       this.modal.title     = title

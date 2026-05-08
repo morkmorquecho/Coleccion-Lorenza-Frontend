@@ -3,12 +3,12 @@ import { ref } from 'vue'
 import { useUIStore } from '@/stores/ui'
 
 export function useFormHandler() {
-  const loading     = ref(false)
+  const loading = ref(false)
   const fieldErrors = ref({})
-  const uiStore     = useUIStore()
+  const uiStore = useUIStore()
 
   async function handleSubmit(action) {
-    loading.value     = true
+    loading.value = true
     fieldErrors.value = {}
 
     try {
@@ -27,11 +27,11 @@ export function useFormHandler() {
         break
 
       case 'message_error':
-        uiStore.showError(error.context, 'Ocurrio un error', '/animations/quetzal.json')
+        uiStore.showModal(error.context, 'Ocurrio un error', '/animations/quetzal.json')
         break
 
       default:
-        uiStore.showError('Ocurrió un error inesperado, intentalo mas tarde')
+        uiStore.showModal('Ocurrió un error inesperado, intentalo mas tarde')
         console.error('[Unhandled error]', error)
     }
   }
