@@ -318,7 +318,7 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: 120px;
-  z-index: 49;
+  z-index: 29;
   pointer-events: auto;
 }
 
