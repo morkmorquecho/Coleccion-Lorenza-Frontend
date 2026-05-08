@@ -200,10 +200,9 @@
             :disabled="pieceDetail.quantity === 0"
             @click.stop="handleAdd"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
-              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-            </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
             Añadir a la cesta
           </button>
           <button class="btn-secondary">
@@ -922,7 +921,7 @@ function onLoadingComplete() {
   background: linear-gradient(135deg, #c4501a 0%, #e07a3a 100%);
   color: #fff;
   border: none;
-  border-radius: 1rem;
+  border-radius: calc(infinity * 1px);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
