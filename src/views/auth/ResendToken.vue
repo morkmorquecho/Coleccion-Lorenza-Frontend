@@ -1,15 +1,5 @@
 <template>
   <div class="form-page">
-    <ModalComponent
-      v-model="showModal"
-      :title="modalTitle"
-      :subtitle="modalMessage"
-    >
-      <template #lottie>
-        <LottiePlayer :path="animationPath" />
-      </template>
-    </ModalComponent>
-
     <!-- Blobs decorativos -->
     <div class="form-blob form-blob--bottom-right"></div>
     <div class="form-blob form-blob--top-left"></div>
@@ -108,37 +98,29 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter,useRoute } from 'vue-router'
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useFormHandler } from '@/composables/useFormHandler'
+import { useUIStore } from '@/stores/ui'
 import authService from '@/services/authService'
 import LottiePlayer from '@/components/ui/LottiePlayer.vue'
-import ModalComponent from '@/components/ui/ModalComponent.vue'
 
 const route = useRoute()
-const router = useRouter()
+const uiStore = useUIStore()
 
 const email = route.query.email
+
 // ── UI Feedback State ──────────────────────────────────────────────────────────
 const feedbackMessage = ref('')
 const feedbackType = ref('success') // 'success' or 'error'
 
-// ── Modal configuration ─────────────────────────────────────────────────────────
-const showModal = ref(false)
-const modalMessage = ref('')
-const modalTitle = ref('')
-const animationPath = ref('')
-
-const ANIMATIONS = {
-  error: '/animations/quetzal.json',
-}
-
-// Callback para mostrar errores críticos en el modal
+// Función para mostrar errores críticos en el modal centralizado
 function showError(msg) {
-  modalMessage.value = msg
-  modalTitle.value = 'Error'
-  animationPath.value = ANIMATIONS.error
-  showModal.value = true
+  uiStore.showModal(
+    msg, 
+    'Error', 
+    '/animations/quetzal.json'
+  )
 }
 
 // Función para mostrar feedback en la UI
@@ -154,7 +136,6 @@ function showFeedback(message, type = 'success') {
 
 // ── Form handler ──────────────────────────────────────────────────────────────
 const { loading, handleSubmit } = useFormHandler({ showError })
-
 
 // ── Resend email action ──────────────────────────────────────────────────────
 async function onResendEmail() {

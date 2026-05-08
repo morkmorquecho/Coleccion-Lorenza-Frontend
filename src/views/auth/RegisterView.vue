@@ -1,16 +1,5 @@
 <template>
   <div class="form-page">
-
-    <ModalComponent
-      v-model="showModal"
-      :title="modalTitle"
-      :subtitle="modalMessage"
-    >
-      <template #lottie>
-        <LottiePlayer :path="animationPath" />
-      </template>
-    </ModalComponent>
-
     <div class="form-blob form-blob--bottom-right"></div>
     <div class="form-blob form-blob--top-left"></div>
 
@@ -27,7 +16,6 @@
       </div>
 
       <form class="flex flex-col gap-4 mt-2" @submit.prevent="onRegister">
-
         <FormField
           type="text"
           placeholder="Nombre completo"
@@ -66,7 +54,6 @@
           <span v-if="loading" class="btn-spinner"></span>
           <span>{{ loading ? 'Registrando...' : 'Crear cuenta' }}</span>
         </button>
-
       </form>
 
       <div class="form-divider"><span>O regístrate con</span></div>
@@ -80,7 +67,10 @@
 
       <p class="text-center text-gray-700 font-medium text-sm">
         ¿Ya tienes cuenta?
-        <RouterLink :to="{ name: 'Login' }" class="font-semibold text-[#dd4b24] hover:text-[#c43e1d] transition-colors">
+        <RouterLink 
+          :to="{ name: 'Login' }" 
+          class="font-semibold text-[#dd4b24] hover:text-[#c43e1d] transition-colors"
+        >
           Inicia sesión
         </RouterLink>
       </p>
@@ -94,30 +84,20 @@ import { useRouter } from 'vue-router'
 import authService from '@/services/authService'
 import { useAuthStore } from '@/stores/auth'
 import { useFormHandler } from '@/composables/useFormHandler'
+import { useUIStore } from '@/stores/ui'
 import FormField from '@/components/ui/FormField.vue'
-import ModalComponent from '@/components/ui/ModalComponent.vue'
-import LottiePlayer from '@/components/ui/LottiePlayer.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const uiStore = useUIStore()
 
-// ── Modal local (para message_error) ─────────────────────────────────────────
-const showModal = ref(false)
-const modalMessage = ref('')
-const modalTitle = ref('')
-const animationPath = ref('')
-
-const ANIMATIONS = {
-  success: '/animations/burro.json',
-  error: '/animations/quetzal.json',
-}
-
-// Lo pasamos al composable para que sepa cómo mostrar message_error
+// Función para mostrar errores usando el store centralizado
 function showError(msg) {
-  modalMessage.value = msg
-  modalTitle.value = 'Ocurrió un error'
-  animationPath.value = ANIMATIONS.error
-  showModal.value = true
+  uiStore.showModal(
+    msg, 
+    'Ocurrió un error', 
+    '/animations/quetzal.json'
+  )
 }
 
 // ── Form handler ──────────────────────────────────────────────────────────────
@@ -168,7 +148,7 @@ onMounted(() => {
     theme: 'outline',
     size: 'medium',
     shape: 'pill',
-    text: 'signup_with',    // 'signup_with' para registro
+    text: 'signup_with',
     locale: 'es',
   })
 })

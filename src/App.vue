@@ -20,6 +20,15 @@ onMounted(async () => {
   currencyStore.setRate(data.usd_to_mxn)
 })
 
+function handleModalAction() {
+  ui.modal._callback?.confirm?.()
+  ui.closeModal()
+}
+
+function handleModalCancel() {
+  ui.modal._callback?.cancel?.()
+  ui.closeModal()
+}
 </script>
 
 <template>
@@ -27,6 +36,10 @@ onMounted(async () => {
     v-model="showModal"
     :title="ui.modal.title"
     :subtitle="ui.modal.message"
+    :confirm-text="ui.modal.buttonText || 'Confirmar'"
+    :cancel-text="ui.modal.cancelText"
+    :show-cancel="ui.modal.showCancelButton"
+    @confirm="handleModalAction"
     @close="ui.closeModal()"
   >
     <template v-if="ui.modal.animation" #lottie>

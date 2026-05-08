@@ -1,15 +1,5 @@
 <template>
   <div class="form-page">
-    <ModalComponent
-      v-model="showModal"
-      :title="modalTitle"
-      :subtitle="modalMessage"
-    >
-      <template #lottie>
-        <LottiePlayer :path="animationPath" />
-      </template>
-    </ModalComponent>
-
     <!-- Blobs decorativos -->
     <div class="form-blob form-blob--bottom-right"></div>
     <div class="form-blob form-blob--top-left"></div>
@@ -104,34 +94,24 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useFormHandler } from '@/composables/useFormHandler'
+import { useUIStore } from '@/stores/ui'
 import authService from '@/services/authService'
 import FormField from '@/components/ui/FormField.vue'
-import ModalComponent from '@/components/ui/ModalComponent.vue'
-import LottiePlayer from '@/components/ui/LottiePlayer.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
-
-// ── Modal configuration ─────────────────────────────────────────────────────────
-const showModal = ref(false)
-const modalMessage = ref('')
-const modalTitle = ref('')
-const animationPath = ref('')
-
-const ANIMATIONS = {
-  success: '/animations/burro.json',
-  error: '/animations/quetzal.json',
-}
-
-// Callback para mostrar errores en el modal
-function showError(msg) {
-  modalMessage.value = msg
-  modalTitle.value = 'Ocurrió un error'
-  animationPath.value = ANIMATIONS.error
-  showModal.value = true
-}
+const uiStore = useUIStore()
 
 // ── Form handler ──────────────────────────────────────────────────────────────
+// Callback para mostrar errores usando el store centralizado
+function showError(msg) {
+  uiStore.showModal(
+    msg, 
+    'Ocurrió un error', 
+    '/animations/quetzal.json'
+  )
+}
+
 const { loading, fieldErrors, handleSubmit } = useFormHandler({ showError })
 
 const form = ref({
@@ -186,23 +166,25 @@ onMounted(() => {
     callback: handleGoogleCredential,
   })
 
-  // Renderiza el botón oficial de Google - tamaño 'large' ya es el máximo soportado
+  // Renderiza el botón oficial de Google
   window.google.accounts.id.renderButton(googleButtonRef.value, {
     theme: 'outline',     
-    size: 'medium',        // 'large' es el tamaño máximo (ancho completo)
+    size: 'medium',
     shape: 'pill',   
     text: 'continue_with',
     locale: 'es',
   })
 })
 
-
 // ── Facebook login (placeholder) ──────────────────────────────────────────────
 function loginWithFacebook() {
   if (loading.value) return
-  alert('Login con Facebook.')
+  uiStore.showModal(
+    'Funcionalidad en desarrollo', 
+    'Próximamente', 
+    '/animations/burro.json'
+  )
 }
-
 </script>
 
 <style scoped>

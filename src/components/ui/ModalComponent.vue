@@ -37,28 +37,25 @@
 
           <!-- Content -->
           <div class="modal-content">
-            <h2 class="modal-title">
-              {{ title }}
-            </h2>
-
-            <p class="modal-subtitle">
-              {{ subtitle }}
-            </p>
+            <h2 class="modal-title">{{ title }}</h2>
+            <p class="modal-subtitle">{{ subtitle }}</p>
 
             <div class="modal-actions">
-              <button
-                v-if="showCancel"
-                @click="handleClose"
-                class="modal-btn modal-btn-secondary"
-              >
-                {{ cancelText }}
-              </button>
-              <button
-                @click="handleConfirm"
-                class="modal-btn modal-btn-primary"
-              >
-                {{ confirmText }}
-              </button>
+              <slot name="actions">
+                <button
+                  v-if="showCancel"
+                  @click="handleClose"
+                  class="modal-btn modal-btn-secondary"
+                >
+                  {{ cancelText }}
+                </button>
+                <button
+                  @click="handleConfirm"
+                  class="modal-btn modal-btn-primary"
+                >
+                  {{ confirmText }}
+                </button>
+              </slot>
             </div>
           </div>
 
@@ -271,12 +268,14 @@ const handleConfirm = () => {
 }
 
 .modal-btn-secondary {
-  background: rgba(0, 0, 0, 0.05);
-  color: #5c3d2e;
+  background: transparent;
+  color: #dd4b24;
+  border: 2px solid #dd4b24;
+  box-shadow: none;
 }
 
 .modal-btn-secondary:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(221, 75, 36, 0.08);
   transform: translateY(-1px);
 }
 

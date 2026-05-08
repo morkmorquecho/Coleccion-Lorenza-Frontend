@@ -1,20 +1,5 @@
 <template>
   <div class="form-page">
-    <ModalComponent
-      v-model="showModal"
-      :title="modalTitle"
-      :subtitle="modalMessage"
-    >
-      <template #lottie>
-        <LottiePlayer :path="animationPath" />
-      </template>
-      <template #actions v-if="showLoginButton">
-        <button class="form-btn-primary mt-4" @click="goToLogin">
-          Ir a iniciar sesión
-        </button>
-      </template>
-    </ModalComponent>
-
     <!-- Blobs decorativos -->
     <div class="form-blob form-blob--bottom-right"></div>
     <div class="form-blob form-blob--top-left"></div>
@@ -67,41 +52,34 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFormHandler } from '@/composables/useFormHandler'
+import { useUIStore } from '@/stores/ui'
 import authService from '@/services/authService'
 import FormField from '@/components/ui/FormField.vue'
-import ModalComponent from '@/components/ui/ModalComponent.vue'
-import LottiePlayer from '@/components/ui/LottiePlayer.vue'
 
 const router = useRouter()
+const uiStore = useUIStore()
 
-// ── Modal configuration ─────────────────────────────────────────────────────────
-const showModal = ref(false)
-const modalMessage = ref('')
-const modalTitle = ref('')
-const animationPath = ref('')
-const showLoginButton = ref(false)
-
-const ANIMATIONS = {
-  success: '/animations/burro.json',
-  error: '/animations/quetzal.json',
-}
-
-// Callback para mostrar errores en el modal
+// Función para mostrar errores usando el store centralizado
 function showError(msg) {
-  modalMessage.value = msg
-  modalTitle.value = 'Error'
-  animationPath.value = ANIMATIONS.error
-  showLoginButton.value = false
-  showModal.value = true
+  uiStore.showModal(
+    msg, 
+    'Error', 
+    '/animations/quetzal.json'
+  )
 }
 
-// Función para mostrar mensaje de éxito
+// Función para mostrar mensaje de éxito con botón de acción
 function showSuccess(msg) {
-  modalMessage.value = msg
-  modalTitle.value = 'Revisa tu correo'
-  animationPath.value = ANIMATIONS.success
-  showLoginButton.value = true
-  showModal.value = true
+  uiStore.showModal(
+    msg, 
+    'Revisa tu correo', 
+    '/animations/burro.json',
+    {
+      showActionButton: true,
+      buttonText: 'Ir a iniciar sesión',
+      onConfirm: () => router.push({ name: 'Login' })
+    }
+  )
 }
 
 // ── Form handler ──────────────────────────────────────────────────────────────
@@ -124,12 +102,6 @@ async function onSubmit() {
     // Limpiar el formulario
     form.value.email = ''
   })
-}
-
-// ── Navigation ──────────────────────────────────────────────────────────────
-const goToLogin = () => {
-  showModal.value = false
-  router.push({ name: 'Login' })
 }
 </script>
 

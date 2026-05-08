@@ -53,22 +53,6 @@
         </RouterLink>
       </p>
     </div>
-
-    <!-- Modal de éxito/error -->
-    <ModalComponent
-      v-model="showModal"
-      :title="modalTitle"
-      :subtitle="modalMessage"
-    >
-      <template #lottie>
-        <LottiePlayer :path="animationPath" />
-      </template>
-      <template #actions v-if="showLoginButton">
-        <button class="form-btn-primary mt-4" @click="goToLogin">
-          Ir a iniciar sesión
-        </button>
-      </template>
-    </ModalComponent>
   </div>
 </template>
 
@@ -76,46 +60,39 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useFormHandler } from '@/composables/useFormHandler'
+import { useUIStore } from '@/stores/ui'
 import authService from '@/services/authService'
 import FormField from '@/components/ui/FormField.vue'
-import ModalComponent from '@/components/ui/ModalComponent.vue'
-import LottiePlayer from '@/components/ui/LottiePlayer.vue'
 
 const router = useRouter()
 const route = useRoute()
+const uiStore = useUIStore()
 
 // Obtener parámetros de la URL
 const uidb64 = route.params.uidb64
 const token = route.params.token
 
-// ── Modal configuration ─────────────────────────────────────────────────────────
-const showModal = ref(false)
-const modalMessage = ref('')
-const modalTitle = ref('')
-const animationPath = ref('')
-const showLoginButton = ref(false)
-
-const ANIMATIONS = {
-  success: '/animations/burro.json',
-  error: '/animations/quetzal.json',
-}
-
-// Callback para mostrar errores en el modal
+// Función para mostrar errores usando el store centralizado
 function showError(msg) {
-  modalMessage.value = msg
-  modalTitle.value = 'Error'
-  animationPath.value = ANIMATIONS.error
-  showLoginButton.value = false
-  showModal.value = true
+  uiStore.showModal(
+    msg, 
+    'Error', 
+    '/animations/quetzal.json'
+  )
 }
 
-// Función para mostrar mensaje de éxito
+// Función para mostrar mensaje de éxito con botón de acción
 function showSuccess(msg) {
-  modalMessage.value = msg
-  modalTitle.value = '¡Contraseña restablecida!'
-  animationPath.value = ANIMATIONS.success
-  showLoginButton.value = true
-  showModal.value = true
+  uiStore.showModal(
+    msg, 
+    '¡Contraseña restablecida!', 
+    '/animations/burro.json',
+    {
+      showActionButton: true,
+      buttonText: 'Ir a iniciar sesión',
+      onConfirm: () => router.push({ name: 'Login' })
+    }
+  )
 }
 
 // ── Form handler ──────────────────────────────────────────────────────────────
@@ -147,12 +124,6 @@ async function onResetPassword() {
     form.value.new_password = ''
     form.value.confirm_new_password = ''
   })
-}
-
-// ── Navigation ──────────────────────────────────────────────────────────────
-const goToLogin = () => {
-  showModal.value = false
-  router.push({ name: 'Login' })
 }
 
 // ── Validación inicial ──────────────────────────────────────────────────────
