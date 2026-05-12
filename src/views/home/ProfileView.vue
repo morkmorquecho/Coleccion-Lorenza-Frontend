@@ -143,9 +143,13 @@ function showConfirm(msg, title = '¿Estás seguro?') {
 const user = computed(() => authStore.user)
 
 const userInitials = computed(() => {
-  if (!user.value?.username) return ''
-  return user.value.username
-    .split(' ')
+  const source = user.value?.username?.trim() || user.value?.email?.trim() || ''
+
+  if (!source) return ''
+
+  return source
+    .split(/[\s@._-]+/)
+    .filter(Boolean)
     .map((n) => n[0])
     .slice(0, 2)
     .join('')
