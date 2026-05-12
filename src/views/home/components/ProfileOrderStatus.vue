@@ -6,42 +6,23 @@
         <h3 class="header-title">Mis pedidos</h3>
         <span class="header-count font-prices">{{ filteredShipments.length }}</span>
       </div>
-
-      <!-- <div class="search-wrapper">
-        <svg
-          class="search-icon"
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.35-4.35" />
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Buscar pedido..."
-          class="search-input"
-        />
-      </div> -->
     </header>
 
-    <!-- Filters -->
-    <nav class="filters-nav">
-      <button
-        v-for="filter in filters"
-        :key="filter.value"
-        class="filter-chip"
-        :class="{ active: activeFilter === filter.value }"
-        @click="handleFilterChange(filter.value)"
-      >
-        {{ filter.label }}
-        <span class="chip-count">{{ getCountByStatus(filter.value) }}</span>
-      </button>
-    </nav>
+    <!-- Filters with horizontal scroll -->
+    <div class="filters-wrapper">
+      <nav class="filters-nav">
+        <button
+          v-for="filter in filters"
+          :key="filter.value"
+          class="filter-chip"
+          :class="{ active: activeFilter === filter.value }"
+          @click="handleFilterChange(filter.value)"
+        >
+          {{ filter.label }}
+          <span class="chip-count">{{ getCountByStatus(filter.value) }}</span>
+        </button>
+      </nav>
+    </div>
 
     <!-- Content wrapper with overlay -->
     <div 
@@ -357,6 +338,83 @@ function handleMessage(shipment) {
   position: relative;
 }
 
+/* Filters wrapper with horizontal scroll */
+.filters-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-bottom: 1.25rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) #ffe4d0;
+}
+
+/* Custom scrollbar styles */
+.filters-wrapper::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filters-wrapper::-webkit-scrollbar-track {
+  background: #ffe4d0;
+  border-radius: 4px;
+}
+
+.filters-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+.filters-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #ea580c;
+}
+
+.filters-nav {
+  display: flex;
+  gap: 0.375rem;
+  padding-bottom: 0.5rem;
+  min-width: min-content;
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid #ffe4d0;
+  border-radius: 999px;
+  background: transparent;
+  color: #9a3412;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-chip:hover {
+  background: #fff7ed;
+  border-color: #fdba74;
+}
+
+.filter-chip.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.chip-count {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 0.0625rem 0.375rem;
+  border-radius: 999px;
+}
+
+.filter-chip.active .chip-count {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 /* Content wrapper - BASE */
 .content-wrapper {
   position: relative;
@@ -424,100 +482,6 @@ function handleMessage(shipment) {
   background: #fff7ed;
   padding: 0.125rem 0.5rem;
   border-radius: 999px;
-}
-
-/* Search */
-.search-wrapper {
-  position: relative;
-}
-
-.search-icon {
-  position: absolute;
-  left: 0.875rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #d1806b;
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.625rem 1rem 0.625rem 2.5rem;
-  font-size: 0.875rem;
-  border: 1px solid #ffe4d0;
-  border-radius: 0.625rem;
-  background: #fffaf7;
-  color: #7c2d12;
-  outline: none;
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
-  box-sizing: border-box;
-}
-
-.search-input::placeholder {
-  color: #d1806b;
-  opacity: 0.7;
-}
-
-.search-input:focus {
-  border-color: #f97316;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
-}
-
-/* Filters */
-.filters-nav {
-  display: flex;
-  gap: 0.375rem;
-  margin-bottom: 1.25rem;
-  overflow-x: auto;
-  padding-bottom: 0.125rem;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.filters-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.filter-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.4375rem 0.875rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  border: 1px solid #ffe4d0;
-  border-radius: 999px;
-  background: transparent;
-  color: #9a3412;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.filter-chip:hover {
-  background: #fff7ed;
-  border-color: #fdba74;
-}
-
-.filter-chip.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
-}
-
-.chip-count {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  background: rgba(0, 0, 0, 0.08);
-  padding: 0.0625rem 0.375rem;
-  border-radius: 999px;
-}
-
-.filter-chip.active .chip-count {
-  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Empty */
@@ -725,9 +689,6 @@ function handleMessage(shipment) {
 @media (max-width: 480px) {
   .orders-container {
     padding: 1.25rem;
-  }
-  .filter-chip-label {
-    display: none;
   }
   .order-card {
     padding: 0.75rem;
