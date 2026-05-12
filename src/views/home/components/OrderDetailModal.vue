@@ -216,23 +216,25 @@
             v-if="shipment && !cancelling"
             class="shrink-0 flex gap-3 px-6 py-4 border-t border-orange-100 bg-orange-50/30"
           >
-            <button
+            <PillButton
               v-if="shipment.order.can_be_cancelled"
+              color="#ef4444"
+              :disabled="cancelling"
+              class="flex-1 justify-center"
               @click="handleCancel"
-              :disabled="cancelling"
-              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <XIcon class="w-4 h-4" />
+              <template #icon><XIcon class="w-4 h-4" /></template>
               Cancelar
-            </button>
-            <button
-              @click="$emit('message', shipment)"
+            </PillButton>
+
+            <PillButton
               :disabled="cancelling"
-              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex-1 justify-center"
+              @click="$emit('message', shipment)"
             >
-              <MessageIcon class="w-4 h-4" />
+              <template #icon><MessageIcon class="w-4 h-4" /></template>
               Mensaje al artista
-            </button>
+            </PillButton>
           </footer>
         </div>
       </div>
@@ -244,6 +246,7 @@
 import { ref, computed, h, type FunctionalComponent } from 'vue'
 import { X, Truck, Clock, Copy, Check, ExternalLink, MessageSquare, Image } from 'lucide-vue-next'
 import { useCurrency } from '@/composables/useCurrency'
+import PillButton from '@/components/ui/PillButton.vue'
 
 const { formatPrice } = useCurrency()
 
