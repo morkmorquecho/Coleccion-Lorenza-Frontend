@@ -101,11 +101,23 @@
 </template>
 
 <script setup>
+import { useCartStore } from '@/stores/cart'
+import {onMounted } from 'vue'
+
+const cart = useCartStore()
+
 const props = defineProps({
   orderId: {
     type: String,
     required: true,
   },
+})
+
+onMounted(() => {
+  // Un pequeño retraso para asegurar que todo se ha renderizado
+  setTimeout(() => {
+    cart.clearCart()
+  }, 100)
 })
 </script>
 

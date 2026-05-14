@@ -219,6 +219,7 @@
             <PillButton
               v-if="shipment.order.can_be_cancelled"
               color="#ef4444"
+              text-color="#79716b"
               :disabled="cancelling"
               class="flex-1 justify-center"
               @click="handleCancel"
@@ -230,6 +231,7 @@
             <PillButton
               :disabled="cancelling"
               class="flex-1 justify-center"
+              text-color="#79716b"
               @click="$emit('message', shipment)"
             >
               <template #icon><MessageIcon class="w-4 h-4" /></template>

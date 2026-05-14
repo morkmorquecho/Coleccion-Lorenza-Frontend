@@ -152,7 +152,6 @@ const handleCheckout = async () => {
 
     const res = await ordersService.checkout(data)
     const clientSecret = res.client_secret
-    cart.clearCart()
     
     const { error, paymentIntent } = await stripeInstance.confirmCardPayment(clientSecret, {
       payment_method: {

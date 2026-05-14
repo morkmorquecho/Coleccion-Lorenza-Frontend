@@ -32,7 +32,7 @@
       <div class="totals">
         <div class="total-row">
           <span>Subtotal</span>
-          <span class="font-prices">{{ subtotal.toFixed(2) }}</span>
+          <span class="font-prices">${{ subtotal.toFixed(2) }}</span>
         </div>
         <div class="total-row" v-if="productDiscount > 0">
           <span>Desc. productos</span>
@@ -58,7 +58,7 @@
         <span>Total</span>
         <div class="grand-amount">
           <small>{{ currencyStore.currency }}</small>
-          <strong>{{ grandTotal.toFixed(2) }}</strong>
+          <strong>${{ grandTotal.toFixed(2) }}</strong>
         </div>
       </div>
 
