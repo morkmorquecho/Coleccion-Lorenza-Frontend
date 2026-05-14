@@ -292,7 +292,7 @@ async function openModal(shipmentId) {
 
 function showConfirm(msg, title = '¿Estás seguro?') {
   return new Promise((resolve) => {
-    uiStore.showModal(msg, title, '/animations/quetzal.json', {
+    uiStore.showModal(msg, title, '/animations/Quetzal.json', {
       showActionButton: true,
       buttonText:       'Confirmar',
       showCancelButton: true,
