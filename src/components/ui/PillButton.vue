@@ -25,6 +25,10 @@ const props = defineProps({
     type: String,
     default: 'var(--color-primary)',
   },
+  textColor: {
+    type: String,
+    default: '#1c1a17',
+  },
 
   /**
    * Tamaño del botón.
@@ -47,6 +51,7 @@ defineEmits(['click'])
 
 const cssVars = computed(() => ({
   '--btn-color': props.color,
+  '--btn-text-color': props.textColor,
 }))
 </script>
 
@@ -59,10 +64,9 @@ const cssVars = computed(() => ({
 
   border: 1.5px solid #c5bfb6;
   background: transparent;
-  color: #1c1a17;
+  color: var(--btn-text-color);
 
   font-weight: 600;
-  letter-spacing: 0.06em;
   font-family: Georgia, 'Times New Roman', Times, serif !important;
   white-space: nowrap;
 
@@ -75,25 +79,22 @@ const cssVars = computed(() => ({
     border-color 0.2s ease,
     color 0.2s ease,
     transform 0.2s ease;
-  
-
 }
-
 /* ── Tamaños ──────────────────────────────────────── */
 .pill-btn--sm {
-  font-size: 11px;
+  font-size: 12px;
   padding: 5px 10px;
   gap: 4px;
 }
 
 .pill-btn--md {
-  font-size: 12px;
+  font-size: 14px;
   padding: 8px 14px;
   gap: 6px;
 }
 
 .pill-btn--lg {
-  font-size: 14px;
+  font-size: 16px;
   padding: 11px 20px;
   gap: 8px;
 }
