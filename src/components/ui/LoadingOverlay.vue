@@ -39,7 +39,7 @@ const props = defineProps({
   // Tiempo mínimo en milisegundos que debe durar la animación
   minDisplayTime: {
     type: Number,
-    default: 2000
+    default: 1700
   },
   // Velocidad de la animación
   speed: {
