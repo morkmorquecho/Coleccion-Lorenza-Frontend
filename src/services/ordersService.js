@@ -54,6 +54,10 @@ const ordersService = {
     return api.get('usd-mxn-rate/')
   },
 
+  updateTrackingNumber(orderPk, data){
+    return api.patch(`shipping-trackings/${orderPk}/update-tracking-number/`, data)
+  },
+
 }
 
 export default ordersService

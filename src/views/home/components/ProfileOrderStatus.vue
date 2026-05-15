@@ -155,6 +155,7 @@
     @cancel="handleCancel"
     @message="handleMessage"
     :cancelling="isCancelling"
+    @refreshed="emit('refreshed')"
   />
 </template>
 
@@ -303,7 +304,7 @@ function showConfirm(msg, title = '¿Estás seguro?') {
   })
 }
 
-const emit = defineEmits(['orderCancelled'])
+const emit = defineEmits(['orderCancelled', 'refreshed'])
 const isCancelling = ref(false)
 
 async function handleCancel(shipment) {

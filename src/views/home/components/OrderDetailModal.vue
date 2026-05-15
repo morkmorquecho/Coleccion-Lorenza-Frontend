@@ -130,8 +130,19 @@
                   </div>
                 </div>
                 <div v-else class="flex items-center gap-2 text-sm text-stone-500">
-                  <ClockIcon class="w-4 h-4 shrink-0" />
-                  <span>En proceso de asignacion</span>
+                  <template v-if="isAdmin && shipment.status === 'pending'">
+                    <button
+                      @click="openModal"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                    >
+                      <TruckIcon class="w-3.5 h-3.5" />
+                      Asignar seguimiento
+                    </button>
+                  </template>
+                  <template v-else>
+                    <ClockIcon class="w-4 h-4 shrink-0" />
+                    <span>En proceso de asignacion</span>
+                  </template>
                 </div>
               </div>
 
@@ -242,6 +253,13 @@
       </div>
     </Transition>
   </Teleport>
+
+  <OrderFormModal
+        v-model="isModalOpen"
+      :initial-value="existingTracking"
+      :loading="isSubmitting"
+      @submit="handleTrackingSubmit"
+  />
 </template>
 
 <script setup lang="ts">
@@ -249,6 +267,10 @@ import { ref, computed, h, type FunctionalComponent } from 'vue'
 import { X, Truck, Clock, Copy, Check, ExternalLink, MessageSquare, Image } from 'lucide-vue-next'
 import { useCurrency } from '@/composables/useCurrency'
 import PillButton from '@/components/ui/PillButton.vue'
+import OrderFormModal from './OrderFormModal.vue'
+import { useAuthStore } from '@/stores/auth'
+import ordersService from '@/services/ordersService'
+
 
 const { formatPrice } = useCurrency()
 
@@ -269,7 +291,38 @@ interface Order {
   items: OrderItem[]
 }
 
+const {isAdmin} = useAuthStore()
+  const isModalOpen = ref(false)
+  const isSubmitting = ref(false)
+  const existingTracking = ref('')
+  
+  function openModal() {
+    isModalOpen.value = true
+  }
+  
+  async function handleTrackingSubmit(trackingNumber: string) {    
+    if (!props.shipment) return
+  
+    isSubmitting.value = true
+    const payload = {
+      "tracking_number":trackingNumber
+    }
+    try {
+      // Aquí haces tu llamada API
+      await ordersService.updateTrackingNumber(props.shipment.id, payload)
+      close()
+      emit('refreshed')  
+      // Cerrar modal después de éxito
+      isModalOpen.value = false
+    } catch (error) {
+      console.error('Error al guardar:', error)
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
 interface Shipment {
+  id: number,
   status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled'
   carrier: string
   tracking_number?: string
@@ -291,6 +344,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   cancel: [shipment: Shipment]
   message: [shipment: Shipment]
+  refreshed: []
 }>()
 
 const copied = ref(false)
