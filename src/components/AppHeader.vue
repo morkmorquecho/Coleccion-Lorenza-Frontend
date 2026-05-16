@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import CartDrawer from './cart/CartDrawer.vue'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
+import EtsyBadge from './ui/EtsyBadge.vue'
 
 const cart = useCartStore()
 const currencyStore = useCurrencyStore()
@@ -284,6 +285,8 @@ onUnmounted(() => {
         <button @click="toggleCurrency" class="action-btn currency-btn" aria-label="Cambiar moneda">
           <span>{{ currencyStore.currency }}</span>
         </button>
+
+        <EtsyBadge />
 
         <button @click="cart.openCart" class="action-btn cart-btn" aria-label="Carrito">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

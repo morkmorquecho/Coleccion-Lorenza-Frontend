@@ -49,12 +49,12 @@
       <CollectionsGrid :items="collections" />
     </div>
 
-    <!-- <BlogCard
+     <!-- <BlogCard
       image="/img/alebrijes/img-1.jpg"
       section="Día de Muertos"
       title="El arte popular es la raíz de la identidad cultural"
       excerpt="Cuando el arte y la tradición se fusionan, nace algo que trasciende generaciones..."
-    /> -->
+    />  -->
 
   <div
     data-aos="fade-down"
@@ -77,11 +77,11 @@ import HomeVerticalCarousel from './components/HomeVerticalCarousel.vue'
 import HomePhrase from './components/HomePhrase.vue'
 import HomeDiscoverButton from './components/HomeDiscoverButton.vue'
 import HomeFeaturedPieces from './components/HomeFeaturedPieces.vue'
-
 import AppFooter from '@/components/AppFooter.vue'
 import CollectionsGrid from '@/components/collection/CollectionsGrid.vue'
 import HomeBlogPreview from './components/HomeBlogPreview.vue'
 
+import BlogCard from '@/components/blog/BlogCard.vue'
 const collections = ref([])
 
 onMounted(async () => {
